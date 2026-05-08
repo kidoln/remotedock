@@ -43,6 +43,7 @@ final class RemoteDockClientStore: ObservableObject {
         settings.iconGridCount = Self.loadIconGridCount()
         settings.clipboardFontSize = Self.loadClipboardFontSize()
         settings.movePastedClipboardItemToTop = Self.loadMovePastedClipboardItemToTop()
+        settings.moveActivatedRunningAppToTop = Self.loadMoveActivatedRunningAppToTop()
 
         dock.apps = MockBootstrap.pinnedApps
         runningApps.apps = MockBootstrap.runningApps
@@ -145,6 +146,8 @@ final class RemoteDockClientStore: ObservableObject {
     }
 
     func activate(_ app: RunningApp) {
+        markRunningAppAsActivated(app)
+
         Task { [weak self] in
             guard let self else { return }
             let transport = await self.ensureTransport()
@@ -152,7 +155,6 @@ final class RemoteDockClientStore: ObservableObject {
             try? await Self.performTransportOperation {
                 try await dispatcher.activate(app)
             }
-            runningApps.lastActivatedAppId = app.id
         }
     }
 
@@ -286,6 +288,11 @@ final class RemoteDockClientStore: ObservableObject {
         UserDefaults.standard.set(value, forKey: Self.movePastedClipboardItemToTopDefaultsKey)
     }
 
+    func updateMoveActivatedRunningAppToTop(_ value: Bool) {
+        settings.moveActivatedRunningAppToTop = value
+        UserDefaults.standard.set(value, forKey: Self.moveActivatedRunningAppToTopDefaultsKey)
+    }
+
     func clearLocalClipboardHistory() {
         clipboard.items.removeAll()
         clipboard.searchText = ""
@@ -322,7 +329,7 @@ final class RemoteDockClientStore: ObservableObject {
             dock.apps = payload.apps
             requestMissingIcons(for: payload.apps.compactMap(\.iconAssetHash))
         case let .runningAppsSnapshot(payload):
-            runningApps.apps = payload.apps
+            applyRunningAppsSnapshot(payload.apps)
             requestMissingIcons(for: payload.apps.compactMap(\.iconAssetHash))
         case let .clipboardSnapshot(payload):
             clipboard.items = payload.items
@@ -376,6 +383,29 @@ final class RemoteDockClientStore: ObservableObject {
         }
     }
 
+    private func applyRunningAppsSnapshot(_ apps: [RunningApp]) {
+        guard !settings.moveActivatedRunningAppToTop else {
+            runningApps.apps = apps
+            return
+        }
+
+        guard !runningApps.apps.isEmpty else {
+            runningApps.apps = apps
+            return
+        }
+
+        var incomingAppsById: [String: RunningApp] = [:]
+        for app in apps where incomingAppsById[app.id] == nil {
+            incomingAppsById[app.id] = app
+        }
+
+        let existingAppIds = Set(runningApps.apps.map(\.id))
+        let orderedExistingApps = runningApps.apps.compactMap { incomingAppsById[$0.id] }
+        let newApps = apps.filter { !existingAppIds.contains($0.id) }
+
+        runningApps.apps = orderedExistingApps + newApps
+    }
+
     private func markClipboardItemAsPasted(_ item: ClipboardItem) {
         clipboard.lastPastedItemId = item.id
 
@@ -387,6 +417,19 @@ final class RemoteDockClientStore: ObservableObject {
 
         let pastedItem = clipboard.items.remove(at: index)
         clipboard.items.insert(pastedItem, at: clipboard.items.startIndex)
+    }
+
+    private func markRunningAppAsActivated(_ app: RunningApp) {
+        runningApps.lastActivatedAppId = app.id
+
+        guard settings.moveActivatedRunningAppToTop,
+              let index = runningApps.apps.firstIndex(where: { $0.id == app.id }),
+              index != runningApps.apps.startIndex else {
+            return
+        }
+
+        let activatedApp = runningApps.apps.remove(at: index)
+        runningApps.apps.insert(activatedApp, at: runningApps.apps.startIndex)
     }
 
     private func requestMissingIcons(from payload: IconManifestPayload) {
@@ -562,6 +605,7 @@ final class RemoteDockClientStore: ObservableObject {
     private static let iconGridCountDefaultsKey = "remoteDock.iOS.iconGridCount"
     private static let clipboardFontSizeDefaultsKey = "remoteDock.iOS.clipboardFontSize"
     private static let movePastedClipboardItemToTopDefaultsKey = "remoteDock.iOS.movePastedClipboardItemToTop"
+    private static let moveActivatedRunningAppToTopDefaultsKey = "remoteDock.iOS.moveActivatedRunningAppToTop"
 
     private static func savePairingCode(_ pairingCode: String) {
         UserDefaults.standard.set(pairingCode, forKey: savedPairingCodeDefaultsKey)
@@ -583,5 +627,13 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         return UserDefaults.standard.bool(forKey: movePastedClipboardItemToTopDefaultsKey)
+    }
+
+    private static func loadMoveActivatedRunningAppToTop() -> Bool {
+        guard UserDefaults.standard.object(forKey: moveActivatedRunningAppToTopDefaultsKey) != nil else {
+            return true
+        }
+
+        return UserDefaults.standard.bool(forKey: moveActivatedRunningAppToTopDefaultsKey)
     }
 }

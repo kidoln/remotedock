@@ -56,6 +56,12 @@ struct SettingsView: View {
                         }
                     }
 
+                    Section("应用控制") {
+                        Toggle("点击后移到第一位", isOn: moveActivatedRunningAppToTopBinding)
+                            .tint(Color(uiColor: .systemGreen))
+                            .listRowBackground(PhoneTheme.rowBackground)
+                    }
+
                     Section("剪贴板") {
                         HStack(spacing: 12) {
                             Text("清除剪贴板历史")
@@ -128,6 +134,14 @@ struct SettingsView: View {
             appModel.settings.movePastedClipboardItemToTop
         } set: { value in
             appModel.updateMovePastedClipboardItemToTop(value)
+        }
+    }
+
+    private var moveActivatedRunningAppToTopBinding: Binding<Bool> {
+        Binding {
+            appModel.settings.moveActivatedRunningAppToTop
+        } set: { value in
+            appModel.updateMoveActivatedRunningAppToTop(value)
         }
     }
 

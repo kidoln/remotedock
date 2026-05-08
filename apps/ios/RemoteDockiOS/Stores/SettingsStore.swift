@@ -47,6 +47,7 @@ struct SettingsStore: Equatable {
     var pairingCodeInput = ""
     var savedPairingCode: String?
     var movePastedClipboardItemToTop = true
+    var moveActivatedRunningAppToTop = true
     var iconGridCount: PhoneIconGridCount = .four
     var clipboardFontSize: PhoneClipboardFontSize = .small
 }
