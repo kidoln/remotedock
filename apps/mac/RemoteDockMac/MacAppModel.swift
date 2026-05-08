@@ -265,6 +265,8 @@ final class MacAppModel: ObservableObject {
         case let .pairRequest(payload):
             await approvePairing(payload)
         case let .activateAppCommand(payload):
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            try? await Task.sleep(nanoseconds: 50_000_000)
             let result = await commandExecutor.handleActivateAppCommand(payload)
             await snapshotPublisher.publishCommandResult(result, through: peerSessionManager)
         case let .pasteClipboardItemCommand(payload):

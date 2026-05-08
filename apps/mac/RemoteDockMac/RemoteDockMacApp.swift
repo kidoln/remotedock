@@ -1,8 +1,17 @@
 import AppKit
 import SwiftUI
 
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidBecomeActive(_ notification: Notification) {
+    }
+
+    func applicationDidResignActive(_ notification: Notification) {
+    }
+}
+
 @main
 struct RemoteDockMacApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appModel: MacAppModel
     @StateObject private var statusItemController: StatusItemController
     private let clipboardHistoryPanelController: ClipboardHistoryPanelController

@@ -80,6 +80,7 @@ final class MacCommandExecutor {
         }
 
         let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
         try await NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: appPath), configuration: configuration)
     }
 
