@@ -59,7 +59,7 @@ final class MacAppModel: ObservableObject {
             for await _ in TimerSequence(interval: .seconds(2)) {
                 await peerSessionManager.refreshState()
                 await MainActor.run {
-                    self.refresh()
+                    self.refresh(publishingRunningAppsChanges: true)
                 }
             }
         }
@@ -82,13 +82,19 @@ final class MacAppModel: ObservableObject {
         }
     }
 
-    func refresh() {
+    func refresh(publishingRunningAppsChanges: Bool = false) {
+        let previousVisibleRunningApps = visibleRunningApps
+
         permissionStatus = permissionCenter.currentStatus()
         connectionState = peerSessionManager.currentState
         pinnedApps = pinnedAppsService.loadPinnedApps()
         runningApps = runningAppsService.currentRunningApps()
         hiddenRunningAppBundleIds = runningAppsVisibilityService.loadHiddenBundleIds()
         clipboardItems = clipboardHistoryService.currentItems
+
+        if publishingRunningAppsChanges, visibleRunningApps != previousVisibleRunningApps {
+            publishRunningAppsSnapshot()
+        }
     }
 
     func refreshCatalogApps() {
