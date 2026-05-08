@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 import RemoteDockCore
 import SwiftUI
 
@@ -163,7 +164,7 @@ struct SettingsView: View {
                 }
                 .buttonStyle(SettingsToolbarButtonStyle())
                 .help("刷新")
-            case .privacy, .about:
+            case .clipboardHistory, .privacy, .about:
                 EmptyView()
             }
         }
@@ -182,6 +183,8 @@ struct SettingsView: View {
             })
         case .runningApps:
             RunningAppsPane()
+        case .clipboardHistory:
+            ClipboardHistorySettingsPane()
         case .privacy:
             PrivacySettingsPane()
         case .about:
@@ -193,6 +196,7 @@ struct SettingsView: View {
 private enum SettingsPane: String, CaseIterable, Identifiable {
     case pinnedApps
     case runningApps
+    case clipboardHistory
     case privacy
     case about
 
@@ -204,6 +208,8 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
             "常用应用"
         case .runningApps:
             "运行应用"
+        case .clipboardHistory:
+            "剪贴板"
         case .privacy:
             "隐私"
         case .about:
@@ -217,10 +223,264 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
             "square.grid.2x2"
         case .runningApps:
             "rectangle.stack"
+        case .clipboardHistory:
+            "clipboard"
         case .privacy:
             "hand.raised"
         case .about:
             "info.circle"
+        }
+    }
+}
+
+private struct ClipboardHistorySettingsPane: View {
+    @EnvironmentObject private var appModel: MacAppModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("历史保留数量")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(SettingsPalette.primaryText)
+                        Text("最多保留 \(ClipboardHistorySettings.maxAllowedItems) 条文本记录")
+                            .font(.system(size: 12))
+                            .foregroundStyle(SettingsPalette.mutedText)
+                    }
+
+                    Spacer()
+
+                    Stepper(
+                        value: Binding(
+                            get: { appModel.clipboardHistorySettings.maxItems },
+                            set: { appModel.updateClipboardHistoryMaxItems($0) }
+                        ),
+                        in: 1...ClipboardHistorySettings.maxAllowedItems
+                    ) {
+                        Text("\(appModel.clipboardHistorySettings.maxItems)")
+                            .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(SettingsPalette.primaryText)
+                            .frame(width: 44, alignment: .trailing)
+                    }
+                }
+
+                HStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("快速打开")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(SettingsPalette.primaryText)
+                        Text(shortcutStatusText)
+                            .font(.system(size: 12))
+                            .foregroundStyle(appModel.clipboardHistoryShortcutIsRegistered ? SettingsPalette.mutedText : .orange)
+                    }
+
+                    Spacer()
+
+                    ShortcutRecorderButton()
+                }
+            }
+            .padding(18)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(SettingsPalette.panel)
+            }
+
+            HStack {
+                Text("当前历史")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(SettingsPalette.primaryText)
+
+                Text("\(appModel.clipboardItems.count) 条")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(SettingsPalette.mutedText)
+
+                Spacer()
+
+                Button(role: .destructive) {
+                    appModel.clearClipboardHistory()
+                } label: {
+                    Label("清空", systemImage: "trash")
+                }
+                .buttonStyle(.bordered)
+                .disabled(appModel.clipboardItems.isEmpty)
+            }
+
+            if let errorMessage = appModel.clipboardHistoryPanelErrorMessage {
+                Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.orange)
+            }
+
+            ClipboardHistorySettingsList(items: appModel.clipboardItems)
+        }
+        .padding(28)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(SettingsPalette.content)
+    }
+
+    private var shortcutStatusText: String {
+        if appModel.clipboardHistoryShortcutIsRegistered {
+            return "按下快捷键可从任意位置打开剪贴板历史窗口"
+        }
+        return "快捷键未生效，请更换组合键"
+    }
+}
+
+private struct ShortcutRecorderButton: View {
+    @EnvironmentObject private var appModel: MacAppModel
+    @StateObject private var recorder = ShortcutRecorderState()
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Button {
+                recorder.begin { shortcut in
+                    appModel.updateClipboardHistoryShortcut(shortcut)
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: recorder.isRecording ? "record.circle" : "keyboard")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text(recorder.isRecording ? "按下新的快捷键" : appModel.clipboardHistorySettings.shortcut.displayText)
+                        .font(.system(size: 13, weight: .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
+                }
+                .frame(minWidth: 188, minHeight: 30)
+            }
+            .buttonStyle(.bordered)
+            .help("录制全局快捷键")
+
+            Button {
+                appModel.updateClipboardHistoryShortcut(.default)
+            } label: {
+                Image(systemName: "arrow.counterclockwise")
+            }
+            .buttonStyle(SettingsToolbarButtonStyle())
+            .help("恢复默认快捷键")
+            .disabled(recorder.isRecording)
+        }
+        .onDisappear {
+            recorder.stop()
+        }
+    }
+}
+
+@MainActor
+private final class ShortcutRecorderState: ObservableObject {
+    @Published var isRecording = false
+    private var monitor: Any?
+
+    func begin(onCapture: @escaping @MainActor (ClipboardHistoryShortcut) -> Void) {
+        stop()
+        isRecording = true
+
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self else {
+                return event
+            }
+
+            if Int(event.keyCode) == kVK_Escape {
+                Task { @MainActor in
+                    self.stop()
+                }
+                return nil
+            }
+
+            guard let shortcut = ClipboardHistoryShortcut.fromEvent(event) else {
+                return nil
+            }
+
+            Task { @MainActor in
+                onCapture(shortcut)
+                self.stop()
+            }
+            return nil
+        }
+    }
+
+    func stop() {
+        if let monitor {
+            NSEvent.removeMonitor(monitor)
+            self.monitor = nil
+        }
+        isRecording = false
+    }
+}
+
+private struct ClipboardHistorySettingsList: View {
+    var items: [ClipboardItem]
+
+    var body: some View {
+        Group {
+            if items.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "clipboard")
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundStyle(SettingsPalette.mutedText)
+                    Text("还没有剪贴板历史")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(SettingsPalette.secondaryText)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 4) {
+                        ForEach(items) { item in
+                            ClipboardHistorySettingsRow(item: item)
+                        }
+                    }
+                    .padding(8)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(SettingsPalette.panel)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(SettingsPalette.border, lineWidth: 1)
+        }
+    }
+}
+
+private struct ClipboardHistorySettingsRow: View {
+    var item: ClipboardItem
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(item.plainText)
+                    .font(.system(size: 13))
+                    .foregroundStyle(SettingsPalette.primaryText)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+
+                Text(item.sourceAppBundleId ?? "未知来源")
+                    .font(.system(size: 11))
+                    .foregroundStyle(SettingsPalette.mutedText)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(item.createdAt, style: .time)
+                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .foregroundStyle(SettingsPalette.secondaryText)
+                Text(item.createdAt, style: .date)
+                    .font(.system(size: 11))
+                    .foregroundStyle(SettingsPalette.mutedText)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+        .background {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.white.opacity(0.035))
         }
     }
 }

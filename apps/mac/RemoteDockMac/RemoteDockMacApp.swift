@@ -5,11 +5,13 @@ import SwiftUI
 struct RemoteDockMacApp: App {
     @StateObject private var appModel: MacAppModel
     @StateObject private var statusItemController: StatusItemController
+    private let clipboardHistoryPanelController: ClipboardHistoryPanelController
 
     init() {
         let appModel = MacAppModel()
         _appModel = StateObject(wrappedValue: appModel)
         _statusItemController = StateObject(wrappedValue: StatusItemController(appModel: appModel))
+        clipboardHistoryPanelController = ClipboardHistoryPanelController(appModel: appModel)
     }
 
     var body: some Scene {

@@ -4,8 +4,10 @@ import RemoteDockCore
 
 @MainActor
 final class ClipboardHistoryService {
+    private let storageKey = "remoteDock.clipboardHistory.items.v1"
     private let pasteboard: NSPasteboard
-    private let policy: ClipboardHistoryPolicy
+    private let defaults: UserDefaults
+    private var policy: ClipboardHistoryPolicy
     private var lastChangeCount: Int
     private var items: [ClipboardItem] = []
     private var globalEventMonitors: [Any] = []
@@ -19,11 +21,14 @@ final class ClipboardHistoryService {
 
     init(
         pasteboard: NSPasteboard = .general,
-        policy: ClipboardHistoryPolicy = ClipboardHistoryPolicy()
+        policy: ClipboardHistoryPolicy = ClipboardHistoryPolicy(),
+        defaults: UserDefaults = .standard
     ) {
         self.pasteboard = pasteboard
         self.policy = policy
+        self.defaults = defaults
         self.lastChangeCount = pasteboard.changeCount
+        self.items = loadPersistedItems()
     }
 
     func startMonitoring() -> AsyncStream<ClipboardItem> {
@@ -54,11 +59,61 @@ final class ClipboardHistoryService {
         }
 
         items = ClipboardHistoryReducer.inserting(item, into: items, policy: policy)
+        saveItems()
         return item
+    }
+
+    @discardableResult
+    func promote(_ item: ClipboardItem) -> ClipboardItem {
+        var promotedItem = item
+        promotedItem.createdAt = Date()
+        items = ClipboardHistoryReducer.inserting(promotedItem, into: items, policy: policy)
+        saveItems()
+        return promotedItem
+    }
+
+    func updateMaxItems(_ maxItems: Int) {
+        policy.maxItems = max(maxItems, 0)
+        items = normalizedHistory(items)
+        saveItems()
     }
 
     func clear() {
         items.removeAll()
+        saveItems()
+    }
+
+    private func loadPersistedItems() -> [ClipboardItem] {
+        guard let data = defaults.data(forKey: storageKey),
+              let decodedItems = try? JSONDecoder().decode([ClipboardItem].self, from: data) else {
+            return []
+        }
+
+        return normalizedHistory(decodedItems)
+    }
+
+    private func saveItems() {
+        guard let data = try? JSONEncoder().encode(items) else {
+            return
+        }
+        defaults.set(data, forKey: storageKey)
+    }
+
+    private func normalizedHistory(_ history: [ClipboardItem]) -> [ClipboardItem] {
+        var seenHashes = Set<String>()
+        let sortedItems = history
+            .filter { !$0.plainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .sorted { $0.createdAt > $1.createdAt }
+
+        let uniqueItems = sortedItems.filter { item in
+            guard !seenHashes.contains(item.contentHash) else {
+                return false
+            }
+            seenHashes.insert(item.contentHash)
+            return true
+        }
+
+        return Array(uniqueItems.prefix(max(policy.maxItems, 0)))
     }
 
     private func installTriggerMonitors(continuation: AsyncStream<ClipboardItem>.Continuation) {
