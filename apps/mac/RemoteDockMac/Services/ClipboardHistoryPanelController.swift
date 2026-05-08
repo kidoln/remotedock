@@ -113,7 +113,10 @@ final class ClipboardHistoryPanelController {
             }
 
             do {
-                try await self.commandExecutor.pasteIntoFrontmostApp(promotedItem.plainText)
+                try await self.commandExecutor.pasteIntoFrontmostApp(
+                    plainText: promotedItem.plainText,
+                    richRepresentations: promotedItem.richRepresentations
+                )
             } catch {
                 self.appModel.reportClipboardHistoryPanelError(Self.pasteErrorMessage(for: error))
             }

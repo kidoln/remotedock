@@ -57,10 +57,83 @@ public enum ClipboardContentType: String, Codable, Equatable, Sendable {
     case text
 }
 
+public struct ClipboardRepresentationKind: RawRepresentable, Codable, Equatable, Hashable, Sendable {
+    public static let rtf = ClipboardRepresentationKind(rawValue: "rtf")
+    public static let rtfd = ClipboardRepresentationKind(rawValue: "rtfd")
+    public static let html = ClipboardRepresentationKind(rawValue: "html")
+
+    public var rawValue: String
+
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+
+    public init(pasteboardTypeIdentifier: String) {
+        self.init(rawValue: Self.normalizedRawValue(for: pasteboardTypeIdentifier))
+    }
+
+    private static func normalizedRawValue(for identifier: String) -> String {
+        switch identifier.lowercased() {
+        case "rtf",
+             "public.rtf",
+             "nsrtfpboardtype",
+             "next rich text format v1.0 pasteboard type":
+            "rtf"
+        case "rtfd",
+             "com.apple.flat-rtfd",
+             "com.apple.rtfd",
+             "nsrtfdpboardtype":
+            "rtfd"
+        case "html",
+             "public.html",
+             "nshtmlpboardtype",
+             "apple html pasteboard type":
+            "html"
+        default:
+            identifier
+        }
+    }
+
+    public var pasteboardTypeIdentifier: String {
+        switch self {
+        case .rtf:
+            "public.rtf"
+        case .rtfd:
+            "com.apple.flat-rtfd"
+        case .html:
+            "public.html"
+        default:
+            rawValue
+        }
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let identifier = try container.decode(String.self)
+        self.init(rawValue: Self.normalizedRawValue(for: identifier))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+public struct ClipboardRepresentation: Codable, Equatable, Sendable {
+    public var kind: ClipboardRepresentationKind
+    public var data: Data
+
+    public init(kind: ClipboardRepresentationKind, data: Data) {
+        self.kind = kind
+        self.data = data
+    }
+}
+
 public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
     public var id: String
     public var contentType: ClipboardContentType
     public var plainText: String
+    public var richRepresentations: [ClipboardRepresentation]
     public var sourceAppBundleId: String?
     public var createdAt: Date
     public var contentHash: String
@@ -69,6 +142,7 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
         id: String,
         contentType: ClipboardContentType = .text,
         plainText: String,
+        richRepresentations: [ClipboardRepresentation] = [],
         sourceAppBundleId: String? = nil,
         createdAt: Date,
         contentHash: String
@@ -76,9 +150,34 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
         self.id = id
         self.contentType = contentType
         self.plainText = plainText
+        self.richRepresentations = richRepresentations
         self.sourceAppBundleId = sourceAppBundleId
         self.createdAt = createdAt
         self.contentHash = contentHash
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case contentType
+        case plainText
+        case richRepresentations
+        case sourceAppBundleId
+        case createdAt
+        case contentHash
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        contentType = try container.decode(ClipboardContentType.self, forKey: .contentType)
+        plainText = try container.decode(String.self, forKey: .plainText)
+        richRepresentations = try container.decodeIfPresent(
+            [ClipboardRepresentation].self,
+            forKey: .richRepresentations
+        ) ?? []
+        sourceAppBundleId = try container.decodeIfPresent(String.self, forKey: .sourceAppBundleId)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        contentHash = try container.decode(String.self, forKey: .contentHash)
     }
 }
 

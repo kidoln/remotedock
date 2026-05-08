@@ -152,12 +152,40 @@ public struct PasteClipboardItemCommandPayload: Codable, Equatable, Sendable {
     public var issuedAt: Date
     public var clipboardItemId: String
     public var plainText: String
+    public var richRepresentations: [ClipboardRepresentation]
 
-    public init(commandId: String, issuedAt: Date, clipboardItemId: String, plainText: String) {
+    public init(
+        commandId: String,
+        issuedAt: Date,
+        clipboardItemId: String,
+        plainText: String,
+        richRepresentations: [ClipboardRepresentation] = []
+    ) {
         self.commandId = commandId
         self.issuedAt = issuedAt
         self.clipboardItemId = clipboardItemId
         self.plainText = plainText
+        self.richRepresentations = richRepresentations
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case commandId
+        case issuedAt
+        case clipboardItemId
+        case plainText
+        case richRepresentations
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        commandId = try container.decode(String.self, forKey: .commandId)
+        issuedAt = try container.decode(Date.self, forKey: .issuedAt)
+        clipboardItemId = try container.decode(String.self, forKey: .clipboardItemId)
+        plainText = try container.decode(String.self, forKey: .plainText)
+        richRepresentations = try container.decodeIfPresent(
+            [ClipboardRepresentation].self,
+            forKey: .richRepresentations
+        ) ?? []
     }
 }
 

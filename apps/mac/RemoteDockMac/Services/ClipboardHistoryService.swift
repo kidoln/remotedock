@@ -49,18 +49,31 @@ final class ClipboardHistoryService {
         guard changeCount != lastChangeCount else { return nil }
         lastChangeCount = changeCount
 
+        guard let item = currentClipboardItem() else {
+            return nil
+        }
+
+        insertAndPersist(item)
+        return item
+    }
+
+    private func currentClipboardItem() -> ClipboardItem? {
         guard let text = pasteboard.string(forType: .string),
               let item = ClipboardHistoryReducer.makeItem(
                 text: text,
+                richRepresentations: richRepresentations(from: pasteboard),
                 sourceAppBundleId: NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
                 policy: policy
               ) else {
             return nil
         }
 
+        return item
+    }
+
+    private func insertAndPersist(_ item: ClipboardItem) {
         items = ClipboardHistoryReducer.inserting(item, into: items, policy: policy)
         saveItems()
-        return item
     }
 
     @discardableResult
@@ -114,6 +127,19 @@ final class ClipboardHistoryService {
         }
 
         return Array(uniqueItems.prefix(max(policy.maxItems, 0)))
+    }
+
+    private func richRepresentations(from pasteboard: NSPasteboard) -> [ClipboardRepresentation] {
+        pasteboard.types?.compactMap { pasteboardType in
+            guard Self.shouldPreservePasteboardType(pasteboardType),
+                  let data = pasteboard.data(forType: pasteboardType) else {
+                return nil
+            }
+            return ClipboardRepresentation(
+                kind: ClipboardRepresentationKind(pasteboardTypeIdentifier: pasteboardType.rawValue),
+                data: data
+            )
+        } ?? []
     }
 
     private func installTriggerMonitors(continuation: AsyncStream<ClipboardItem>.Continuation) {
@@ -196,22 +222,55 @@ final class ClipboardHistoryService {
     ) {
         pendingCaptureTask?.cancel()
         pendingCaptureTask = Task { @MainActor [weak self] in
+            let lastObservedChangeCount = self?.lastChangeCount
+            var bestItem: ClipboardItem?
+
             for delay in delays {
                 try? await Task.sleep(for: delay)
                 guard !Task.isCancelled, let self else { return }
+                guard self.pasteboard.changeCount != self.lastChangeCount else {
+                    continue
+                }
 
-                if let item = captureCurrentClipboardIfChanged() {
-                    continuation.yield(item)
-                    return
+                if let item = self.currentClipboardItem(),
+                   Self.shouldPrefer(item, over: bestItem) {
+                    bestItem = item
                 }
             }
+
+            guard !Task.isCancelled,
+                  let self,
+                  let bestItem,
+                  let lastObservedChangeCount,
+                  self.pasteboard.changeCount != lastObservedChangeCount else {
+                return
+            }
+
+            self.lastChangeCount = self.pasteboard.changeCount
+            self.insertAndPersist(bestItem)
+            continuation.yield(bestItem)
         }
     }
 
+    private nonisolated static func shouldPrefer(_ item: ClipboardItem, over existingItem: ClipboardItem?) -> Bool {
+        guard let existingItem else {
+            return true
+        }
+
+        let richByteCount = item.richRepresentations.reduce(0) { $0 + $1.data.count }
+        let existingRichByteCount = existingItem.richRepresentations.reduce(0) { $0 + $1.data.count }
+        if richByteCount != existingRichByteCount {
+            return richByteCount > existingRichByteCount
+        }
+
+        return item.richRepresentations.count > existingItem.richRepresentations.count
+    }
+
     private nonisolated static let shortcutCaptureDelays: [Duration] = [
-        .milliseconds(50),
-        .milliseconds(150),
-        .milliseconds(300)
+        .milliseconds(80),
+        .milliseconds(220),
+        .milliseconds(520),
+        .milliseconds(900)
     ]
 
     private nonisolated static let interactionCaptureDelays: [Duration] = [
@@ -219,6 +278,37 @@ final class ClipboardHistoryService {
         .milliseconds(300),
         .milliseconds(700)
     ]
+
+    private nonisolated static let excludedPreservedPasteboardTypes: Set<String> = [
+        NSPasteboard.PasteboardType.string.rawValue,
+        NSPasteboard.PasteboardType.tabularText.rawValue,
+        NSPasteboard.PasteboardType.font.rawValue,
+        NSPasteboard.PasteboardType.ruler.rawValue,
+        NSPasteboard.PasteboardType.color.rawValue,
+        NSPasteboard.PasteboardType.sound.rawValue,
+        NSPasteboard.PasteboardType.multipleTextSelection.rawValue,
+        "public.utf8-plain-text",
+        "public.utf16-plain-text",
+        "public.text"
+    ]
+
+    private nonisolated static func shouldPreservePasteboardType(_ pasteboardType: NSPasteboard.PasteboardType) -> Bool {
+        let identifier = pasteboardType.rawValue
+        let lowercasedIdentifier = identifier.lowercased()
+
+        guard !excludedPreservedPasteboardTypes.contains(identifier),
+              !lowercasedIdentifier.contains("dyn."),
+              !lowercasedIdentifier.contains("plain-text") else {
+            return false
+        }
+
+        return lowercasedIdentifier.contains("rtf") ||
+            lowercasedIdentifier.contains("html") ||
+            lowercasedIdentifier.contains("webarchive") ||
+            lowercasedIdentifier.contains("microsoft") ||
+            lowercasedIdentifier.contains("office") ||
+            lowercasedIdentifier.contains("word")
+    }
 
     private nonisolated static let pointerUpEventMask: NSEvent.EventTypeMask = [
         .leftMouseUp,

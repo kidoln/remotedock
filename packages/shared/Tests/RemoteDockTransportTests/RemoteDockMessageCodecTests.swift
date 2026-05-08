@@ -35,4 +35,22 @@ final class RemoteDockMessageCodecTests: XCTestCase {
 
         XCTAssertEqual(decoded, message)
     }
+
+    func testEncodesAndDecodesRichClipboardPasteCommand() throws {
+        let payload = PasteClipboardItemCommandPayload(
+            commandId: "paste-1",
+            issuedAt: Date(timeIntervalSince1970: 12),
+            clipboardItemId: "clipboard-1",
+            plainText: "Hello",
+            richRepresentations: [
+                ClipboardRepresentation(kind: .rtf, data: Data("{\\rtf1 Hello}".utf8))
+            ]
+        )
+        let message = RemoteDockMessage.pasteClipboardItemCommand(payload)
+
+        let data = try message.encodedData()
+        let decoded = try RemoteDockMessage.decode(from: data)
+
+        XCTAssertEqual(decoded, message)
+    }
 }

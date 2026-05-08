@@ -43,7 +43,10 @@ final class MacCommandExecutor {
 
         let result: CommandResultPayload
         do {
-            try await pasteIntoFrontmostApp(payload.plainText)
+            try await pasteIntoFrontmostApp(
+                plainText: payload.plainText,
+                richRepresentations: payload.richRepresentations
+            )
             result = CommandResultPayload(
                 commandId: payload.commandId,
                 commandType: .pasteClipboardItem,
@@ -80,12 +83,19 @@ final class MacCommandExecutor {
     }
 
     func pasteIntoFrontmostApp(_ text: String) async throws {
+        try await pasteIntoFrontmostApp(plainText: text)
+    }
+
+    func pasteIntoFrontmostApp(
+        plainText: String,
+        richRepresentations: [ClipboardRepresentation] = []
+    ) async throws {
         guard AXIsProcessTrusted() else {
             throw RemoteDockError.permissionDenied("Accessibility")
         }
 
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
+        writeClipboardContents(plainText: plainText, richRepresentations: richRepresentations)
 
         try await Task.sleep(for: .milliseconds(120))
         guard let source = CGEventSource(stateID: .hidSystemState),
@@ -98,6 +108,36 @@ final class MacCommandExecutor {
         keyUp.flags = .maskCommand
         keyDown.post(tap: .cghidEventTap)
         keyUp.post(tap: .cghidEventTap)
+    }
+
+    private func writeClipboardContents(
+        plainText: String,
+        richRepresentations: [ClipboardRepresentation]
+    ) {
+        let pasteboard = NSPasteboard.general
+        let writableTypes = richRepresentations
+            .map { pasteboardType(for: $0.kind) }
+            .filter { $0 != .string } + [.string]
+        pasteboard.declareTypes(writableTypes, owner: nil)
+
+        for representation in richRepresentations {
+            pasteboard.setData(representation.data, forType: pasteboardType(for: representation.kind))
+        }
+
+        pasteboard.setString(plainText, forType: .string)
+    }
+
+    private func pasteboardType(for kind: ClipboardRepresentationKind) -> NSPasteboard.PasteboardType {
+        switch kind {
+        case .rtf:
+            .rtf
+        case .rtfd:
+            .rtfd
+        case .html:
+            .html
+        default:
+            NSPasteboard.PasteboardType(kind.pasteboardTypeIdentifier)
+        }
     }
 }
 

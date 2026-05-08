@@ -38,4 +38,28 @@ final class ProtocolEnvelopeTests: XCTestCase {
             )
         }
     }
+
+    func testDecodesLegacyPasteCommandWithoutRichRepresentations() throws {
+        let json = """
+        {
+          "type": "pasteClipboardItemCommand",
+          "version": 1,
+          "payload": {
+            "commandId": "paste-1",
+            "issuedAt": "1970-01-01T00:00:12Z",
+            "clipboardItemId": "clipboard-1",
+            "plainText": "legacy"
+          }
+        }
+        """
+
+        let envelope = try RemoteDockProtocolCodec.decode(
+            PasteClipboardItemCommandPayload.self,
+            from: Data(json.utf8),
+            expectedType: .pasteClipboardItemCommand
+        )
+
+        XCTAssertEqual(envelope.payload.plainText, "legacy")
+        XCTAssertEqual(envelope.payload.richRepresentations, [])
+    }
 }

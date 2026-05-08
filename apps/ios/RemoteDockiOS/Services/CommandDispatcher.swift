@@ -30,7 +30,8 @@ struct CommandDispatcher {
             commandId: UUID().uuidString,
             issuedAt: Date(),
             clipboardItemId: item.id,
-            plainText: item.plainText
+            plainText: item.plainText,
+            richRepresentations: item.richRepresentations
         )
         try await transport.send(.pasteClipboardItemCommand(payload))
     }
