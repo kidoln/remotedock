@@ -9,6 +9,8 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var connectionState: TransportConnectionState = .idle
     @Published private(set) var pinnedApps: [PinnedApp] = []
     @Published private(set) var runningApps: [RunningApp] = []
+    @Published private(set) var catalogApps: [CatalogApp] = []
+    @Published private(set) var hiddenRunningAppBundleIds: Set<String> = []
     @Published private(set) var clipboardItems: [ClipboardItem] = []
     @Published private(set) var permissionStatus = PermissionCenter.Status()
     @Published private(set) var pairedDeviceName: String?
@@ -18,6 +20,8 @@ final class MacAppModel: ObservableObject {
     private let peerSessionManager = PeerSessionManager()
     private let pinnedAppsService = PinnedAppsService()
     private let runningAppsService = RunningAppsService()
+    private let appCatalogService = AppCatalogService()
+    private let runningAppsVisibilityService = RunningAppsVisibilityService()
     private let clipboardHistoryService = ClipboardHistoryService()
     private let commandExecutor = MacCommandExecutor()
     private let snapshotPublisher = SnapshotPublisher()
@@ -70,7 +74,12 @@ final class MacAppModel: ObservableObject {
         connectionState = peerSessionManager.currentState
         pinnedApps = pinnedAppsService.loadPinnedApps()
         runningApps = runningAppsService.currentRunningApps()
+        hiddenRunningAppBundleIds = runningAppsVisibilityService.loadHiddenBundleIds()
         clipboardItems = clipboardHistoryService.currentItems
+    }
+
+    func refreshCatalogApps() {
+        catalogApps = appCatalogService.installedApplications()
     }
 
     func openAccessibilitySettings() {
@@ -98,6 +107,13 @@ final class MacAppModel: ObservableObject {
     func removePinnedApp(_ app: PinnedApp) {
         pinnedAppsService.removePinnedApp(id: app.id)
         refresh()
+        publishAppsSnapshot()
+    }
+
+    func addPinnedApp(_ app: CatalogApp) {
+        pinnedAppsService.upsertPinnedApp(app.pinnedApp(sortOrder: pinnedApps.count))
+        refresh()
+        publishAppsSnapshot()
     }
 
     func addFrontmostApplicationToPinnedApps() {
@@ -108,6 +124,17 @@ final class MacAppModel: ObservableObject {
         }
         pinnedAppsService.upsertPinnedApp(activeApp)
         refresh()
+        publishAppsSnapshot()
+    }
+
+    func isRunningAppHidden(_ app: RunningApp) -> Bool {
+        hiddenRunningAppBundleIds.contains(app.bundleIdentifier)
+    }
+
+    func toggleRunningAppVisibility(_ app: RunningApp) {
+        runningAppsVisibilityService.toggle(bundleIdentifier: app.bundleIdentifier)
+        refresh()
+        publishRunningAppsSnapshot()
     }
 
     func clearClipboardHistory() {
@@ -178,9 +205,25 @@ final class MacAppModel: ObservableObject {
 
     private func publishSnapshots() async {
         await snapshotPublisher.publishAppsSnapshot(pinnedApps, through: peerSessionManager)
-        await snapshotPublisher.publishRunningAppsSnapshot(runningApps, through: peerSessionManager)
+        await snapshotPublisher.publishRunningAppsSnapshot(visibleRunningApps, through: peerSessionManager)
         if clipboardSyncEnabled {
             await snapshotPublisher.publishClipboardSnapshot(clipboardItems, through: peerSessionManager)
+        }
+    }
+
+    private var visibleRunningApps: [RunningApp] {
+        runningApps.filter { !hiddenRunningAppBundleIds.contains($0.bundleIdentifier) }
+    }
+
+    private func publishAppsSnapshot() {
+        Task {
+            await snapshotPublisher.publishAppsSnapshot(pinnedApps, through: peerSessionManager)
+        }
+    }
+
+    private func publishRunningAppsSnapshot() {
+        Task {
+            await snapshotPublisher.publishRunningAppsSnapshot(visibleRunningApps, through: peerSessionManager)
         }
     }
 

@@ -6,7 +6,7 @@ struct RunningAppsSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("运行中应用")
+                Text("运行应用")
                     .font(.title2.weight(.semibold))
 
                 Spacer()
@@ -20,9 +20,12 @@ struct RunningAppsSettingsView: View {
 
             List(appModel.runningApps) { app in
                 HStack(spacing: 12) {
-                    Image(systemName: app.isActive ? "largecircle.fill.circle" : "circle")
-                        .foregroundStyle(app.isActive ? .green : .secondary)
-                        .frame(width: 28, height: 28)
+                    MacAppIconView(
+                        bundleIdentifier: app.bundleIdentifier,
+                        appPath: nil,
+                        isActive: app.isActive,
+                        size: 32
+                    )
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(app.displayName)
@@ -34,11 +37,11 @@ struct RunningAppsSettingsView: View {
                     Spacer()
 
                     Button {
-                        appModel.activateRunningApp(app)
+                        appModel.toggleRunningAppVisibility(app)
                     } label: {
-                        Image(systemName: "arrow.up.forward.app")
+                        Image(systemName: appModel.isRunningAppHidden(app) ? "eye.slash.fill" : "eye.fill")
                     }
-                    .help("切换")
+                    .help(appModel.isRunningAppHidden(app) ? "已在手机端隐藏" : "将在手机端显示")
                 }
                 .padding(.vertical, 4)
             }

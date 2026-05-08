@@ -11,18 +11,19 @@ struct PinnedAppsSettingsView: View {
 
                 Spacer()
 
-                Button {
-                    appModel.addFrontmostApplicationToPinnedApps()
-                } label: {
-                    Label("添加前台应用", systemImage: "plus")
-                }
+                Text("请在新版设置页中通过添加菜单选择应用")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             List {
                 ForEach(appModel.pinnedApps) { app in
                     HStack(spacing: 12) {
-                        Image(systemName: "app")
-                            .frame(width: 28, height: 28)
+                        MacAppIconView(
+                            bundleIdentifier: app.bundleIdentifier,
+                            appPath: app.appPath,
+                            size: 32
+                        )
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(app.displayName)

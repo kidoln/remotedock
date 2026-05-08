@@ -4,7 +4,7 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @EnvironmentObject private var appModel: MacAppModel
-    @Environment(\.openSettings) private var openSettings
+    var openSettings: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -34,8 +34,17 @@ struct MenuBarContentView: View {
                     Button {
                         appModel.activatePinnedApp(app)
                     } label: {
-                        Label(app.displayName, systemImage: "app.dashed")
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(spacing: 8) {
+                            MacAppIconView(
+                                bundleIdentifier: app.bundleIdentifier,
+                                appPath: app.appPath,
+                                size: 22
+                            )
+                            Text(app.displayName)
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
                 }

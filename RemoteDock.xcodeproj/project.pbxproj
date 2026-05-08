@@ -16,11 +16,14 @@
 		111111111111111111110007 /* Services/ClipboardHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112007 /* Services/ClipboardHistoryService.swift */; };
 		111111111111111111110008 /* Services/MacCommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112008 /* Services/MacCommandExecutor.swift */; };
 		111111111111111111110009 /* Services/SnapshotPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112009 /* Services/SnapshotPublisher.swift */; };
+		111111111111111111110010 /* Services/AppCatalogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112010 /* Services/AppCatalogService.swift */; };
+		111111111111111111110011 /* Services/RunningAppsVisibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112011 /* Services/RunningAppsVisibilityService.swift */; };
 		11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200A /* Views/MenuBarContentView.swift */; };
 		11111111111111111111000B /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200B /* Views/SettingsView.swift */; };
 		11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */; };
 		11111111111111111111000D /* Views/RunningAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200D /* Views/RunningAppsSettingsView.swift */; };
 		11111111111111111111000E /* Views/PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200E /* Views/PrivacySettingsView.swift */; };
+		11111111111111111111000F /* Views/MacAppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200F /* Views/MacAppIconView.swift */; };
 		111111111111111111110020 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112020 /* AppIcon.icns */; };
 		111111111111111111110021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112021 /* Assets.xcassets */; };
 		111111111111111111110101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
@@ -58,11 +61,14 @@
 		111111111111111111112007 /* Services/ClipboardHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ClipboardHistoryService.swift; sourceTree = "<group>"; };
 		111111111111111111112008 /* Services/MacCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MacCommandExecutor.swift; sourceTree = "<group>"; };
 		111111111111111111112009 /* Services/SnapshotPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SnapshotPublisher.swift; sourceTree = "<group>"; };
+		111111111111111111112010 /* Services/AppCatalogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AppCatalogService.swift; sourceTree = "<group>"; };
+		111111111111111111112011 /* Services/RunningAppsVisibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/RunningAppsVisibilityService.swift; sourceTree = "<group>"; };
 		11111111111111111111200A /* Views/MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MenuBarContentView.swift; sourceTree = "<group>"; };
 		11111111111111111111200B /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PinnedAppsSettingsView.swift; sourceTree = "<group>"; };
 		11111111111111111111200D /* Views/RunningAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RunningAppsSettingsView.swift; sourceTree = "<group>"; };
 		11111111111111111111200E /* Views/PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacySettingsView.swift; sourceTree = "<group>"; };
+		11111111111111111111200F /* Views/MacAppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MacAppIconView.swift; sourceTree = "<group>"; };
 		111111111111111111112020 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Assets/AppIcon.icns; sourceTree = "<group>"; };
 		111111111111111111112021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1111111111111111111120FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -142,11 +148,14 @@
 				111111111111111111112007 /* Services/ClipboardHistoryService.swift */,
 				111111111111111111112008 /* Services/MacCommandExecutor.swift */,
 				111111111111111111112009 /* Services/SnapshotPublisher.swift */,
+				111111111111111111112010 /* Services/AppCatalogService.swift */,
+				111111111111111111112011 /* Services/RunningAppsVisibilityService.swift */,
 				11111111111111111111200A /* Views/MenuBarContentView.swift */,
 				11111111111111111111200B /* Views/SettingsView.swift */,
 				11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */,
 				11111111111111111111200D /* Views/RunningAppsSettingsView.swift */,
 				11111111111111111111200E /* Views/PrivacySettingsView.swift */,
+				11111111111111111111200F /* Views/MacAppIconView.swift */,
 				111111111111111111112020 /* AppIcon.icns */,
 				111111111111111111112021 /* Assets.xcassets */,
 				1111111111111111111120FF /* Info.plist */,
@@ -300,11 +309,14 @@
 				111111111111111111110007 /* Services/ClipboardHistoryService.swift in Sources */,
 				111111111111111111110008 /* Services/MacCommandExecutor.swift in Sources */,
 				111111111111111111110009 /* Services/SnapshotPublisher.swift in Sources */,
+				111111111111111111110010 /* Services/AppCatalogService.swift in Sources */,
+				111111111111111111110011 /* Services/RunningAppsVisibilityService.swift in Sources */,
 				11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */,
 				11111111111111111111000B /* Views/SettingsView.swift in Sources */,
 				11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */,
 				11111111111111111111000D /* Views/RunningAppsSettingsView.swift in Sources */,
 				11111111111111111111000E /* Views/PrivacySettingsView.swift in Sources */,
+				11111111111111111111000F /* Views/MacAppIconView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
