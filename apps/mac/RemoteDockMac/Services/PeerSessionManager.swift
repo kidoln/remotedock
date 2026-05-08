@@ -1,4 +1,5 @@
 import Foundation
+import RemoteDockProtocol
 import RemoteDockTransport
 
 @MainActor
@@ -6,7 +7,14 @@ final class PeerSessionManager: ObservableObject {
     @Published private(set) var currentState: TransportConnectionState = .idle
     @Published private(set) var discoveredPeers: [TransportPeer] = []
 
-    private let session = MockTransportSession()
+    private let session: any TransportSession
+
+    init(session: (any TransportSession)? = nil) {
+        self.session = session ?? MultipeerTransportSession(
+            role: .advertiser,
+            displayName: Host.current().localizedName ?? "Remote Dock Mac"
+        )
+    }
 
     var events: AsyncStream<TransportEvent> {
         get async { await session.events }
@@ -14,6 +22,11 @@ final class PeerSessionManager: ObservableObject {
 
     func start() async {
         await session.startDiscovery()
+        currentState = await session.state
+        discoveredPeers = await session.discoveredPeers
+    }
+
+    func refreshState() async {
         currentState = await session.state
         discoveredPeers = await session.discoveredPeers
     }

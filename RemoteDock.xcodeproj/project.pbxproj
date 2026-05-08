@@ -9,37 +9,37 @@
 /* Begin PBXBuildFile section */
 		111111111111111111110001 /* RemoteDockMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112001 /* RemoteDockMacApp.swift */; };
 		111111111111111111110002 /* MacAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112002 /* MacAppModel.swift */; };
-		111111111111111111110003 /* PermissionCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112003 /* PermissionCenter.swift */; };
-		111111111111111111110004 /* PeerSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112004 /* PeerSessionManager.swift */; };
-		111111111111111111110005 /* PinnedAppsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112005 /* PinnedAppsService.swift */; };
-		111111111111111111110006 /* RunningAppsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112006 /* RunningAppsService.swift */; };
-		111111111111111111110007 /* ClipboardHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112007 /* ClipboardHistoryService.swift */; };
-		111111111111111111110008 /* MacCommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112008 /* MacCommandExecutor.swift */; };
-		111111111111111111110009 /* SnapshotPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112009 /* SnapshotPublisher.swift */; };
-		11111111111111111111000A /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200A /* MenuBarContentView.swift */; };
-		11111111111111111111000B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200B /* SettingsView.swift */; };
-		11111111111111111111000C /* PinnedAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200C /* PinnedAppsSettingsView.swift */; };
-		11111111111111111111000D /* RunningAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200D /* RunningAppsSettingsView.swift */; };
-		11111111111111111111000E /* PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200E /* PrivacySettingsView.swift */; };
+		111111111111111111110003 /* Services/PermissionCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112003 /* Services/PermissionCenter.swift */; };
+		111111111111111111110004 /* Services/PeerSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112004 /* Services/PeerSessionManager.swift */; };
+		111111111111111111110005 /* Services/PinnedAppsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112005 /* Services/PinnedAppsService.swift */; };
+		111111111111111111110006 /* Services/RunningAppsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112006 /* Services/RunningAppsService.swift */; };
+		111111111111111111110007 /* Services/ClipboardHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112007 /* Services/ClipboardHistoryService.swift */; };
+		111111111111111111110008 /* Services/MacCommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112008 /* Services/MacCommandExecutor.swift */; };
+		111111111111111111110009 /* Services/SnapshotPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112009 /* Services/SnapshotPublisher.swift */; };
+		11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200A /* Views/MenuBarContentView.swift */; };
+		11111111111111111111000B /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200B /* Views/SettingsView.swift */; };
+		11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */; };
+		11111111111111111111000D /* Views/RunningAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200D /* Views/RunningAppsSettingsView.swift */; };
+		11111111111111111111000E /* Views/PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200E /* Views/PrivacySettingsView.swift */; };
 		111111111111111111110101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
 		111111111111111111110102 /* RemoteDockProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990002 /* RemoteDockProtocol */; };
 		111111111111111111110103 /* RemoteDockTransport in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990003 /* RemoteDockTransport */; };
 		222222222222222222220001 /* RemoteDockiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222001 /* RemoteDockiOSApp.swift */; };
-		222222222222222222220002 /* RemoteDockClientStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222002 /* RemoteDockClientStore.swift */; };
-		222222222222222222220003 /* DiscoveryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222003 /* DiscoveryStore.swift */; };
-		222222222222222222220004 /* DockStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222004 /* DockStore.swift */; };
-		222222222222222222220005 /* RunningAppsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222005 /* RunningAppsStore.swift */; };
-		222222222222222222220006 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222006 /* ClipboardStore.swift */; };
-		222222222222222222220007 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222007 /* SettingsStore.swift */; };
-		222222222222222222220008 /* CommandDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222008 /* CommandDispatcher.swift */; };
-		222222222222222222220009 /* MockBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222009 /* MockBootstrap.swift */; };
-		22222222222222222222000A /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200A /* RootTabView.swift */; };
-		22222222222222222222000B /* DockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200B /* DockView.swift */; };
-		22222222222222222222000C /* RunningAppsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200C /* RunningAppsView.swift */; };
-		22222222222222222222000D /* ClipboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200D /* ClipboardView.swift */; };
-		22222222222222222222000E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200E /* SettingsView.swift */; };
-		22222222222222222222000F /* ConnectionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200F /* ConnectionBanner.swift */; };
-		222222222222222222220010 /* AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222010 /* AppIconView.swift */; };
+		222222222222222222220002 /* Stores/RemoteDockClientStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222002 /* Stores/RemoteDockClientStore.swift */; };
+		222222222222222222220003 /* Stores/DiscoveryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222003 /* Stores/DiscoveryStore.swift */; };
+		222222222222222222220004 /* Stores/DockStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222004 /* Stores/DockStore.swift */; };
+		222222222222222222220005 /* Stores/RunningAppsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222005 /* Stores/RunningAppsStore.swift */; };
+		222222222222222222220006 /* Stores/ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222006 /* Stores/ClipboardStore.swift */; };
+		222222222222222222220007 /* Stores/SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222007 /* Stores/SettingsStore.swift */; };
+		222222222222222222220008 /* Services/CommandDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222008 /* Services/CommandDispatcher.swift */; };
+		222222222222222222220009 /* Services/MockBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222009 /* Services/MockBootstrap.swift */; };
+		22222222222222222222000A /* Views/RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200A /* Views/RootTabView.swift */; };
+		22222222222222222222000B /* Views/DockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200B /* Views/DockView.swift */; };
+		22222222222222222222000C /* Views/RunningAppsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200C /* Views/RunningAppsView.swift */; };
+		22222222222222222222000D /* Views/ClipboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200D /* Views/ClipboardView.swift */; };
+		22222222222222222222000E /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200E /* Views/SettingsView.swift */; };
+		22222222222222222222000F /* Views/ConnectionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200F /* Views/ConnectionBanner.swift */; };
+		222222222222222222220010 /* Views/AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222010 /* Views/AppIconView.swift */; };
 		222222222222222222220101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
 		222222222222222222220102 /* RemoteDockProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990002 /* RemoteDockProtocol */; };
 		222222222222222222220103 /* RemoteDockTransport in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990003 /* RemoteDockTransport */; };
@@ -48,36 +48,36 @@
 /* Begin PBXFileReference section */
 		111111111111111111112001 /* RemoteDockMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDockMacApp.swift; sourceTree = "<group>"; };
 		111111111111111111112002 /* MacAppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppModel.swift; sourceTree = "<group>"; };
-		111111111111111111112003 /* PermissionCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PermissionCenter.swift; sourceTree = "<group>"; };
-		111111111111111111112004 /* PeerSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PeerSessionManager.swift; sourceTree = "<group>"; };
-		111111111111111111112005 /* PinnedAppsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PinnedAppsService.swift; sourceTree = "<group>"; };
-		111111111111111111112006 /* RunningAppsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/RunningAppsService.swift; sourceTree = "<group>"; };
-		111111111111111111112007 /* ClipboardHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ClipboardHistoryService.swift; sourceTree = "<group>"; };
-		111111111111111111112008 /* MacCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MacCommandExecutor.swift; sourceTree = "<group>"; };
-		111111111111111111112009 /* SnapshotPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SnapshotPublisher.swift; sourceTree = "<group>"; };
-		11111111111111111111200A /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MenuBarContentView.swift; sourceTree = "<group>"; };
-		11111111111111111111200B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
-		11111111111111111111200C /* PinnedAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PinnedAppsSettingsView.swift; sourceTree = "<group>"; };
-		11111111111111111111200D /* RunningAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RunningAppsSettingsView.swift; sourceTree = "<group>"; };
-		11111111111111111111200E /* PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacySettingsView.swift; sourceTree = "<group>"; };
+		111111111111111111112003 /* Services/PermissionCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PermissionCenter.swift; sourceTree = "<group>"; };
+		111111111111111111112004 /* Services/PeerSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PeerSessionManager.swift; sourceTree = "<group>"; };
+		111111111111111111112005 /* Services/PinnedAppsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PinnedAppsService.swift; sourceTree = "<group>"; };
+		111111111111111111112006 /* Services/RunningAppsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/RunningAppsService.swift; sourceTree = "<group>"; };
+		111111111111111111112007 /* Services/ClipboardHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ClipboardHistoryService.swift; sourceTree = "<group>"; };
+		111111111111111111112008 /* Services/MacCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MacCommandExecutor.swift; sourceTree = "<group>"; };
+		111111111111111111112009 /* Services/SnapshotPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SnapshotPublisher.swift; sourceTree = "<group>"; };
+		11111111111111111111200A /* Views/MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MenuBarContentView.swift; sourceTree = "<group>"; };
+		11111111111111111111200B /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
+		11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PinnedAppsSettingsView.swift; sourceTree = "<group>"; };
+		11111111111111111111200D /* Views/RunningAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RunningAppsSettingsView.swift; sourceTree = "<group>"; };
+		11111111111111111111200E /* Views/PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacySettingsView.swift; sourceTree = "<group>"; };
 		1111111111111111111120FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		111111111111111111113001 /* RemoteDockMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteDockMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		222222222222222222222001 /* RemoteDockiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDockiOSApp.swift; sourceTree = "<group>"; };
-		222222222222222222222002 /* RemoteDockClientStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/RemoteDockClientStore.swift; sourceTree = "<group>"; };
-		222222222222222222222003 /* DiscoveryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/DiscoveryStore.swift; sourceTree = "<group>"; };
-		222222222222222222222004 /* DockStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/DockStore.swift; sourceTree = "<group>"; };
-		222222222222222222222005 /* RunningAppsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/RunningAppsStore.swift; sourceTree = "<group>"; };
-		222222222222222222222006 /* ClipboardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/ClipboardStore.swift; sourceTree = "<group>"; };
-		222222222222222222222007 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/SettingsStore.swift; sourceTree = "<group>"; };
-		222222222222222222222008 /* CommandDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/CommandDispatcher.swift; sourceTree = "<group>"; };
-		222222222222222222222009 /* MockBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MockBootstrap.swift; sourceTree = "<group>"; };
-		22222222222222222222200A /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RootTabView.swift; sourceTree = "<group>"; };
-		22222222222222222222200B /* DockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/DockView.swift; sourceTree = "<group>"; };
-		22222222222222222222200C /* RunningAppsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RunningAppsView.swift; sourceTree = "<group>"; };
-		22222222222222222222200D /* ClipboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ClipboardView.swift; sourceTree = "<group>"; };
-		22222222222222222222200E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
-		22222222222222222222200F /* ConnectionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ConnectionBanner.swift; sourceTree = "<group>"; };
-		222222222222222222222010 /* AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AppIconView.swift; sourceTree = "<group>"; };
+		222222222222222222222002 /* Stores/RemoteDockClientStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/RemoteDockClientStore.swift; sourceTree = "<group>"; };
+		222222222222222222222003 /* Stores/DiscoveryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/DiscoveryStore.swift; sourceTree = "<group>"; };
+		222222222222222222222004 /* Stores/DockStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/DockStore.swift; sourceTree = "<group>"; };
+		222222222222222222222005 /* Stores/RunningAppsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/RunningAppsStore.swift; sourceTree = "<group>"; };
+		222222222222222222222006 /* Stores/ClipboardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/ClipboardStore.swift; sourceTree = "<group>"; };
+		222222222222222222222007 /* Stores/SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores/SettingsStore.swift; sourceTree = "<group>"; };
+		222222222222222222222008 /* Services/CommandDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/CommandDispatcher.swift; sourceTree = "<group>"; };
+		222222222222222222222009 /* Services/MockBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MockBootstrap.swift; sourceTree = "<group>"; };
+		22222222222222222222200A /* Views/RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RootTabView.swift; sourceTree = "<group>"; };
+		22222222222222222222200B /* Views/DockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/DockView.swift; sourceTree = "<group>"; };
+		22222222222222222222200C /* Views/RunningAppsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RunningAppsView.swift; sourceTree = "<group>"; };
+		22222222222222222222200D /* Views/ClipboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ClipboardView.swift; sourceTree = "<group>"; };
+		22222222222222222222200E /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
+		22222222222222222222200F /* Views/ConnectionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ConnectionBanner.swift; sourceTree = "<group>"; };
+		222222222222222222222010 /* Views/AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AppIconView.swift; sourceTree = "<group>"; };
 		2222222222222222222220FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		222222222222222222223001 /* RemoteDockiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteDockiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -109,8 +109,8 @@
 		000000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
-				111111111111111111111100 /* RemoteDockMac */,
-				222222222222222222221100 /* RemoteDockiOS */,
+				111111111111111111111100 /* apps/mac/RemoteDockMac */,
+				222222222222222222221100 /* apps/ios/RemoteDockiOS */,
 				000000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -124,47 +124,47 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		111111111111111111111100 /* RemoteDockMac */ = {
+		111111111111111111111100 /* apps/mac/RemoteDockMac */ = {
 			isa = PBXGroup;
 			children = (
 				111111111111111111112001 /* RemoteDockMacApp.swift */,
 				111111111111111111112002 /* MacAppModel.swift */,
-				111111111111111111112003 /* PermissionCenter.swift */,
-				111111111111111111112004 /* PeerSessionManager.swift */,
-				111111111111111111112005 /* PinnedAppsService.swift */,
-				111111111111111111112006 /* RunningAppsService.swift */,
-				111111111111111111112007 /* ClipboardHistoryService.swift */,
-				111111111111111111112008 /* MacCommandExecutor.swift */,
-				111111111111111111112009 /* SnapshotPublisher.swift */,
-				11111111111111111111200A /* MenuBarContentView.swift */,
-				11111111111111111111200B /* SettingsView.swift */,
-				11111111111111111111200C /* PinnedAppsSettingsView.swift */,
-				11111111111111111111200D /* RunningAppsSettingsView.swift */,
-				11111111111111111111200E /* PrivacySettingsView.swift */,
+				111111111111111111112003 /* Services/PermissionCenter.swift */,
+				111111111111111111112004 /* Services/PeerSessionManager.swift */,
+				111111111111111111112005 /* Services/PinnedAppsService.swift */,
+				111111111111111111112006 /* Services/RunningAppsService.swift */,
+				111111111111111111112007 /* Services/ClipboardHistoryService.swift */,
+				111111111111111111112008 /* Services/MacCommandExecutor.swift */,
+				111111111111111111112009 /* Services/SnapshotPublisher.swift */,
+				11111111111111111111200A /* Views/MenuBarContentView.swift */,
+				11111111111111111111200B /* Views/SettingsView.swift */,
+				11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */,
+				11111111111111111111200D /* Views/RunningAppsSettingsView.swift */,
+				11111111111111111111200E /* Views/PrivacySettingsView.swift */,
 				1111111111111111111120FF /* Info.plist */,
 			);
 			path = apps/mac/RemoteDockMac;
 			sourceTree = "<group>";
 		};
-		222222222222222222221100 /* RemoteDockiOS */ = {
+		222222222222222222221100 /* apps/ios/RemoteDockiOS */ = {
 			isa = PBXGroup;
 			children = (
 				222222222222222222222001 /* RemoteDockiOSApp.swift */,
-				222222222222222222222002 /* RemoteDockClientStore.swift */,
-				222222222222222222222003 /* DiscoveryStore.swift */,
-				222222222222222222222004 /* DockStore.swift */,
-				222222222222222222222005 /* RunningAppsStore.swift */,
-				222222222222222222222006 /* ClipboardStore.swift */,
-				222222222222222222222007 /* SettingsStore.swift */,
-				222222222222222222222008 /* CommandDispatcher.swift */,
-				222222222222222222222009 /* MockBootstrap.swift */,
-				22222222222222222222200A /* RootTabView.swift */,
-				22222222222222222222200B /* DockView.swift */,
-				22222222222222222222200C /* RunningAppsView.swift */,
-				22222222222222222222200D /* ClipboardView.swift */,
-				22222222222222222222200E /* SettingsView.swift */,
-				22222222222222222222200F /* ConnectionBanner.swift */,
-				222222222222222222222010 /* AppIconView.swift */,
+				222222222222222222222002 /* Stores/RemoteDockClientStore.swift */,
+				222222222222222222222003 /* Stores/DiscoveryStore.swift */,
+				222222222222222222222004 /* Stores/DockStore.swift */,
+				222222222222222222222005 /* Stores/RunningAppsStore.swift */,
+				222222222222222222222006 /* Stores/ClipboardStore.swift */,
+				222222222222222222222007 /* Stores/SettingsStore.swift */,
+				222222222222222222222008 /* Services/CommandDispatcher.swift */,
+				222222222222222222222009 /* Services/MockBootstrap.swift */,
+				22222222222222222222200A /* Views/RootTabView.swift */,
+				22222222222222222222200B /* Views/DockView.swift */,
+				22222222222222222222200C /* Views/RunningAppsView.swift */,
+				22222222222222222222200D /* Views/ClipboardView.swift */,
+				22222222222222222222200E /* Views/SettingsView.swift */,
+				22222222222222222222200F /* Views/ConnectionBanner.swift */,
+				222222222222222222222010 /* Views/AppIconView.swift */,
 				2222222222222222222220FF /* Info.plist */,
 			);
 			path = apps/ios/RemoteDockiOS;
@@ -245,7 +245,7 @@
 			);
 			mainGroup = 000000000000000000000002;
 			packageReferences = (
-				999999999999999999990000 /* XCLocalSwiftPackageReference "shared" */,
+				999999999999999999990000 /* XCLocalSwiftPackageReference "packages/shared" */,
 			);
 			productRefGroup = 000000000000000000000003 /* Products */;
 			projectDirPath = "";
@@ -281,18 +281,18 @@
 			files = (
 				111111111111111111110001 /* RemoteDockMacApp.swift in Sources */,
 				111111111111111111110002 /* MacAppModel.swift in Sources */,
-				111111111111111111110003 /* PermissionCenter.swift in Sources */,
-				111111111111111111110004 /* PeerSessionManager.swift in Sources */,
-				111111111111111111110005 /* PinnedAppsService.swift in Sources */,
-				111111111111111111110006 /* RunningAppsService.swift in Sources */,
-				111111111111111111110007 /* ClipboardHistoryService.swift in Sources */,
-				111111111111111111110008 /* MacCommandExecutor.swift in Sources */,
-				111111111111111111110009 /* SnapshotPublisher.swift in Sources */,
-				11111111111111111111000A /* MenuBarContentView.swift in Sources */,
-				11111111111111111111000B /* SettingsView.swift in Sources */,
-				11111111111111111111000C /* PinnedAppsSettingsView.swift in Sources */,
-				11111111111111111111000D /* RunningAppsSettingsView.swift in Sources */,
-				11111111111111111111000E /* PrivacySettingsView.swift in Sources */,
+				111111111111111111110003 /* Services/PermissionCenter.swift in Sources */,
+				111111111111111111110004 /* Services/PeerSessionManager.swift in Sources */,
+				111111111111111111110005 /* Services/PinnedAppsService.swift in Sources */,
+				111111111111111111110006 /* Services/RunningAppsService.swift in Sources */,
+				111111111111111111110007 /* Services/ClipboardHistoryService.swift in Sources */,
+				111111111111111111110008 /* Services/MacCommandExecutor.swift in Sources */,
+				111111111111111111110009 /* Services/SnapshotPublisher.swift in Sources */,
+				11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */,
+				11111111111111111111000B /* Views/SettingsView.swift in Sources */,
+				11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */,
+				11111111111111111111000D /* Views/RunningAppsSettingsView.swift in Sources */,
+				11111111111111111111000E /* Views/PrivacySettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,21 +301,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				222222222222222222220001 /* RemoteDockiOSApp.swift in Sources */,
-				222222222222222222220002 /* RemoteDockClientStore.swift in Sources */,
-				222222222222222222220003 /* DiscoveryStore.swift in Sources */,
-				222222222222222222220004 /* DockStore.swift in Sources */,
-				222222222222222222220005 /* RunningAppsStore.swift in Sources */,
-				222222222222222222220006 /* ClipboardStore.swift in Sources */,
-				222222222222222222220007 /* SettingsStore.swift in Sources */,
-				222222222222222222220008 /* CommandDispatcher.swift in Sources */,
-				222222222222222222220009 /* MockBootstrap.swift in Sources */,
-				22222222222222222222000A /* RootTabView.swift in Sources */,
-				22222222222222222222000B /* DockView.swift in Sources */,
-				22222222222222222222000C /* RunningAppsView.swift in Sources */,
-				22222222222222222222000D /* ClipboardView.swift in Sources */,
-				22222222222222222222000E /* SettingsView.swift in Sources */,
-				22222222222222222222000F /* ConnectionBanner.swift in Sources */,
-				222222222222222222220010 /* AppIconView.swift in Sources */,
+				222222222222222222220002 /* Stores/RemoteDockClientStore.swift in Sources */,
+				222222222222222222220003 /* Stores/DiscoveryStore.swift in Sources */,
+				222222222222222222220004 /* Stores/DockStore.swift in Sources */,
+				222222222222222222220005 /* Stores/RunningAppsStore.swift in Sources */,
+				222222222222222222220006 /* Stores/ClipboardStore.swift in Sources */,
+				222222222222222222220007 /* Stores/SettingsStore.swift in Sources */,
+				222222222222222222220008 /* Services/CommandDispatcher.swift in Sources */,
+				222222222222222222220009 /* Services/MockBootstrap.swift in Sources */,
+				22222222222222222222000A /* Views/RootTabView.swift in Sources */,
+				22222222222222222222000B /* Views/DockView.swift in Sources */,
+				22222222222222222222000C /* Views/RunningAppsView.swift in Sources */,
+				22222222222222222222000D /* Views/ClipboardView.swift in Sources */,
+				22222222222222222222000E /* Views/SettingsView.swift in Sources */,
+				22222222222222222222000F /* Views/ConnectionBanner.swift in Sources */,
+				222222222222222222220010 /* Views/AppIconView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -441,7 +441,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = QSZ6C2FCXK;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = apps/mac/RemoteDockMac/Info.plist;
@@ -449,7 +449,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kido.RemoteDockMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -464,7 +464,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = QSZ6C2FCXK;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = apps/mac/RemoteDockMac/Info.plist;
@@ -472,7 +472,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kido.RemoteDockMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -488,10 +488,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = QSZ6C2FCXK;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = apps/ios/RemoteDockiOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -513,10 +513,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = QSZ6C2FCXK;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = apps/ios/RemoteDockiOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -565,7 +565,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		999999999999999999990000 /* XCLocalSwiftPackageReference "shared" */ = {
+		999999999999999999990000 /* XCLocalSwiftPackageReference "packages/shared" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = packages/shared;
 		};
@@ -574,17 +574,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		999999999999999999990001 /* RemoteDockCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 999999999999999999990000 /* XCLocalSwiftPackageReference "shared" */;
+			package = 999999999999999999990000 /* XCLocalSwiftPackageReference "packages/shared" */;
 			productName = RemoteDockCore;
 		};
 		999999999999999999990002 /* RemoteDockProtocol */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 999999999999999999990000 /* XCLocalSwiftPackageReference "shared" */;
+			package = 999999999999999999990000 /* XCLocalSwiftPackageReference "packages/shared" */;
 			productName = RemoteDockProtocol;
 		};
 		999999999999999999990003 /* RemoteDockTransport */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 999999999999999999990000 /* XCLocalSwiftPackageReference "shared" */;
+			package = 999999999999999999990000 /* XCLocalSwiftPackageReference "packages/shared" */;
 			productName = RemoteDockTransport;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -14,9 +14,18 @@ struct PermissionCenter {
     }
 
     func openAccessibilitySettings() {
+        requestAccessibilityPermissionPrompt()
+
         guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else {
             return
         }
         NSWorkspace.shared.open(url)
+    }
+
+    private func requestAccessibilityPermissionPrompt() {
+        let options = [
+            "AXTrustedCheckOptionPrompt": true
+        ] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
     }
 }

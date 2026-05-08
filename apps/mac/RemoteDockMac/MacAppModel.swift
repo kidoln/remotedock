@@ -11,6 +11,7 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var runningApps: [RunningApp] = []
     @Published private(set) var clipboardItems: [ClipboardItem] = []
     @Published private(set) var permissionStatus = PermissionCenter.Status()
+    @Published private(set) var pairedDeviceName: String?
     @Published var clipboardSyncEnabled = true
 
     private let permissionCenter = PermissionCenter()
@@ -50,6 +51,7 @@ final class MacAppModel: ObservableObject {
             guard let self else { return }
             await peerSessionManager.start()
             for await _ in TimerSequence(interval: .seconds(2)) {
+                await peerSessionManager.refreshState()
                 await MainActor.run {
                     self.refresh()
                 }
@@ -133,13 +135,21 @@ final class MacAppModel: ObservableObject {
             }
         case let .messageReceived(message):
             await handleMessage(message)
-        case .discoveredPeersChanged:
-            break
+        case let .discoveredPeersChanged(peers):
+            await MainActor.run {
+                self.pairedDeviceName = peers.first?.displayName
+            }
         }
     }
 
     private func handleMessage(_ message: RemoteDockMessage) async {
         switch message {
+        case let .hello(payload):
+            await MainActor.run {
+                self.pairedDeviceName = payload.deviceName
+            }
+        case let .pairRequest(payload):
+            await approvePairing(payload)
         case let .activateAppCommand(payload):
             let result = await commandExecutor.handleActivateAppCommand(payload)
             await snapshotPublisher.publishCommandResult(result, through: peerSessionManager)
@@ -149,6 +159,41 @@ final class MacAppModel: ObservableObject {
         default:
             break
         }
+    }
+
+    private func approvePairing(_ payload: PairRequestPayload) async {
+        await MainActor.run {
+            self.pairedDeviceName = payload.deviceName
+        }
+
+        let approval = PairApprovePayload(
+            deviceId: payload.deviceId,
+            approvedAt: Date(),
+            pairingCode: Self.pairingCode(for: payload.deviceId)
+        )
+        try? await peerSessionManager.send(.pairApprove(approval))
+
+        let hello = HelloPayload(
+            deviceId: Host.current().localizedName ?? "remote-dock-mac",
+            deviceName: Host.current().localizedName ?? "Remote Dock Mac",
+            platform: .macOS,
+            capabilities: [.appActivation, .runningApps, .clipboardHistory, .clipboardPaste, .iconSync]
+        )
+        try? await peerSessionManager.send(.hello(hello))
+        await publishSnapshots()
+    }
+
+    private func publishSnapshots() async {
+        await snapshotPublisher.publishAppsSnapshot(pinnedApps, through: peerSessionManager)
+        await snapshotPublisher.publishRunningAppsSnapshot(runningApps, through: peerSessionManager)
+        if clipboardSyncEnabled {
+            await snapshotPublisher.publishClipboardSnapshot(clipboardItems, through: peerSessionManager)
+        }
+    }
+
+    private static func pairingCode(for deviceId: String) -> String {
+        let scalarSum = deviceId.unicodeScalars.reduce(0) { $0 + Int($1.value) }
+        return String(format: "%06d", scalarSum % 1_000_000)
     }
 }
 

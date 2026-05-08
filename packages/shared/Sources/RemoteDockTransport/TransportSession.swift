@@ -21,6 +21,13 @@ public struct TransportPeer: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+public enum TransportSessionError: Error, Equatable, Sendable {
+    case notConnected
+    case peerNotFound(String)
+    case unsupportedRole(String)
+    case unavailable(String)
+}
+
 public struct TransportEvent: Equatable, Sendable {
     public enum Kind: Equatable, Sendable {
         case stateChanged(TransportConnectionState)

@@ -7,6 +7,11 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section("Mac") {
+                    if appModel.discovery.availableMacs.isEmpty {
+                        Label("正在搜索同一网络附近的 Mac", systemImage: "antenna.radiowaves.left.and.right")
+                            .foregroundStyle(.secondary)
+                    }
+
                     ForEach(appModel.discovery.availableMacs) { peer in
                         Button {
                             appModel.connect(to: peer)
@@ -25,6 +30,12 @@ struct SettingsView: View {
                         appModel.reconnect()
                     } label: {
                         Label("重连", systemImage: "arrow.clockwise")
+                    }
+                }
+
+                if let pairingCode = appModel.pairingCode {
+                    Section("配对") {
+                        Label("配对码 \(pairingCode)", systemImage: "key")
                     }
                 }
 

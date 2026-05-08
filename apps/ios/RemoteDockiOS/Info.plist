@@ -22,6 +22,8 @@
 	<array>
 		<string>_erdock._tcp</string>
 	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Remote Dock can use Bluetooth as part of Apple peer discovery.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Remote Dock uses the local network to discover and pair with your Mac.</string>
 	<key>UIApplicationSceneManifest</key>

@@ -30,6 +30,16 @@ public struct ProtocolEnvelope<Payload: Codable & Sendable>: Codable, Equatable,
     }
 }
 
+public struct ProtocolEnvelopeHeader: Codable, Equatable, Sendable {
+    public var type: RemoteDockMessageType
+    public var version: Int
+
+    public init(type: RemoteDockMessageType, version: Int) {
+        self.type = type
+        self.version = version
+    }
+}
+
 public enum ProtocolVersion {
     public static let current = 1
 }

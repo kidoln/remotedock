@@ -14,6 +14,9 @@ struct MenuBarContentView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Label(connectionText, systemImage: connectionSymbol)
+                if let pairedDeviceName = appModel.pairedDeviceName {
+                    Label(pairedDeviceName, systemImage: "iphone")
+                }
                 Label(
                     appModel.permissionStatus.accessibilityGranted ? "Accessibility 已授权" : "Accessibility 未授权",
                     systemImage: appModel.permissionStatus.accessibilityGranted ? "checkmark.shield" : "exclamationmark.triangle"
@@ -70,7 +73,7 @@ struct MenuBarContentView: View {
         case .idle:
             "等待启动"
         case .discovering:
-            "正在发现设备"
+            "正在广播，等待 iPhone 连接"
         case .connecting:
             "正在连接"
         case let .connected(peer):
