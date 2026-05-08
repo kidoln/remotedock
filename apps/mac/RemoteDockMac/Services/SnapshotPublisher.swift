@@ -25,6 +25,18 @@ struct SnapshotPublisher {
         try? await peerSessionManager.send(.clipboardSnapshot(ClipboardSnapshotPayload(items: items)))
     }
 
+    func publishClipboardInserted(
+        _ item: ClipboardItem,
+        through peerSessionManager: PeerSessionManager
+    ) async {
+        let payload = ClipboardDeltaPayload(operation: .inserted, item: item)
+        try? await peerSessionManager.send(.clipboardDelta(payload))
+    }
+
+    func publishClipboardCleared(through peerSessionManager: PeerSessionManager) async {
+        try? await peerSessionManager.send(.clipboardDelta(ClipboardDeltaPayload(operation: .cleared)))
+    }
+
     func publishCommandResult(
         _ result: CommandResultPayload,
         through peerSessionManager: PeerSessionManager

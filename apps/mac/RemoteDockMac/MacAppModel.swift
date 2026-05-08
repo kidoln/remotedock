@@ -67,11 +67,10 @@ final class MacAppModel: ObservableObject {
 
         Task { [weak self] in
             guard let self else { return }
-            for await items in clipboardHistoryService.startMonitoring() {
-                await MainActor.run {
-                    if self.clipboardSyncEnabled {
-                        self.clipboardItems = items
-                    }
+            for await item in clipboardHistoryService.startMonitoring() {
+                if self.clipboardSyncEnabled {
+                    self.clipboardItems = self.clipboardHistoryService.currentItems
+                    await self.snapshotPublisher.publishClipboardInserted(item, through: self.peerSessionManager)
                 }
             }
         }
@@ -125,6 +124,11 @@ final class MacAppModel: ObservableObject {
     func clearClipboardHistory() {
         clipboardHistoryService.clear()
         refresh()
+        if clipboardSyncEnabled {
+            Task {
+                await snapshotPublisher.publishClipboardCleared(through: peerSessionManager)
+            }
+        }
     }
 
     private func handleTransportEvent(_ event: TransportEvent) async {
