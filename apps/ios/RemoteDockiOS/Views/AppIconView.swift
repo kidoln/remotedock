@@ -137,8 +137,16 @@ struct PhoneIconWellBackground: View {
     }
 }
 
+enum PhoneIconGridLayout {
+    case automatic
+    case portrait
+    case landscape
+}
+
 struct PhoneIconGrid<Content: View>: View {
     var gridCount: PhoneIconGridCount
+    var layout: PhoneIconGridLayout
+    var metricsSize: CGSize?
     private let content: (_ iconSize: CGFloat) -> Content
 
     private let defaultSpacing: CGFloat = 18
@@ -148,19 +156,27 @@ struct PhoneIconGrid<Content: View>: View {
     private let minimumIconSize: CGFloat = 40
     private let landscapeTwoRowVisibleColumns = 4
 
-    init(gridCount: PhoneIconGridCount, @ViewBuilder content: @escaping (_ iconSize: CGFloat) -> Content) {
+    init(
+        gridCount: PhoneIconGridCount,
+        layout: PhoneIconGridLayout = .automatic,
+        metricsSize: CGSize? = nil,
+        @ViewBuilder content: @escaping (_ iconSize: CGFloat) -> Content
+    ) {
         self.gridCount = gridCount
+        self.layout = layout
+        self.metricsSize = metricsSize
         self.content = content
     }
 
     var body: some View {
         GeometryReader { proxy in
-            let isLandscape = proxy.size.width > proxy.size.height
+            let isLandscape = resolvedIsLandscape(for: proxy.size)
+            let metricSize = metricsSize ?? proxy.size
             let count = max(1, gridCount.rawValue)
             let metrics = resolvedMetrics(
                 count: count,
                 isLandscape: isLandscape,
-                containerSize: proxy.size
+                containerSize: metricSize
             )
 
             ScrollView(isLandscape ? .horizontal : .vertical) {
@@ -189,6 +205,17 @@ struct PhoneIconGrid<Content: View>: View {
 
     private func gridItems(count: Int, size: CGFloat, spacing: CGFloat) -> [GridItem] {
         Array(repeating: GridItem(.fixed(size), spacing: spacing), count: count)
+    }
+
+    private func resolvedIsLandscape(for size: CGSize) -> Bool {
+        switch layout {
+        case .automatic:
+            size.width > size.height
+        case .portrait:
+            false
+        case .landscape:
+            true
+        }
     }
 
     private func resolvedMetrics(

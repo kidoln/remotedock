@@ -3,23 +3,26 @@ import SwiftUI
 
 struct DockView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
-    @State private var clipboardDrawerWidth: CGFloat?
-    @State private var dragStartDrawerWidth: CGFloat = 0
+    @State private var isClipboardDrawerExpanded = true
+    @State private var didResolveClipboardDrawerDrag = false
 
     var body: some View {
         PhonePageSurface {
             GeometryReader { proxy in
                 let isLandscape = proxy.size.width > proxy.size.height
-                let drawerWidth = isLandscape ? clampedDrawerWidth(clipboardDrawerWidth ?? maxDrawerWidth(for: proxy.size), in: proxy.size) : 0
-                let drawerOutset = isLandscape ? clipboardDrawerTrailingOutset(for: proxy, drawerWidth: drawerWidth) : 0
-
-                ZStack(alignment: .trailing) {
-                    dockContent
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+                Group {
                     if isLandscape {
-                        landscapeClipboardDrawer(in: proxy.size, trailingOutset: drawerOutset)
-                            .zIndex(2)
+                        HStack(spacing: 0) {
+                            dockContent(iconGridLayout: .landscape, iconGridMetricsSize: proxy.size)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .clipped()
+
+                            landscapeClipboardDrawer(in: proxy.size)
+                                .zIndex(2)
+                        }
+                    } else {
+                        dockContent()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
                 .onAppear {
@@ -33,11 +36,18 @@ struct DockView: View {
     }
 
     @ViewBuilder
-    private var dockContent: some View {
+    private func dockContent(
+        iconGridLayout: PhoneIconGridLayout = .automatic,
+        iconGridMetricsSize: CGSize? = nil
+    ) -> some View {
         if appModel.dock.apps.isEmpty {
             PhoneEmptyState(title: "暂无 Dock 应用", systemImage: "dock.rectangle")
         } else {
-            PhoneIconGrid(gridCount: appModel.settings.iconGridCount) { iconSize in
+            PhoneIconGrid(
+                gridCount: appModel.settings.iconGridCount,
+                layout: iconGridLayout,
+                metricsSize: iconGridMetricsSize
+            ) { iconSize in
                 ForEach(appModel.dock.apps) { app in
                     Button {
                         appModel.activate(app)
@@ -57,73 +67,90 @@ struct DockView: View {
         }
     }
 
-    private func landscapeClipboardDrawer(in size: CGSize, trailingOutset: CGFloat) -> some View {
-        let maxWidth = maxDrawerWidth(for: size)
+    private func landscapeClipboardDrawer(in size: CGSize) -> some View {
         let minWidth = minDrawerWidth(for: size)
-        let currentWidth = clampedDrawerWidth(clipboardDrawerWidth ?? maxWidth, in: size)
+        let currentWidth = clipboardDrawerWidth(for: size)
 
         return DockClipboardDrawer(
             items: appModel.clipboard.items,
             lastPastedItemId: appModel.clipboard.lastPastedItemId,
             width: currentWidth,
             minWidth: minWidth,
+            isExpanded: isClipboardDrawerExpanded,
             onPaste: { item in
                 appModel.paste(item)
             },
             onToggle: {
-                toggleClipboardDrawer(in: size)
+                toggleClipboardDrawer()
             },
             onHandleDragChanged: { value in
-                if dragStartDrawerWidth == 0 {
-                    dragStartDrawerWidth = currentWidth
-                }
-                let proposedWidth = dragStartDrawerWidth - value.translation.width
-                clipboardDrawerWidth = clampedDrawerWidth(proposedWidth, in: size)
+                handleClipboardDrawerDragChanged(value)
             },
             onHandleDragEnded: { value in
-                let predictedWidth = dragStartDrawerWidth - value.predictedEndTranslation.width
-                let midpoint = (minWidth + maxWidth) / 2
-                let targetWidth = predictedWidth >= midpoint ? maxWidth : minWidth
-                dragStartDrawerWidth = 0
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-                    clipboardDrawerWidth = targetWidth
-                }
+                handleClipboardDrawerDragEnded(value)
             }
         )
-        .offset(x: trailingOutset)
-        .ignoresSafeArea(.container, edges: .trailing)
         .animation(.spring(response: 0.32, dampingFraction: 0.86), value: currentWidth)
     }
 
     private func initializeClipboardDrawerWidth(for size: CGSize) {
-        guard size.width > size.height, clipboardDrawerWidth == nil else {
-            return
-        }
-        clipboardDrawerWidth = maxDrawerWidth(for: size)
+        guard size.width > size.height else { return }
+        didResolveClipboardDrawerDrag = false
     }
 
     private func updateClipboardDrawerWidth(for size: CGSize) {
-        guard size.width > size.height else {
-            dragStartDrawerWidth = 0
-            return
-        }
-
-        clipboardDrawerWidth = clampedDrawerWidth(clipboardDrawerWidth ?? maxDrawerWidth(for: size), in: size)
+        didResolveClipboardDrawerDrag = false
     }
 
-    private func toggleClipboardDrawer(in size: CGSize) {
-        let minWidth = minDrawerWidth(for: size)
-        let maxWidth = maxDrawerWidth(for: size)
-        let currentWidth = clampedDrawerWidth(clipboardDrawerWidth ?? maxWidth, in: size)
-        let targetWidth = currentWidth > (minWidth + maxWidth) / 2 ? minWidth : maxWidth
+    private func toggleClipboardDrawer() {
+        setClipboardDrawerExpanded(!isClipboardDrawerExpanded)
+    }
 
+    private func setClipboardDrawerExpanded(_ isExpanded: Bool) {
+        guard isClipboardDrawerExpanded != isExpanded else { return }
         withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-            clipboardDrawerWidth = targetWidth
+            isClipboardDrawerExpanded = isExpanded
         }
     }
 
-    private func clampedDrawerWidth(_ width: CGFloat, in size: CGSize) -> CGFloat {
-        min(max(width, minDrawerWidth(for: size)), maxDrawerWidth(for: size))
+    private func handleClipboardDrawerDragChanged(_ value: DragGesture.Value) {
+        guard !didResolveClipboardDrawerDrag else { return }
+        guard let isExpanded = clipboardDrawerTarget(for: value.translation, minimumDistance: 8) else { return }
+
+        didResolveClipboardDrawerDrag = true
+        setClipboardDrawerExpanded(isExpanded)
+    }
+
+    private func handleClipboardDrawerDragEnded(_ value: DragGesture.Value) {
+        defer {
+            didResolveClipboardDrawerDrag = false
+        }
+
+        guard !didResolveClipboardDrawerDrag else { return }
+
+        let finalTranslation = dominantTranslation(
+            value.translation,
+            predictedTranslation: value.predictedEndTranslation
+        )
+        guard let isExpanded = clipboardDrawerTarget(for: finalTranslation, minimumDistance: 6) else { return }
+
+        setClipboardDrawerExpanded(isExpanded)
+    }
+
+    private func dominantTranslation(_ translation: CGSize, predictedTranslation: CGSize) -> CGSize {
+        abs(predictedTranslation.width) > abs(translation.width) ? predictedTranslation : translation
+    }
+
+    private func clipboardDrawerTarget(for translation: CGSize, minimumDistance: CGFloat) -> Bool? {
+        let horizontalDistance = abs(translation.width)
+        guard horizontalDistance >= minimumDistance else { return nil }
+        guard horizontalDistance > abs(translation.height) else { return nil }
+
+        return translation.width < 0
+    }
+
+    private func clipboardDrawerWidth(for size: CGSize) -> CGFloat {
+        isClipboardDrawerExpanded ? maxDrawerWidth(for: size) : minDrawerWidth(for: size)
     }
 
     private func maxDrawerWidth(for size: CGSize) -> CGFloat {
@@ -133,11 +160,6 @@ struct DockView: View {
     private func minDrawerWidth(for size: CGSize) -> CGFloat {
         min(maxDrawerWidth(for: size), 18)
     }
-
-    private func clipboardDrawerTrailingOutset(for proxy: GeometryProxy, drawerWidth: CGFloat) -> CGFloat {
-        let desiredOutset = min(24, max(12, proxy.safeAreaInsets.trailing * 0.5))
-        return min(desiredOutset, max(0, drawerWidth - minDrawerWidth(for: proxy.size)))
-    }
 }
 
 private struct DockClipboardDrawer: View {
@@ -145,14 +167,11 @@ private struct DockClipboardDrawer: View {
     var lastPastedItemId: String?
     var width: CGFloat
     var minWidth: CGFloat
+    var isExpanded: Bool
     var onPaste: (ClipboardItem) -> Void
     var onToggle: () -> Void
     var onHandleDragChanged: (DragGesture.Value) -> Void
     var onHandleDragEnded: (DragGesture.Value) -> Void
-
-    private var isExpanded: Bool {
-        width > minWidth + 16
-    }
 
     var body: some View {
         HStack(spacing: 0) {
