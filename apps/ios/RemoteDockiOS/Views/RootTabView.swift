@@ -107,15 +107,18 @@ private struct LandscapeTabLayout<Content: View>: View {
     @Binding var selectedTab: RemoteDockTab
     @ViewBuilder var content: () -> Content
 
-    private let tabBarWidth: CGFloat = 58
+    private let tabBarWidth: CGFloat = 54
+    private let contentLeadingInset: CGFloat = 52
+    private let leadingOutset: CGFloat = 2
 
     var body: some View {
         ZStack(alignment: .leading) {
             content()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.leading, tabBarWidth)
+                .padding(.leading, contentLeadingInset)
 
             tabBar
+                .offset(x: -leadingOutset)
                 .zIndex(1)
         }
         .background(PhoneTheme.canvas)

@@ -141,8 +141,12 @@ struct PhoneIconGrid<Content: View>: View {
     var gridCount: PhoneIconGridCount
     private let content: (_ iconSize: CGFloat) -> Content
 
-    private let spacing: CGFloat = 18
-    private let edgePadding: CGFloat = 18
+    private let defaultSpacing: CGFloat = 18
+    private let compactLandscapeSpacing: CGFloat = 10
+    private let portraitEdgePadding: CGFloat = 18
+    private let landscapeEdgePadding: CGFloat = 12
+    private let minimumIconSize: CGFloat = 40
+    private let landscapeTwoRowVisibleColumns = 4
 
     init(gridCount: PhoneIconGridCount, @ViewBuilder content: @escaping (_ iconSize: CGFloat) -> Content) {
         self.gridCount = gridCount
@@ -153,45 +157,85 @@ struct PhoneIconGrid<Content: View>: View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
             let count = max(1, gridCount.rawValue)
-            let availableWidth = max(1, proxy.size.width - edgePadding * 2)
-            let availableHeight = max(1, proxy.size.height - edgePadding * 2)
-            let iconSize = resolvedIconSize(
+            let metrics = resolvedMetrics(
                 count: count,
                 isLandscape: isLandscape,
-                availableWidth: availableWidth,
-                availableHeight: availableHeight
+                containerSize: proxy.size
             )
 
             ScrollView(isLandscape ? .horizontal : .vertical) {
                 if isLandscape {
-                    LazyHGrid(rows: gridItems(count: count, size: iconSize), spacing: spacing) {
-                        content(iconSize)
+                    LazyHGrid(
+                        rows: gridItems(count: count, size: metrics.iconSize, spacing: metrics.spacing),
+                        spacing: metrics.spacing
+                    ) {
+                        content(metrics.iconSize)
                     }
-                    .padding(edgePadding)
+                    .padding(metrics.edgePadding)
                 } else {
-                    LazyVGrid(columns: gridItems(count: count, size: iconSize), spacing: spacing) {
-                        content(iconSize)
+                    LazyVGrid(
+                        columns: gridItems(count: count, size: metrics.iconSize, spacing: metrics.spacing),
+                        spacing: metrics.spacing
+                    ) {
+                        content(metrics.iconSize)
                     }
-                    .padding(edgePadding)
+                    .padding(metrics.edgePadding)
+                    .frame(maxWidth: .infinity)
                 }
             }
             .scrollIndicators(.hidden)
         }
     }
 
-    private func gridItems(count: Int, size: CGFloat) -> [GridItem] {
+    private func gridItems(count: Int, size: CGFloat, spacing: CGFloat) -> [GridItem] {
         Array(repeating: GridItem(.fixed(size), spacing: spacing), count: count)
     }
 
-    private func resolvedIconSize(
+    private func resolvedMetrics(
         count: Int,
         isLandscape: Bool,
-        availableWidth: CGFloat,
-        availableHeight: CGFloat
-    ) -> CGFloat {
+        containerSize: CGSize
+    ) -> (iconSize: CGFloat, spacing: CGFloat, edgePadding: CGFloat) {
+        let edgePadding = isLandscape ? landscapeEdgePadding : portraitEdgePadding
+        let availableWidth = max(1, containerSize.width - edgePadding * 2)
+        let availableHeight = max(1, containerSize.height - edgePadding * 2)
+        let shouldFitFourColumns = isLandscape && count == 2
+        let spacing = resolvedSpacing(
+            count: count,
+            availableWidth: availableWidth,
+            availableHeight: availableHeight,
+            shouldFitFourColumns: shouldFitFourColumns
+        )
+
         let constrainedLength = isLandscape ? availableHeight : availableWidth
-        let rawSize = (constrainedLength - spacing * CGFloat(count - 1)) / CGFloat(count)
-        return max(44, floor(rawSize))
+        let gridConstrainedSize = (constrainedLength - spacing * CGFloat(count - 1)) / CGFloat(count)
+        let columnConstrainedSize: CGFloat
+
+        if shouldFitFourColumns {
+            columnConstrainedSize = (availableWidth - spacing * CGFloat(landscapeTwoRowVisibleColumns - 1)) / CGFloat(landscapeTwoRowVisibleColumns)
+        } else {
+            columnConstrainedSize = .greatestFiniteMagnitude
+        }
+
+        let resolvedSize = floor(min(gridConstrainedSize, columnConstrainedSize))
+        return (max(minimumIconSize, resolvedSize), spacing, edgePadding)
+    }
+
+    private func resolvedSpacing(
+        count: Int,
+        availableWidth: CGFloat,
+        availableHeight: CGFloat,
+        shouldFitFourColumns: Bool
+    ) -> CGFloat {
+        guard shouldFitFourColumns else {
+            return defaultSpacing
+        }
+
+        let heightConstrainedSize = (availableHeight - defaultSpacing * CGFloat(count - 1)) / CGFloat(count)
+        let requiredWidth = heightConstrainedSize * CGFloat(landscapeTwoRowVisibleColumns)
+            + defaultSpacing * CGFloat(landscapeTwoRowVisibleColumns - 1)
+
+        return requiredWidth > availableWidth ? compactLandscapeSpacing : defaultSpacing
     }
 }
 
