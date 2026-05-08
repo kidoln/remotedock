@@ -156,3 +156,6 @@ Carthage/Build/
 # Local configuration files (can contain sensitive data)
 Config.local.xcconfig
 *.local.xcconfig
+
+build_release/*
+RemoteDockMac.app/*
