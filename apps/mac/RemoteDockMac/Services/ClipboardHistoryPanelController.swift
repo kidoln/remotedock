@@ -114,6 +114,7 @@ final class ClipboardHistoryPanelController {
 
             do {
                 try await self.commandExecutor.pasteIntoFrontmostApp(
+                    contentType: promotedItem.contentType,
                     plainText: promotedItem.plainText,
                     richRepresentations: promotedItem.richRepresentations
                 )
@@ -677,17 +678,7 @@ private struct ClipboardHistoryPanelView: View {
     private var detailPane: some View {
         if let selectedItem = store.selectedItem {
             VStack(alignment: .leading, spacing: 0) {
-                ScrollView {
-                    Text(selectedItem.plainText)
-                        .font(.system(size: 11.5 * store.textScale, weight: .regular, design: .monospaced))
-                        .foregroundStyle(ClipboardPanelPalette.primaryText)
-                        .textSelection(.enabled)
-                        .lineSpacing(2 * store.textScale)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding(.top, 13)
-                        .padding(.horizontal, 7)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                ClipboardHistoryPanelDetailContent(item: selectedItem, textScale: store.textScale)
 
                 ClipboardHistoryPanelSummary(item: selectedItem)
                     .environment(\.clipboardPanelTextScale, store.textScale)
@@ -718,7 +709,7 @@ private struct ClipboardHistoryPanelRow: View {
                 size: 20
             )
 
-            Text(item.plainText)
+            Text(item.displayText)
                 .font(.system(size: 14.5 * textScale, weight: .regular))
                 .foregroundStyle(isSelected ? .white : ClipboardPanelPalette.primaryText)
                 .lineLimit(1)
@@ -756,6 +747,71 @@ private struct ClipboardHistoryPanelRow: View {
     }
 }
 
+private struct ClipboardHistoryPanelDetailContent: View {
+    var item: ClipboardItem
+    var textScale: CGFloat
+
+    var body: some View {
+        switch item.contentType {
+        case .text:
+            ScrollView {
+                Text(item.plainText)
+                    .font(.system(size: 11.5 * textScale, weight: .regular, design: .monospaced))
+                    .foregroundStyle(ClipboardPanelPalette.primaryText)
+                    .textSelection(.enabled)
+                    .lineSpacing(2 * textScale)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .padding(.top, 13)
+                    .padding(.horizontal, 7)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        case .image:
+            ClipboardHistoryPanelImagePreview(item: item, textScale: textScale)
+        }
+    }
+}
+
+private struct ClipboardHistoryPanelImagePreview: View {
+    var item: ClipboardItem
+    var textScale: CGFloat
+
+    var body: some View {
+        VStack(spacing: 10) {
+            if let image = previewImage {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(12)
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 32 * textScale, weight: .medium))
+                    Text("无法预览图片")
+                        .font(.system(size: 12 * textScale, weight: .medium))
+                }
+                .foregroundStyle(ClipboardPanelPalette.mutedText)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var previewImage: NSImage? {
+        if let data = item.primaryImageRepresentation?.data,
+           let image = NSImage(data: data) {
+            return image
+        }
+
+        guard let data = item.imageMetadata?.thumbnailPNGData else {
+            return nil
+        }
+
+        return NSImage(data: data)
+    }
+}
+
 private struct ClipboardHistoryPanelSummary: View {
     @Environment(\.clipboardPanelTextScale) private var textScale
 
@@ -763,7 +819,9 @@ private struct ClipboardHistoryPanelSummary: View {
 
     var body: some View {
         VStack(spacing: 5) {
-            Text(metricsText)
+            ForEach(metadataLines, id: \.self) { line in
+                Text(line)
+            }
             Text(copiedText)
         }
         .font(.system(size: 11 * textScale, weight: .regular))
@@ -771,12 +829,38 @@ private struct ClipboardHistoryPanelSummary: View {
         .lineLimit(1)
     }
 
-    private var metricsText: String {
+    private var metadataLines: [String] {
+        if item.contentType == .image, let metadata = item.imageMetadata {
+            return [
+                "Image; \(metadata.dimensionsText); \(Self.byteFormatter.string(fromByteCount: Int64(metadata.bytesLength)))",
+                "Format \(formatLabel(metadata.formatIdentifier))"
+            ]
+        }
+
         let wordCount = item.plainText.split(whereSeparator: \.isWhitespace).count
         let characterCount = item.plainText.count
         let wordLabel = wordCount == 1 ? "word" : "words"
         let characterLabel = characterCount == 1 ? "char" : "chars"
-        return "\(wordCount) \(wordLabel); \(characterCount) \(characterLabel)"
+        return ["\(wordCount) \(wordLabel); \(characterCount) \(characterLabel)"]
+    }
+
+    private func formatLabel(_ identifier: String) -> String {
+        switch ClipboardRepresentationKind(pasteboardTypeIdentifier: identifier) {
+        case .png:
+            return "PNG"
+        case .jpeg:
+            return "JPEG"
+        case .tiff:
+            return "TIFF"
+        case .gif:
+            return "GIF"
+        case .heic:
+            return "HEIC"
+        case .heif:
+            return "HEIF"
+        default:
+            return identifier
+        }
     }
 
     private var copiedText: String {
@@ -799,6 +883,12 @@ private struct ClipboardHistoryPanelSummary: View {
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
+        return formatter
+    }()
+
+    private static let byteFormatter: ByteCountFormatter = {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
         return formatter
     }()
 }

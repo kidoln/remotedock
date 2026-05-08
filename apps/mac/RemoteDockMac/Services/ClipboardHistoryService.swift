@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import RemoteDockCore
+import UniformTypeIdentifiers
 
 @MainActor
 final class ClipboardHistoryService {
@@ -58,11 +59,30 @@ final class ClipboardHistoryService {
     }
 
     private func currentClipboardItem() -> ClipboardItem? {
+        if let imageItem = currentClipboardImageItem() {
+            return imageItem
+        }
+
         guard let text = pasteboard.string(forType: .string),
               let item = ClipboardHistoryReducer.makeItem(
                 text: text,
                 richRepresentations: richRepresentations(from: pasteboard),
                 sourceAppBundleId: NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+                policy: policy
+              ) else {
+            return nil
+        }
+
+        return item
+    }
+
+    private func currentClipboardImageItem() -> ClipboardItem? {
+        let sourceAppBundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        guard let imagePayload = imagePayload(from: pasteboard),
+              let item = ClipboardHistoryReducer.makeImageItem(
+                representation: imagePayload.representation,
+                metadata: imagePayload.metadata,
+                sourceAppBundleId: sourceAppBundleId,
                 policy: policy
               ) else {
             return nil
@@ -115,7 +135,14 @@ final class ClipboardHistoryService {
     private func normalizedHistory(_ history: [ClipboardItem]) -> [ClipboardItem] {
         var seenHashes = Set<String>()
         let sortedItems = history
-            .filter { !$0.plainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .filter { item in
+                switch item.contentType {
+                case .text:
+                    return !item.plainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                case .image:
+                    return item.primaryImageRepresentation != nil
+                }
+            }
             .sorted { $0.createdAt > $1.createdAt }
 
         let uniqueItems = sortedItems.filter { item in
@@ -127,6 +154,102 @@ final class ClipboardHistoryService {
         }
 
         return Array(uniqueItems.prefix(max(policy.maxItems, 0)))
+    }
+
+    private func imagePayload(from pasteboard: NSPasteboard) -> ClipboardImagePayload? {
+        let candidateTypes = pasteboard.types?.filter(Self.shouldCaptureImagePasteboardType) ?? []
+
+        for pasteboardType in candidateTypes {
+            guard let data = pasteboard.data(forType: pasteboardType),
+                  let image = NSImage(data: data),
+                  let metadata = imageMetadata(
+                    for: image,
+                    data: data,
+                    pasteboardType: pasteboardType
+                  ) else {
+                continue
+            }
+
+            let representation = ClipboardRepresentation(
+                kind: ClipboardRepresentationKind(pasteboardTypeIdentifier: pasteboardType.rawValue),
+                data: data
+            )
+            return ClipboardImagePayload(representation: representation, metadata: metadata)
+        }
+
+        guard let image = pasteboard.readObjects(forClasses: [NSImage.self], options: nil)?.first as? NSImage,
+              let data = Self.pngData(for: image),
+              let metadata = imageMetadata(
+                for: image,
+                data: data,
+                pasteboardType: .png
+              ) else {
+            return imageFilePayload(from: pasteboard)
+        }
+
+        let representation = ClipboardRepresentation(kind: .png, data: data)
+        return ClipboardImagePayload(representation: representation, metadata: metadata)
+    }
+
+    private func imageFilePayload(from pasteboard: NSPasteboard) -> ClipboardImagePayload? {
+        guard let objects = pasteboard.readObjects(forClasses: [NSURL.self], options: [
+            .urlReadingFileURLsOnly: true
+        ]) as? [URL] else {
+            return nil
+        }
+
+        for url in objects {
+            guard url.isFileURL,
+                  Self.fileURLLooksLikeImage(url),
+                  let fileSize = Self.fileSize(for: url),
+                  fileSize <= policy.maxImageBytes,
+                  let data = try? Data(contentsOf: url),
+                  let image = NSImage(data: data),
+                  let metadata = imageMetadata(
+                    for: image,
+                    data: data,
+                    pasteboardType: Self.pasteboardType(forImageFileURL: url)
+                  ) else {
+                continue
+            }
+
+            let representation = ClipboardRepresentation(
+                kind: ClipboardRepresentationKind(
+                    pasteboardTypeIdentifier: Self.pasteboardType(forImageFileURL: url).rawValue
+                ),
+                data: data
+            )
+            return ClipboardImagePayload(representation: representation, metadata: metadata)
+        }
+
+        return nil
+    }
+
+    private func imageMetadata(
+        for image: NSImage,
+        data: Data,
+        pasteboardType: NSPasteboard.PasteboardType
+    ) -> ClipboardImageMetadata? {
+        let pixelSize = Self.pixelSize(for: image)
+        guard pixelSize.width > 0,
+              pixelSize.height > 0 else {
+            return nil
+        }
+
+        let thumbnailData = Self.thumbnailPNGData(for: image, maximumPixelDimension: 256)
+        let thumbnailSize = thumbnailData.flatMap { NSImage(data: $0) }.map(Self.pixelSize(for:))
+
+        return ClipboardImageMetadata(
+            formatIdentifier: ClipboardRepresentationKind(
+                pasteboardTypeIdentifier: pasteboardType.rawValue
+            ).pasteboardTypeIdentifier,
+            pixelWidth: Int(pixelSize.width.rounded()),
+            pixelHeight: Int(pixelSize.height.rounded()),
+            bytesLength: data.count,
+            thumbnailPNGData: thumbnailData,
+            thumbnailPixelWidth: thumbnailSize.map { Int($0.width.rounded()) },
+            thumbnailPixelHeight: thumbnailSize.map { Int($0.height.rounded()) }
+        )
     }
 
     private func richRepresentations(from pasteboard: NSPasteboard) -> [ClipboardRepresentation] {
@@ -257,6 +380,10 @@ final class ClipboardHistoryService {
             return true
         }
 
+        if item.contentType != existingItem.contentType {
+            return item.contentType == .image
+        }
+
         let richByteCount = item.richRepresentations.reduce(0) { $0 + $1.data.count }
         let existingRichByteCount = existingItem.richRepresentations.reduce(0) { $0 + $1.data.count }
         if richByteCount != existingRichByteCount {
@@ -264,6 +391,106 @@ final class ClipboardHistoryService {
         }
 
         return item.richRepresentations.count > existingItem.richRepresentations.count
+    }
+
+    private nonisolated static func shouldCaptureImagePasteboardType(_ pasteboardType: NSPasteboard.PasteboardType) -> Bool {
+        let kind = ClipboardRepresentationKind(pasteboardTypeIdentifier: pasteboardType.rawValue)
+        let lowercasedIdentifier = pasteboardType.rawValue.lowercased()
+        return kind.isImage ||
+            lowercasedIdentifier == NSPasteboard.PasteboardType.tiff.rawValue.lowercased() ||
+            lowercasedIdentifier == NSPasteboard.PasteboardType.png.rawValue.lowercased()
+    }
+
+    private nonisolated static func fileURLLooksLikeImage(_ url: URL) -> Bool {
+        guard let contentType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+            return false
+        }
+
+        return contentType.conforms(to: .image)
+    }
+
+    private nonisolated static func fileSize(for url: URL) -> Int? {
+        guard let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize else {
+            return nil
+        }
+
+        return fileSize
+    }
+
+    private nonisolated static func pasteboardType(forImageFileURL url: URL) -> NSPasteboard.PasteboardType {
+        guard let contentType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+            return .png
+        }
+
+        if contentType.conforms(to: .png) {
+            return .png
+        }
+        if contentType.conforms(to: .jpeg) {
+            return NSPasteboard.PasteboardType("public.jpeg")
+        }
+        if contentType.conforms(to: .tiff) {
+            return .tiff
+        }
+        if contentType.conforms(to: .gif) {
+            return NSPasteboard.PasteboardType("com.compuserve.gif")
+        }
+        if contentType.identifier == "public.heic" {
+            return NSPasteboard.PasteboardType("public.heic")
+        }
+        if contentType.identifier == "public.heif" {
+            return NSPasteboard.PasteboardType("public.heif")
+        }
+
+        return .png
+    }
+
+    private nonisolated static func pixelSize(for image: NSImage) -> CGSize {
+        if let representation = image.representations.max(by: {
+            ($0.pixelsWide * $0.pixelsHigh) < ($1.pixelsWide * $1.pixelsHigh)
+        }), representation.pixelsWide > 0, representation.pixelsHigh > 0 {
+            return CGSize(width: representation.pixelsWide, height: representation.pixelsHigh)
+        }
+
+        return image.size
+    }
+
+    private nonisolated static func thumbnailPNGData(
+        for image: NSImage,
+        maximumPixelDimension: CGFloat
+    ) -> Data? {
+        let pixelSize = pixelSize(for: image)
+        guard pixelSize.width > 0, pixelSize.height > 0 else {
+            return nil
+        }
+
+        let scale = min(1, maximumPixelDimension / max(pixelSize.width, pixelSize.height))
+        let targetSize = NSSize(
+            width: max(1, floor(pixelSize.width * scale)),
+            height: max(1, floor(pixelSize.height * scale))
+        )
+        let renderedImage = NSImage(size: targetSize)
+
+        renderedImage.lockFocus()
+        NSColor.clear.setFill()
+        NSRect(origin: .zero, size: targetSize).fill()
+        image.draw(
+            in: NSRect(origin: .zero, size: targetSize),
+            from: .zero,
+            operation: .copy,
+            fraction: 1
+        )
+        renderedImage.unlockFocus()
+
+        return pngData(for: renderedImage)
+    }
+
+    private nonisolated static func pngData(for image: NSImage) -> Data? {
+        guard let tiffData = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData) else {
+            return nil
+        }
+
+        return bitmap.representation(using: .png, properties: [:])
     }
 
     private nonisolated static let shortcutCaptureDelays: [Duration] = [
@@ -332,4 +559,9 @@ final class ClipboardHistoryService {
             return false
         }
     }
+}
+
+private struct ClipboardImagePayload {
+    var representation: ClipboardRepresentation
+    var metadata: ClipboardImageMetadata
 }

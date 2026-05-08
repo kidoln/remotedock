@@ -30,6 +30,7 @@ struct CommandDispatcher {
             commandId: UUID().uuidString,
             issuedAt: Date(),
             clipboardItemId: item.id,
+            contentType: item.contentType,
             plainText: item.plainText,
             richRepresentations: item.richRepresentations
         )

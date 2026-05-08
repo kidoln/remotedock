@@ -12,7 +12,7 @@ struct ClipboardStore: Equatable {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return items }
         return items.filter {
-            $0.plainText.localizedCaseInsensitiveContains(query)
+            ClipboardSearchMatcher.matches($0, query: query)
         }
     }
 

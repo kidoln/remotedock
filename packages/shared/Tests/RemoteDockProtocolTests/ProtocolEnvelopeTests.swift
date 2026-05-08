@@ -66,6 +66,7 @@ final class ProtocolEnvelopeTests: XCTestCase {
 
         XCTAssertEqual(envelope.payload.plainText, "legacy")
         XCTAssertEqual(envelope.payload.richRepresentations, [])
+        XCTAssertEqual(envelope.payload.contentType, .text)
     }
 
     func testDecodesLegacyHelloWithoutVersionRangeOrAppVersion() throws {

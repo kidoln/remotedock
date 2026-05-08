@@ -7,7 +7,8 @@ public enum ClipboardSearchMatcher {
             return true
         }
 
-        return matches(item.plainText, query: query) ||
+        return matches(item.displayText, query: query) ||
+            matches(item.plainText, query: query) ||
             item.sourceAppBundleId.map { matches($0, query: query) } == true
     }
 

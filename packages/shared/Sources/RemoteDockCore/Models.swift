@@ -55,12 +55,19 @@ public struct RunningApp: Codable, Equatable, Identifiable, Sendable {
 
 public enum ClipboardContentType: String, Codable, Equatable, Sendable {
     case text
+    case image
 }
 
 public struct ClipboardRepresentationKind: RawRepresentable, Codable, Equatable, Hashable, Sendable {
     public static let rtf = ClipboardRepresentationKind(rawValue: "rtf")
     public static let rtfd = ClipboardRepresentationKind(rawValue: "rtfd")
     public static let html = ClipboardRepresentationKind(rawValue: "html")
+    public static let png = ClipboardRepresentationKind(rawValue: "png")
+    public static let jpeg = ClipboardRepresentationKind(rawValue: "jpeg")
+    public static let tiff = ClipboardRepresentationKind(rawValue: "tiff")
+    public static let gif = ClipboardRepresentationKind(rawValue: "gif")
+    public static let heic = ClipboardRepresentationKind(rawValue: "heic")
+    public static let heif = ClipboardRepresentationKind(rawValue: "heif")
 
     public var rawValue: String
 
@@ -89,6 +96,29 @@ public struct ClipboardRepresentationKind: RawRepresentable, Codable, Equatable,
              "nshtmlpboardtype",
              "apple html pasteboard type":
             "html"
+        case "png",
+             "public.png":
+            "png"
+        case "jpg",
+             "jpeg",
+             "public.jpg",
+             "public.jpeg":
+            "jpeg"
+        case "tif",
+             "tiff",
+             "public.tiff",
+             "nstiffpboardtype":
+            "tiff"
+        case "gif",
+             "public.gif",
+             "com.compuserve.gif":
+            "gif"
+        case "heic",
+             "public.heic":
+            "heic"
+        case "heif",
+             "public.heif":
+            "heif"
         default:
             identifier
         }
@@ -102,8 +132,29 @@ public struct ClipboardRepresentationKind: RawRepresentable, Codable, Equatable,
             "com.apple.flat-rtfd"
         case .html:
             "public.html"
+        case .png:
+            "public.png"
+        case .jpeg:
+            "public.jpeg"
+        case .tiff:
+            "public.tiff"
+        case .gif:
+            "com.compuserve.gif"
+        case .heic:
+            "public.heic"
+        case .heif:
+            "public.heif"
         default:
             rawValue
+        }
+    }
+
+    public var isImage: Bool {
+        switch self {
+        case .png, .jpeg, .tiff, .gif, .heic, .heif:
+            true
+        default:
+            pasteboardTypeIdentifier.hasPrefix("public.image")
         }
     }
 
@@ -129,11 +180,48 @@ public struct ClipboardRepresentation: Codable, Equatable, Sendable {
     }
 }
 
+public struct ClipboardImageMetadata: Codable, Equatable, Sendable {
+    public var formatIdentifier: String
+    public var pixelWidth: Int
+    public var pixelHeight: Int
+    public var bytesLength: Int
+    public var thumbnailPNGData: Data?
+    public var thumbnailPixelWidth: Int?
+    public var thumbnailPixelHeight: Int?
+
+    public init(
+        formatIdentifier: String,
+        pixelWidth: Int,
+        pixelHeight: Int,
+        bytesLength: Int,
+        thumbnailPNGData: Data? = nil,
+        thumbnailPixelWidth: Int? = nil,
+        thumbnailPixelHeight: Int? = nil
+    ) {
+        self.formatIdentifier = formatIdentifier
+        self.pixelWidth = pixelWidth
+        self.pixelHeight = pixelHeight
+        self.bytesLength = bytesLength
+        self.thumbnailPNGData = thumbnailPNGData
+        self.thumbnailPixelWidth = thumbnailPixelWidth
+        self.thumbnailPixelHeight = thumbnailPixelHeight
+    }
+
+    public var dimensionsText: String {
+        "\(pixelWidth)x\(pixelHeight)"
+    }
+
+    public var displayTitle: String {
+        "Image file \(dimensionsText)"
+    }
+}
+
 public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
     public var id: String
     public var contentType: ClipboardContentType
     public var plainText: String
     public var richRepresentations: [ClipboardRepresentation]
+    public var imageMetadata: ClipboardImageMetadata?
     public var sourceAppBundleId: String?
     public var createdAt: Date
     public var contentHash: String
@@ -143,6 +231,7 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
         contentType: ClipboardContentType = .text,
         plainText: String,
         richRepresentations: [ClipboardRepresentation] = [],
+        imageMetadata: ClipboardImageMetadata? = nil,
         sourceAppBundleId: String? = nil,
         createdAt: Date,
         contentHash: String
@@ -151,6 +240,7 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
         self.contentType = contentType
         self.plainText = plainText
         self.richRepresentations = richRepresentations
+        self.imageMetadata = imageMetadata
         self.sourceAppBundleId = sourceAppBundleId
         self.createdAt = createdAt
         self.contentHash = contentHash
@@ -161,6 +251,7 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
         case contentType
         case plainText
         case richRepresentations
+        case imageMetadata
         case sourceAppBundleId
         case createdAt
         case contentHash
@@ -175,9 +266,23 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
             [ClipboardRepresentation].self,
             forKey: .richRepresentations
         ) ?? []
+        imageMetadata = try container.decodeIfPresent(ClipboardImageMetadata.self, forKey: .imageMetadata)
         sourceAppBundleId = try container.decodeIfPresent(String.self, forKey: .sourceAppBundleId)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         contentHash = try container.decode(String.self, forKey: .contentHash)
+    }
+
+    public var displayText: String {
+        if contentType == .image, let imageMetadata {
+            return imageMetadata.displayTitle
+        }
+
+        let trimmedText = plainText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedText.isEmpty ? "空白文本" : trimmedText
+    }
+
+    public var primaryImageRepresentation: ClipboardRepresentation? {
+        richRepresentations.first { $0.kind.isImage }
     }
 }
 

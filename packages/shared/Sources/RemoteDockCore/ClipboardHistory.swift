@@ -5,17 +5,20 @@ public struct ClipboardHistoryPolicy: Equatable, Sendable {
     public var maxItems: Int
     public var maxTextBytes: Int
     public var maxRepresentationBytes: Int
+    public var maxImageBytes: Int
     public var excludedSourceBundleIdentifiers: Set<String>
 
     public init(
         maxItems: Int = 100,
         maxTextBytes: Int = 16 * 1024,
         maxRepresentationBytes: Int = 512 * 1024,
+        maxImageBytes: Int = 12 * 1024 * 1024,
         excludedSourceBundleIdentifiers: Set<String> = []
     ) {
         self.maxItems = maxItems
         self.maxTextBytes = maxTextBytes
         self.maxRepresentationBytes = maxRepresentationBytes
+        self.maxImageBytes = maxImageBytes
         self.excludedSourceBundleIdentifiers = excludedSourceBundleIdentifiers
     }
 }
@@ -44,6 +47,14 @@ public enum ClipboardHistoryReducer {
             data.append(Data(representation.kind.rawValue.utf8))
             data.append(representation.data)
         }
+        let digest = SHA256.hash(data: data)
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    public static func contentHash(forImageData imageData: Data, kind: ClipboardRepresentationKind) -> String {
+        var data = Data(ClipboardContentType.image.rawValue.utf8)
+        data.append(Data(kind.rawValue.utf8))
+        data.append(imageData)
         let digest = SHA256.hash(data: data)
         return digest.map { String(format: "%02x", $0) }.joined()
     }
@@ -102,6 +113,38 @@ public enum ClipboardHistoryReducer {
             id: hash,
             plainText: normalizedText,
             richRepresentations: normalizedRichRepresentations,
+            sourceAppBundleId: sourceAppBundleId,
+            createdAt: now,
+            contentHash: hash
+        )
+    }
+
+    public static func makeImageItem(
+        representation: ClipboardRepresentation,
+        metadata: ClipboardImageMetadata,
+        sourceAppBundleId: String?,
+        now: Date = Date(),
+        policy: ClipboardHistoryPolicy = ClipboardHistoryPolicy()
+    ) -> ClipboardItem? {
+        guard !representation.data.isEmpty,
+              representation.kind.isImage,
+              policy.maxImageBytes > 0,
+              representation.data.count <= policy.maxImageBytes else {
+            return nil
+        }
+
+        if let sourceAppBundleId,
+           policy.excludedSourceBundleIdentifiers.contains(sourceAppBundleId) {
+            return nil
+        }
+
+        let hash = contentHash(forImageData: representation.data, kind: representation.kind)
+        return ClipboardItem(
+            id: hash,
+            contentType: .image,
+            plainText: metadata.displayTitle,
+            richRepresentations: [representation],
+            imageMetadata: metadata,
             sourceAppBundleId: sourceAppBundleId,
             createdAt: now,
             contentHash: hash

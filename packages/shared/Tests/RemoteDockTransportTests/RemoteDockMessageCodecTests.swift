@@ -54,6 +54,25 @@ final class RemoteDockMessageCodecTests: XCTestCase {
         XCTAssertEqual(decoded, message)
     }
 
+    func testEncodesAndDecodesImageClipboardPasteCommand() throws {
+        let payload = PasteClipboardItemCommandPayload(
+            commandId: "paste-image-1",
+            issuedAt: Date(timeIntervalSince1970: 12),
+            clipboardItemId: "clipboard-image-1",
+            contentType: .image,
+            plainText: "Image file 120x80",
+            richRepresentations: [
+                ClipboardRepresentation(kind: .png, data: Data([1, 2, 3]))
+            ]
+        )
+        let message = RemoteDockMessage.pasteClipboardItemCommand(payload)
+
+        let data = try message.encodedData()
+        let decoded = try RemoteDockMessage.decode(from: data)
+
+        XCTAssertEqual(decoded, message)
+    }
+
     func testDecodesHelloWithUnsupportedEnvelopeVersionForNegotiation() throws {
         let json = """
         {

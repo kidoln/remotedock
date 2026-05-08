@@ -240,7 +240,7 @@ private struct DockClipboardDrawer: View {
                                 )
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(item.plainText)
+                            .accessibilityLabel(item.displayText)
                             .accessibilityHint("立即发送到 Mac")
                         }
                     }
@@ -291,6 +291,13 @@ private struct DockClipboardDrawerItem: View {
                         maxHeight: fontSize.clipboardDrawerTextHeight,
                         alignment: .topLeading
                     )
+
+                if item.contentType == .image {
+                    ClipboardImageThumbnailView(
+                        image: item.thumbnailUIImage,
+                        size: fontSize.clipboardDrawerThumbnailSize
+                    )
+                }
             }
             .padding(.leading, 16)
             .padding(.trailing, 14)
@@ -326,8 +333,7 @@ private struct DockClipboardDrawerItem: View {
     }
 
     private var displayText: String {
-        let trimmedText = item.plainText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmedText.isEmpty ? "空白文本" : trimmedText
+        item.displayText
     }
 }
 
@@ -395,6 +401,17 @@ private extension PhoneClipboardFontSize {
             return 40
         case .large:
             return 46
+        }
+    }
+
+    var clipboardDrawerThumbnailSize: CGFloat {
+        switch self {
+        case .small:
+            return 40
+        case .medium:
+            return 54
+        case .large:
+            return 66
         }
     }
 }

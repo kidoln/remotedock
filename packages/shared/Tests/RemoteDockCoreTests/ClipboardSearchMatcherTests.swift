@@ -28,6 +28,29 @@ final class ClipboardSearchMatcherTests: XCTestCase {
         XCTAssertTrue(ClipboardSearchMatcher.matches(item, query: "example"))
     }
 
+    func testMatchesImageClipboardItemDisplayText() {
+        let item = ClipboardItem(
+            id: "id",
+            contentType: .image,
+            plainText: "Image file 120x80",
+            richRepresentations: [
+                ClipboardRepresentation(kind: .png, data: Data([1]))
+            ],
+            imageMetadata: ClipboardImageMetadata(
+                formatIdentifier: "public.png",
+                pixelWidth: 120,
+                pixelHeight: 80,
+                bytesLength: 1
+            ),
+            sourceAppBundleId: nil,
+            createdAt: Date(timeIntervalSince1970: 1),
+            contentHash: "hash"
+        )
+
+        XCTAssertTrue(ClipboardSearchMatcher.matches(item, query: "120x80"))
+        XCTAssertTrue(ClipboardSearchMatcher.matches(item, query: "image"))
+    }
+
     func testDoesNotMatchUnrelatedQuery() {
         XCTAssertFalse(ClipboardSearchMatcher.matches("苹果生态剪贴板", query: "banana"))
     }

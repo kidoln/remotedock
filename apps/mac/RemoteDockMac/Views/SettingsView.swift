@@ -244,7 +244,7 @@ private struct ClipboardHistorySettingsPane: View {
                         Text("历史保留数量")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(SettingsPalette.primaryText)
-                        Text("最多保留 \(ClipboardHistorySettings.maxAllowedItems) 条文本记录")
+                        Text("最多保留 \(ClipboardHistorySettings.maxAllowedItems) 条剪贴板记录")
                             .font(.system(size: 12))
                             .foregroundStyle(SettingsPalette.mutedText)
                     }
@@ -452,7 +452,7 @@ private struct ClipboardHistorySettingsRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 5) {
-                Text(item.plainText)
+                Text(item.displayText)
                     .font(.system(size: 13))
                     .foregroundStyle(SettingsPalette.primaryText)
                     .lineLimit(2)

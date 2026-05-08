@@ -44,6 +44,7 @@ final class MacCommandExecutor {
         let result: CommandResultPayload
         do {
             try await pasteIntoFrontmostApp(
+                contentType: payload.contentType,
                 plainText: payload.plainText,
                 richRepresentations: payload.richRepresentations
             )
@@ -87,6 +88,7 @@ final class MacCommandExecutor {
     }
 
     func pasteIntoFrontmostApp(
+        contentType: ClipboardContentType = .text,
         plainText: String,
         richRepresentations: [ClipboardRepresentation] = []
     ) async throws {
@@ -94,8 +96,11 @@ final class MacCommandExecutor {
             throw RemoteDockError.permissionDenied("Accessibility")
         }
 
-        NSPasteboard.general.clearContents()
-        writeClipboardContents(plainText: plainText, richRepresentations: richRepresentations)
+        try writeClipboardContents(
+            contentType: contentType,
+            plainText: plainText,
+            richRepresentations: richRepresentations
+        )
 
         try await Task.sleep(for: .milliseconds(120))
         guard let source = CGEventSource(stateID: .hidSystemState),
@@ -111,20 +116,43 @@ final class MacCommandExecutor {
     }
 
     private func writeClipboardContents(
+        contentType: ClipboardContentType,
         plainText: String,
         richRepresentations: [ClipboardRepresentation]
-    ) {
-        let pasteboard = NSPasteboard.general
-        let writableTypes = richRepresentations
+    ) throws {
+        let validRepresentations = richRepresentations.filter { representation in
+            !representation.data.isEmpty && (contentType != .image || representation.kind.isImage)
+        }
+        let representationTypes = validRepresentations
             .map { pasteboardType(for: $0.kind) }
-            .filter { $0 != .string } + [.string]
+            .filter { $0 != .string }
+        let writableTypes: [NSPasteboard.PasteboardType] = switch contentType {
+        case .text:
+            representationTypes + [.string]
+        case .image:
+            representationTypes.isEmpty ? [.png] : representationTypes
+        }
+        guard !writableTypes.isEmpty else {
+            throw MacCommandExecutorError.invalidClipboardPayload
+        }
+        if contentType == .image && richRepresentations.isEmpty {
+            throw MacCommandExecutorError.invalidClipboardPayload
+        }
+        if contentType == .image && validRepresentations.isEmpty {
+            throw MacCommandExecutorError.invalidClipboardPayload
+        }
+
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
         pasteboard.declareTypes(writableTypes, owner: nil)
 
-        for representation in richRepresentations {
+        for representation in validRepresentations {
             pasteboard.setData(representation.data, forType: pasteboardType(for: representation.kind))
         }
 
-        pasteboard.setString(plainText, forType: .string)
+        if contentType == .text {
+            pasteboard.setString(plainText, forType: .string)
+        }
     }
 
     private func pasteboardType(for kind: ClipboardRepresentationKind) -> NSPasteboard.PasteboardType {
@@ -135,6 +163,18 @@ final class MacCommandExecutor {
             .rtfd
         case .html:
             .html
+        case .png:
+            .png
+        case .jpeg:
+            NSPasteboard.PasteboardType("public.jpeg")
+        case .tiff:
+            .tiff
+        case .gif:
+            NSPasteboard.PasteboardType("com.compuserve.gif")
+        case .heic:
+            NSPasteboard.PasteboardType("public.heic")
+        case .heif:
+            NSPasteboard.PasteboardType("public.heif")
         default:
             NSPasteboard.PasteboardType(kind.pasteboardTypeIdentifier)
         }
@@ -143,5 +183,6 @@ final class MacCommandExecutor {
 
 enum MacCommandExecutorError: Error, Equatable {
     case applicationNotFound(String)
+    case invalidClipboardPayload
     case pasteEventCreationFailed
 }

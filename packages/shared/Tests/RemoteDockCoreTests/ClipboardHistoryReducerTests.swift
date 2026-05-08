@@ -75,6 +75,59 @@ final class ClipboardHistoryReducerTests: XCTestCase {
         XCTAssertEqual(decodedKind, kind)
     }
 
+    func testClipboardRepresentationKindNormalizesImagePasteboardTypes() {
+        XCTAssertEqual(ClipboardRepresentationKind(pasteboardTypeIdentifier: "public.png"), .png)
+        XCTAssertEqual(ClipboardRepresentationKind(pasteboardTypeIdentifier: "public.jpeg"), .jpeg)
+        XCTAssertEqual(ClipboardRepresentationKind(pasteboardTypeIdentifier: "NSFilenamesPboardType").isImage, false)
+    }
+
+    func testMakeImageItemStoresMetadataAndRepresentation() throws {
+        let representation = ClipboardRepresentation(kind: .png, data: Data([1, 2, 3, 4]))
+        let metadata = ClipboardImageMetadata(
+            formatIdentifier: "public.png",
+            pixelWidth: 120,
+            pixelHeight: 80,
+            bytesLength: representation.data.count,
+            thumbnailPNGData: Data([9, 8]),
+            thumbnailPixelWidth: 60,
+            thumbnailPixelHeight: 40
+        )
+
+        let item = try XCTUnwrap(ClipboardHistoryReducer.makeImageItem(
+            representation: representation,
+            metadata: metadata,
+            sourceAppBundleId: "com.example.image",
+            now: Date(timeIntervalSince1970: 1)
+        ))
+
+        XCTAssertEqual(item.contentType, .image)
+        XCTAssertEqual(item.plainText, "Image file 120x80")
+        XCTAssertEqual(item.displayText, "Image file 120x80")
+        XCTAssertEqual(item.richRepresentations, [representation])
+        XCTAssertEqual(item.imageMetadata, metadata)
+        XCTAssertEqual(item.id, item.contentHash)
+    }
+
+    func testMakeImageItemSkipsOversizedImage() {
+        let representation = ClipboardRepresentation(kind: .png, data: Data([1, 2, 3, 4]))
+        let metadata = ClipboardImageMetadata(
+            formatIdentifier: "public.png",
+            pixelWidth: 1,
+            pixelHeight: 1,
+            bytesLength: representation.data.count
+        )
+        let policy = ClipboardHistoryPolicy(maxImageBytes: 3)
+
+        let item = ClipboardHistoryReducer.makeImageItem(
+            representation: representation,
+            metadata: metadata,
+            sourceAppBundleId: nil,
+            policy: policy
+        )
+
+        XCTAssertNil(item)
+    }
+
     func testDecodesLegacyClipboardItemWithoutRichRepresentations() throws {
         let json = """
         {
@@ -94,6 +147,7 @@ final class ClipboardHistoryReducerTests: XCTestCase {
 
         XCTAssertEqual(item.plainText, "legacy")
         XCTAssertEqual(item.richRepresentations, [])
+        XCTAssertNil(item.imageMetadata)
     }
 
     func testInsertingDeduplicatesByContentHash() throws {

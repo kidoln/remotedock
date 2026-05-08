@@ -94,7 +94,7 @@ struct ClipboardView: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(item.plainText)
+                        .accessibilityLabel(item.displayText)
                         .accessibilityHint("立即发送到 Mac")
                     }
                 }
@@ -138,6 +138,13 @@ private struct ClipboardItemCard: View {
                         maxHeight: fontSize.clipboardListTextHeight,
                         alignment: .topLeading
                     )
+
+                if item.contentType == .image {
+                    ClipboardImageThumbnailView(
+                        image: item.thumbnailUIImage,
+                        size: fontSize.clipboardListThumbnailSize
+                    )
+                }
             }
             .padding(.leading, 16)
             .padding(.trailing, 14)
@@ -173,8 +180,55 @@ private struct ClipboardItemCard: View {
     }
 
     private var displayText: String {
-        let trimmedText = item.plainText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmedText.isEmpty ? "空白文本" : trimmedText
+        item.displayText
+    }
+}
+
+struct ClipboardImageThumbnailView: View {
+    var image: UIImage?
+    var size: CGFloat
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: max(7, size * 0.20), style: .continuous)
+                .fill(Color.white.opacity(0.08))
+
+            if let image {
+                Image(uiImage: image.withRenderingMode(.alwaysOriginal))
+                    .renderingMode(.original)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: max(7, size * 0.20), style: .continuous))
+            } else {
+                Image(systemName: "photo")
+                    .font(.system(size: max(14, size * 0.42), weight: .semibold))
+                    .foregroundStyle(Color.white.opacity(0.50))
+            }
+        }
+        .frame(width: size, height: size)
+        .overlay {
+            RoundedRectangle(cornerRadius: max(7, size * 0.20), style: .continuous)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+extension ClipboardItem {
+    var thumbnailUIImage: UIImage? {
+        if let thumbnailPNGData = imageMetadata?.thumbnailPNGData,
+           let thumbnail = UIImage(data: thumbnailPNGData) {
+            return thumbnail
+        }
+
+        guard let data = primaryImageRepresentation?.data else {
+            return nil
+        }
+
+        return UIImage(data: data)
     }
 }
 
@@ -283,6 +337,17 @@ private extension PhoneClipboardFontSize {
             return 40
         case .large:
             return 46
+        }
+    }
+
+    var clipboardListThumbnailSize: CGFloat {
+        switch self {
+        case .small:
+            return 40
+        case .medium:
+            return 54
+        case .large:
+            return 66
         }
     }
 }

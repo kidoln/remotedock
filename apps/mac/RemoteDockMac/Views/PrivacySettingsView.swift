@@ -35,7 +35,7 @@ struct PrivacySettingsView: View {
             Toggle("剪贴板同步", isOn: $appModel.clipboardSyncEnabled)
 
             HStack {
-                Text("已缓存 \(appModel.clipboardItems.count) 条文本")
+                Text("已缓存 \(appModel.clipboardItems.count) 条剪贴板记录")
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(role: .destructive) {
