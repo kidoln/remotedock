@@ -18,6 +18,7 @@ final class RemoteDockClientStore: ObservableObject {
     @Published private(set) var pairedMacAppVersion: String?
     @Published private(set) var negotiatedProtocolVersion: Int?
     @Published private(set) var peerProtocolIsCompatible = true
+    @Published private(set) var isBackgroundReconnecting = false
 
     private let deviceId: String
     private let deviceName: String
@@ -26,8 +27,10 @@ final class RemoteDockClientStore: ObservableObject {
     private var transportCreationTask: Task<any TransportSession, Never>?
     private var startTask: Task<Void, Never>?
     private var reconnectTask: Task<Void, Never>?
+    private var backgroundReconnectTask: Task<Void, Never>?
     private var allowsAutomaticReconnect = true
     private var hasCompletedInitialDiscovery = false
+    private var hasFailedBackgroundReconnect = false
 
     init(transport: (any TransportSession)? = nil) {
         let storedDeviceIdKey = "remoteDock.iOS.deviceId"
@@ -41,12 +44,15 @@ final class RemoteDockClientStore: ObservableObject {
         self.deviceName = UIDevice.current.name
         self.injectedTransport = transport
         self.transport = transport
-        settings.savedPairingCode = UserDefaults.standard.string(forKey: Self.savedPairingCodeDefaultsKey)
+        let storedPairingCode = UserDefaults.standard.string(forKey: Self.savedPairingCodeDefaultsKey)
+        settings.selectedMacId = UserDefaults.standard.string(forKey: Self.selectedMacIdDefaultsKey)
+        settings.savedPairingCode = storedPairingCode
         settings.pairingCodeInput = settings.savedPairingCode ?? ""
         settings.iconGridCount = Self.loadIconGridCount()
         settings.clipboardFontSize = Self.loadClipboardFontSize()
         settings.movePastedClipboardItemToTop = Self.loadMovePastedClipboardItemToTop()
         settings.moveActivatedRunningAppToTop = Self.loadMoveActivatedRunningAppToTop()
+        isBackgroundReconnecting = Self.validPairingCode(from: storedPairingCode) != nil
 
         dock.apps = MockBootstrap.pinnedApps
         runningApps.apps = MockBootstrap.runningApps
@@ -57,6 +63,7 @@ final class RemoteDockClientStore: ObservableObject {
         transportCreationTask?.cancel()
         startTask?.cancel()
         reconnectTask?.cancel()
+        backgroundReconnectTask?.cancel()
     }
 
     func iconImage(for app: PinnedApp) -> UIImage? {
@@ -90,6 +97,10 @@ final class RemoteDockClientStore: ObservableObject {
             return false
         }
 
+        if isBackgroundReconnecting {
+            return false
+        }
+
         return true
     }
 
@@ -107,15 +118,28 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         startTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(200))
             guard let self, !Task.isCancelled else {
                 return
             }
 
             let transport = await self.ensureTransport()
-            await self.refreshDiscovery(using: transport, restartBrowsing: true)
+            if self.validSavedPairingCode != nil {
+                await self.startBackgroundReconnect(using: transport, initialDelay: .milliseconds(120))
+            } else {
+                try? await Task.sleep(for: .milliseconds(200))
+                guard !Task.isCancelled else {
+                    return
+                }
 
-            for await event in await transport.events {
+                await self.refreshDiscovery(using: transport, restartBrowsing: true)
+            }
+
+            guard !Task.isCancelled else {
+                return
+            }
+
+            let events = await transport.events
+            for await event in events {
                 if Task.isCancelled {
                     break
                 }
@@ -135,15 +159,176 @@ final class RemoteDockClientStore: ObservableObject {
             return
         }
 
-        Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(250))
-            guard let self, !Task.isCancelled else {
+        if shouldAttemptSavedPairingCodeReconnect {
+            isBackgroundReconnecting = true
+            startBackgroundReconnect()
+        } else {
+            Task { [weak self] in
+                try? await Task.sleep(for: .milliseconds(250))
+                guard let self, !Task.isCancelled else {
+                    return
+                }
+
+                let transport = await self.ensureTransport()
+                await self.refreshDiscovery(using: transport, restartBrowsing: true)
+            }
+        }
+    }
+
+    private func startBackgroundReconnect(initialDelay: Duration = .milliseconds(250)) {
+        guard shouldAttemptSavedPairingCodeReconnect else {
+            isBackgroundReconnecting = false
+            return
+        }
+
+        hasFailedBackgroundReconnect = false
+        isBackgroundReconnecting = true
+        backgroundReconnectTask?.cancel()
+        backgroundReconnectTask = Task { [weak self] in
+            guard let self else { return }
+
+            let transport = await self.ensureTransport()
+            await self.startBackgroundReconnect(using: transport, initialDelay: initialDelay)
+        }
+    }
+
+    private func startBackgroundReconnect(
+        using transport: any TransportSession,
+        initialDelay: Duration
+    ) async {
+        guard let pairingCode = validSavedPairingCode else {
+            isBackgroundReconnecting = false
+            return
+        }
+
+        hasFailedBackgroundReconnect = false
+        do {
+            if initialDelay > .zero {
+                try? await Task.sleep(for: initialDelay)
+                try Task.checkCancellation()
+            }
+
+            await startDiscovery(using: transport)
+
+            let currentState = await transport.state
+            if case .connected = currentState {
+                applyTransportState(currentState)
+                isBackgroundReconnecting = false
+                backgroundReconnectTask = nil
                 return
             }
 
-            let transport = await self.ensureTransport()
-            await self.refreshDiscovery(using: transport, restartBrowsing: true)
+            guard let peer = try await waitForPreferredMac(using: transport, timeout: .seconds(6)) else {
+                finishBackgroundReconnectFailure("找不到附近的 Mac")
+                hasCompletedInitialDiscovery = true
+                backgroundReconnectTask = nil
+                return
+            }
+
+            discovery.connectionState = .reconnecting(peer)
+
+            try await Self.performTransportOperation {
+                try await transport.connect(to: peer, pairingCode: pairingCode)
+            }
+
+            let connectionState = try await waitForConnectionResult(using: transport, timeout: .seconds(12))
+            discovery.connectionState = connectionState
+            if case let .connected(peer) = connectionState {
+                hasFailedBackgroundReconnect = false
+                selectMac(peer)
+                connectionErrorMessage = nil
+                isBackgroundReconnecting = false
+            } else {
+                finishBackgroundReconnectFailure(connectionFailureMessage(for: connectionState))
+            }
+            backgroundReconnectTask = nil
+        } catch is CancellationError {
+            backgroundReconnectTask = nil
+        } catch {
+            finishBackgroundReconnectFailure(error.localizedDescription)
+            hasCompletedInitialDiscovery = true
+            backgroundReconnectTask = nil
         }
+    }
+
+    private func startDiscovery(using transport: any TransportSession) async {
+        let snapshot = await Task.detached(priority: .userInitiated) {
+            await transport.startDiscovery()
+            return (state: await transport.state, peers: await transport.discoveredPeers)
+        }.value
+
+        applyTransportState(snapshot.state)
+        discovery.availableMacs = snapshot.peers
+        hasCompletedInitialDiscovery = true
+    }
+
+    private func waitForPreferredMac(
+        using transport: any TransportSession,
+        timeout: Duration
+    ) async throws -> TransportPeer? {
+        if let peer = preferredDiscoveredMac {
+            return peer
+        }
+
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while clock.now < deadline {
+            try Task.checkCancellation()
+
+            if let peer = preferredDiscoveredMac {
+                return peer
+            }
+
+            discovery.availableMacs = await transport.discoveredPeers
+            if let peer = preferredDiscoveredMac {
+                return peer
+            }
+
+            try await Task.sleep(for: .milliseconds(250))
+        }
+
+        discovery.availableMacs = await transport.discoveredPeers
+        return preferredDiscoveredMac
+    }
+
+    private func waitForConnectionResult(
+        using transport: any TransportSession,
+        timeout: Duration
+    ) async throws -> TransportConnectionState {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while clock.now < deadline {
+            try Task.checkCancellation()
+
+            let state = await transport.state
+            switch state {
+            case .connected, .disconnected, .failed:
+                return state
+            default:
+                try await Task.sleep(for: .milliseconds(250))
+            }
+        }
+
+        return .failed("连接 Mac 超时，请检查 Mac 端是否正在运行。")
+    }
+
+    private func connectionFailureMessage(for state: TransportConnectionState) -> String {
+        switch state {
+        case let .failed(message):
+            return message
+        case let .disconnected(reason):
+            return reason ?? "连接已断开，请重新输入配对码。"
+        default:
+            return "连接 Mac 超时，请检查 Mac 端是否正在运行。"
+        }
+    }
+
+    private func finishBackgroundReconnectFailure(_ message: String) {
+        hasFailedBackgroundReconnect = true
+        connectionErrorMessage = message
+        discovery.connectionState = .failed(message)
+        settings.pairingCodeInput = ""
+        isBackgroundReconnecting = false
     }
 
     func activate(_ app: PinnedApp) {
@@ -185,6 +370,11 @@ final class RemoteDockClientStore: ObservableObject {
     }
 
     func connectToPreferredMacIfPossible(manuallyTriggered: Bool = false) {
+        // 如果正在后台重连，不触发连接
+        guard !isBackgroundReconnecting else {
+            return
+        }
+
         guard normalizedPairingCodeInput.count == 4 else {
             if manuallyTriggered {
                 connectionErrorMessage = "请输入 Mac 上显示的四位配对码。"
@@ -213,6 +403,7 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         allowsAutomaticReconnect = true
+        hasFailedBackgroundReconnect = false
         discovery.connectionState = .connecting(peer)
         Task { [weak self] in
             guard let self else { return }
@@ -223,7 +414,7 @@ final class RemoteDockClientStore: ObservableObject {
                 }
                 connectionErrorMessage = nil
                 discovery.connectionState = await transport.state
-                settings.selectedMacId = peer.id
+                selectMac(peer)
             } catch {
                 connectionErrorMessage = error.localizedDescription
                 discovery.connectionState = .failed(error.localizedDescription)
@@ -241,6 +432,7 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         allowsAutomaticReconnect = true
+        hasFailedBackgroundReconnect = false
         if let peer = preferredDiscoveredMac {
             discovery.connectionState = .reconnecting(peer)
         }
@@ -264,6 +456,9 @@ final class RemoteDockClientStore: ObservableObject {
         allowsAutomaticReconnect = false
         reconnectTask?.cancel()
         reconnectTask = nil
+        backgroundReconnectTask?.cancel()
+        backgroundReconnectTask = nil
+        isBackgroundReconnecting = false
         connectionErrorMessage = nil
         pairingCode = nil
         clearPeerHandshakeState()
@@ -318,12 +513,22 @@ final class RemoteDockClientStore: ObservableObject {
         case let .stateChanged(state):
             applyTransportState(state)
             if case let .connected(peer) = state {
-                settings.selectedMacId = peer.id
+                hasFailedBackgroundReconnect = false
+                isBackgroundReconnecting = false
+                selectMac(peer)
                 connectionErrorMessage = nil
                 await sendPairingHandshake()
             } else if case .disconnected = state {
                 clearPeerHandshakeState()
-                scheduleReconnectIfNeeded()
+                guard !isBackgroundReconnecting else {
+                    return
+                }
+
+                if allowsAutomaticReconnect, shouldAttemptSavedPairingCodeReconnect {
+                    startBackgroundReconnect(initialDelay: .milliseconds(500))
+                } else if !hasFailedBackgroundReconnect {
+                    scheduleReconnectIfNeeded()
+                }
             }
         case let .discoveredPeersChanged(peers):
             discovery.availableMacs = peers
@@ -340,6 +545,7 @@ final class RemoteDockClientStore: ObservableObject {
             negotiatedProtocolVersion = payload.highestCompatibleProtocolVersion
             peerProtocolIsCompatible = payload.isProtocolCompatible
         case let .pairApprove(payload):
+            hasFailedBackgroundReconnect = false
             pairingCode = payload.pairingCode
             settings.savedPairingCode = payload.pairingCode
             settings.pairingCodeInput = payload.pairingCode
@@ -523,6 +729,14 @@ final class RemoteDockClientStore: ObservableObject {
         String(settings.pairingCodeInput.filter(\.isNumber).prefix(4))
     }
 
+    private var validSavedPairingCode: String? {
+        Self.validPairingCode(from: settings.savedPairingCode)
+    }
+
+    private var shouldAttemptSavedPairingCodeReconnect: Bool {
+        validSavedPairingCode != nil && !hasFailedBackgroundReconnect
+    }
+
     private var canStartConnection: Bool {
         switch discovery.connectionState {
         case .connected, .connecting, .reconnecting:
@@ -636,7 +850,20 @@ final class RemoteDockClientStore: ObservableObject {
         peerProtocolIsCompatible = true
     }
 
+    private func selectMac(_ peer: TransportPeer) {
+        settings.selectedMacId = peer.id
+        UserDefaults.standard.set(peer.id, forKey: Self.selectedMacIdDefaultsKey)
+    }
+
     private func scheduleReconnectIfNeeded() {
+        // 如果正在后台重连，不触发自动重连
+        guard !isBackgroundReconnecting else {
+            return
+        }
+        guard !hasFailedBackgroundReconnect else {
+            return
+        }
+
         guard allowsAutomaticReconnect else {
             return
         }
@@ -650,13 +877,18 @@ final class RemoteDockClientStore: ObservableObject {
         reconnectTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(1))
             await MainActor.run {
-                self?.reconnectTask = nil
-                self?.reconnect()
+                // 再次检查是否在后台重连，因为在异步任务期间状态可能发生变化
+                guard let self, !self.isBackgroundReconnecting else {
+                    return
+                }
+                self.reconnectTask = nil
+                self.reconnect()
             }
         }
     }
 
     private static let savedPairingCodeDefaultsKey = "remoteDock.iOS.savedPairingCode"
+    private static let selectedMacIdDefaultsKey = "remoteDock.iOS.selectedMacId"
     private static let iconGridCountDefaultsKey = "remoteDock.iOS.iconGridCount"
     private static let clipboardFontSizeDefaultsKey = "remoteDock.iOS.clipboardFontSize"
     private static let movePastedClipboardItemToTopDefaultsKey = "remoteDock.iOS.movePastedClipboardItemToTop"
@@ -664,6 +896,15 @@ final class RemoteDockClientStore: ObservableObject {
 
     private static func savePairingCode(_ pairingCode: String) {
         UserDefaults.standard.set(pairingCode, forKey: savedPairingCodeDefaultsKey)
+    }
+
+    private static func validPairingCode(from value: String?) -> String? {
+        guard let value else {
+            return nil
+        }
+
+        let pairingCode = String(value.filter(\.isNumber).prefix(4))
+        return pairingCode.count == 4 ? pairingCode : nil
     }
 
     private static func loadIconGridCount() -> PhoneIconGridCount {

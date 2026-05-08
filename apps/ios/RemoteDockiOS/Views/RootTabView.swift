@@ -16,6 +16,12 @@ struct RootTabView: View {
                 portraitTabs
             }
         }
+        .overlay {
+            // 后台重连时显示 loading 界面
+            if appModel.isBackgroundReconnecting {
+                ReconnectingOverlay()
+            }
+        }
         .fullScreenCover(isPresented: pairingGateBinding) {
             PairingCodeGateView()
                 .environmentObject(appModel)
@@ -651,5 +657,70 @@ private struct DigitBox: View {
         }
         .frame(width: size.width, height: size.height)
         .shadow(color: isActive ? PhoneTheme.iconWarmGlow.opacity(0.34) : Color.black.opacity(0.16), radius: isActive ? 12 : 8, x: 0, y: isActive ? 4 : 3)
+    }
+}
+
+/// 后台重连时显示的 loading 覆盖层
+private struct ReconnectingOverlay: View {
+    @EnvironmentObject private var appModel: RemoteDockClientStore
+
+    var body: some View {
+        ZStack {
+            // 半透明背景
+            Color.black.opacity(0.72)
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                // 旋转的加载指示器
+                ProgressView()
+                    .scaleEffect(1.4)
+                    .progressViewStyle(CircularProgressViewStyle(tint: Color.white.opacity(0.94)))
+                    .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
+
+                Text("正在重连 Mac...")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.94))
+                    .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
+
+                // 如果有已保存的 Mac 名称，显示出来
+                if let macName = appModel.discovery.availableMacs.first?.displayName {
+                    Text(macName)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.white.opacity(0.68))
+                }
+            }
+            .padding(32)
+            .background {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                PhoneTheme.panelBackgroundTop.opacity(0.96),
+                                PhoneTheme.panelBackground.opacity(0.98)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.22),
+                                        PhoneTheme.tabBarStroke.opacity(0.38)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.2
+                            )
+                    }
+                    .shadow(color: Color.black.opacity(0.32), radius: 24, x: 0, y: 13)
+                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.18), radius: 20, x: 0, y: 0)
+            }
+        }
+        .transition(.opacity)
+        .zIndex(999)
     }
 }
