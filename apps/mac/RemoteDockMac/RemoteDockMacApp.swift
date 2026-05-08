@@ -94,16 +94,23 @@ private final class StatusItemController: NSObject, ObservableObject {
 
     private func showSettingsWindow() {
         if settingsWindowController == nil {
-            settingsWindowController = SettingsWindowController(appModel: appModel)
+            settingsWindowController = SettingsWindowController(appModel: appModel) {
+                NSApplication.shared.setActivationPolicy(.accessory)
+            }
         }
 
+        NSApplication.shared.setActivationPolicy(.regular)
         settingsWindowController?.showSettingsWindow()
     }
 }
 
 @MainActor
-private final class SettingsWindowController: NSWindowController {
-    init(appModel: MacAppModel) {
+private final class SettingsWindowController: NSWindowController, NSWindowDelegate {
+    private let onClose: () -> Void
+
+    init(appModel: MacAppModel, onClose: @escaping () -> Void) {
+        self.onClose = onClose
+
         let rootView = SettingsView()
             .environmentObject(appModel)
             .frame(minWidth: 760, minHeight: 500)
@@ -123,6 +130,8 @@ private final class SettingsWindowController: NSWindowController {
         window.center()
 
         super.init(window: window)
+
+        window.delegate = self
     }
 
     @available(*, unavailable)
@@ -142,5 +151,9 @@ private final class SettingsWindowController: NSWindowController {
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
         NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        onClose()
     }
 }

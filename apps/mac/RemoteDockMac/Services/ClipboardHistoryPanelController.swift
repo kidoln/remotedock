@@ -307,8 +307,7 @@ private final class ClipboardHistoryPanelStore: ObservableObject {
         }
 
         return items.filter { item in
-            item.plainText.localizedCaseInsensitiveContains(query) ||
-                item.sourceAppBundleId?.localizedCaseInsensitiveContains(query) == true
+            ClipboardSearchMatcher.matches(item, query: query)
         }
     }
 
