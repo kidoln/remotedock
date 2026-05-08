@@ -41,7 +41,40 @@ public struct ProtocolEnvelopeHeader: Codable, Equatable, Sendable {
 }
 
 public enum ProtocolVersion {
+    public static let minimumSupported = 1
     public static let current = 1
+
+    public static var supportedRange: ProtocolVersionRange {
+        ProtocolVersionRange(minimum: minimumSupported, maximum: current)
+    }
+
+    public static func isSupported(_ version: Int) -> Bool {
+        supportedRange.contains(version)
+    }
+}
+
+public struct ProtocolVersionRange: Codable, Equatable, Sendable {
+    public var minimum: Int
+    public var maximum: Int
+
+    public init(minimum: Int, maximum: Int) {
+        self.minimum = minimum
+        self.maximum = maximum
+    }
+
+    public func contains(_ version: Int) -> Bool {
+        minimum <= version && version <= maximum
+    }
+
+    public func highestCommonVersion(with other: ProtocolVersionRange) -> Int? {
+        let lowerBound = Swift.max(minimum, other.minimum)
+        let upperBound = Swift.min(maximum, other.maximum)
+        guard lowerBound <= upperBound else {
+            return nil
+        }
+
+        return upperBound
+    }
 }
 
 public enum RemoteDockProtocolCodec {
@@ -67,10 +100,11 @@ public enum RemoteDockProtocolCodec {
     public static func decode<Payload: Codable & Sendable & Equatable>(
         _ payloadType: Payload.Type,
         from data: Data,
-        expectedType: RemoteDockMessageType
+        expectedType: RemoteDockMessageType,
+        allowUnsupportedEnvelopeVersion: Bool = false
     ) throws -> ProtocolEnvelope<Payload> {
         let envelope = try decoder.decode(ProtocolEnvelope<Payload>.self, from: data)
-        guard envelope.version == ProtocolVersion.current else {
+        guard allowUnsupportedEnvelopeVersion || ProtocolVersion.isSupported(envelope.version) else {
             throw RemoteDockError.unsupportedProtocolVersion(envelope.version)
         }
         guard envelope.type == expectedType else {

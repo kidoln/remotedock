@@ -183,7 +183,7 @@ private struct PortraitTabBarItem: View {
             }
         }
         .foregroundStyle(isSelected ? Color.white.opacity(0.98) : Color.white.opacity(0.68))
-        .frame(maxWidth: isSelected ? 64 : 50, minHeight: isSelected ? 26 : 36, maxHeight: 40)
+        .frame(maxWidth: isSelected ? 64 : 50, minHeight: isSelected ? 16 : 36, maxHeight: 40)
         .padding(.horizontal, isSelected ? 0 : 0)
         .padding(.vertical, isSelected ? 3 : 0)
         .background {

@@ -6,6 +6,9 @@ public struct HelloPayload: Codable, Equatable, Sendable {
     public var deviceName: String
     public var platform: RemoteDockPlatform
     public var supportedProtocolVersion: Int
+    public var supportedProtocolVersions: ProtocolVersionRange
+    public var appVersion: String?
+    public var buildNumber: String?
     public var capabilities: [RemoteDockCapability]
 
     public init(
@@ -13,13 +16,59 @@ public struct HelloPayload: Codable, Equatable, Sendable {
         deviceName: String,
         platform: RemoteDockPlatform,
         supportedProtocolVersion: Int = ProtocolVersion.current,
+        supportedProtocolVersions: ProtocolVersionRange = ProtocolVersion.supportedRange,
+        appVersion: String? = nil,
+        buildNumber: String? = nil,
         capabilities: [RemoteDockCapability]
     ) {
         self.deviceId = deviceId
         self.deviceName = deviceName
         self.platform = platform
         self.supportedProtocolVersion = supportedProtocolVersion
+        self.supportedProtocolVersions = supportedProtocolVersions
+        self.appVersion = appVersion
+        self.buildNumber = buildNumber
         self.capabilities = capabilities
+    }
+
+    public var highestCompatibleProtocolVersion: Int? {
+        ProtocolVersion.supportedRange.highestCommonVersion(with: supportedProtocolVersions)
+    }
+
+    public var isProtocolCompatible: Bool {
+        highestCompatibleProtocolVersion != nil
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case deviceId
+        case deviceName
+        case platform
+        case supportedProtocolVersion
+        case supportedProtocolVersions
+        case appVersion
+        case buildNumber
+        case capabilities
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        deviceId = try container.decode(String.self, forKey: .deviceId)
+        deviceName = try container.decode(String.self, forKey: .deviceName)
+        platform = try container.decode(RemoteDockPlatform.self, forKey: .platform)
+        supportedProtocolVersion = try container.decodeIfPresent(
+            Int.self,
+            forKey: .supportedProtocolVersion
+        ) ?? ProtocolVersion.current
+        supportedProtocolVersions = try container.decodeIfPresent(
+            ProtocolVersionRange.self,
+            forKey: .supportedProtocolVersions
+        ) ?? ProtocolVersionRange(
+            minimum: supportedProtocolVersion,
+            maximum: supportedProtocolVersion
+        )
+        appVersion = try container.decodeIfPresent(String.self, forKey: .appVersion)
+        buildNumber = try container.decodeIfPresent(String.self, forKey: .buildNumber)
+        capabilities = try container.decode([RemoteDockCapability].self, forKey: .capabilities)
     }
 }
 

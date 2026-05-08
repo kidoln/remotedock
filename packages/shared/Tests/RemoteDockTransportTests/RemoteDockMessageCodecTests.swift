@@ -53,4 +53,52 @@ final class RemoteDockMessageCodecTests: XCTestCase {
 
         XCTAssertEqual(decoded, message)
     }
+
+    func testDecodesHelloWithUnsupportedEnvelopeVersionForNegotiation() throws {
+        let json = """
+        {
+          "type": "hello",
+          "version": 999,
+          "payload": {
+            "deviceId": "mac-1",
+            "deviceName": "Mac",
+            "platform": "macOS",
+            "supportedProtocolVersion": 999,
+            "supportedProtocolVersions": {
+              "minimum": 999,
+              "maximum": 999
+            },
+            "appVersion": "9.9.9",
+            "buildNumber": "999",
+            "capabilities": ["appActivation"]
+          }
+        }
+        """
+
+        let decoded = try RemoteDockMessage.decode(from: Data(json.utf8))
+
+        guard case let .hello(payload) = decoded else {
+            return XCTFail("Expected hello message")
+        }
+
+        XCTAssertEqual(payload.appVersion, "9.9.9")
+        XCTAssertFalse(payload.isProtocolCompatible)
+    }
+
+    func testRejectsUnsupportedEnvelopeVersionForNonHelloMessages() throws {
+        let json = """
+        {
+          "type": "error",
+          "version": 999,
+          "payload": {
+            "code": "bad",
+            "message": "Bad message"
+          }
+        }
+        """
+
+        XCTAssertThrowsError(try RemoteDockMessage.decode(from: Data(json.utf8))) { error in
+            XCTAssertEqual(error as? RemoteDockError, .unsupportedProtocolVersion(999))
+        }
+    }
 }

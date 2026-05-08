@@ -15,6 +15,9 @@ final class RemoteDockClientStore: ObservableObject {
     @Published private(set) var lastCommandResult: CommandResultPayload?
     @Published private(set) var pairingCode: String?
     @Published private(set) var connectionErrorMessage: String?
+    @Published private(set) var pairedMacAppVersion: String?
+    @Published private(set) var negotiatedProtocolVersion: Int?
+    @Published private(set) var peerProtocolIsCompatible = true
 
     private let deviceId: String
     private let deviceName: String
@@ -263,6 +266,7 @@ final class RemoteDockClientStore: ObservableObject {
         reconnectTask = nil
         connectionErrorMessage = nil
         pairingCode = nil
+        clearPeerHandshakeState()
         settings.pairingCodeInput = ""
         discovery.connectionState = .disconnected(reason: nil)
 
@@ -318,6 +322,7 @@ final class RemoteDockClientStore: ObservableObject {
                 connectionErrorMessage = nil
                 await sendPairingHandshake()
             } else if case .disconnected = state {
+                clearPeerHandshakeState()
                 scheduleReconnectIfNeeded()
             }
         case let .discoveredPeersChanged(peers):
@@ -330,6 +335,10 @@ final class RemoteDockClientStore: ObservableObject {
 
     private func handleMessage(_ message: RemoteDockMessage) async {
         switch message {
+        case let .hello(payload):
+            pairedMacAppVersion = payload.appVersionDisplayText
+            negotiatedProtocolVersion = payload.highestCompatibleProtocolVersion
+            peerProtocolIsCompatible = payload.isProtocolCompatible
         case let .pairApprove(payload):
             pairingCode = payload.pairingCode
             settings.savedPairingCode = payload.pairingCode
@@ -363,6 +372,8 @@ final class RemoteDockClientStore: ObservableObject {
             deviceId: deviceId,
             deviceName: deviceName,
             platform: .iOS,
+            appVersion: Bundle.main.remoteDockAppVersion,
+            buildNumber: Bundle.main.remoteDockBuildNumber,
             capabilities: [.appActivation, .clipboardPaste, .iconSync]
         )
         try? await Self.performTransportOperation {
@@ -619,6 +630,12 @@ final class RemoteDockClientStore: ObservableObject {
         }
     }
 
+    private func clearPeerHandshakeState() {
+        pairedMacAppVersion = nil
+        negotiatedProtocolVersion = nil
+        peerProtocolIsCompatible = true
+    }
+
     private func scheduleReconnectIfNeeded() {
         guard allowsAutomaticReconnect else {
             return
@@ -673,5 +690,29 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         return UserDefaults.standard.bool(forKey: moveActivatedRunningAppToTopDefaultsKey)
+    }
+}
+
+private extension Bundle {
+    var remoteDockAppVersion: String? {
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+    }
+
+    var remoteDockBuildNumber: String? {
+        object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    }
+}
+
+private extension HelloPayload {
+    var appVersionDisplayText: String? {
+        guard let appVersion else {
+            return nil
+        }
+
+        if let buildNumber, buildNumber != appVersion {
+            return "\(appVersion) (\(buildNumber))"
+        }
+
+        return appVersion
     }
 }

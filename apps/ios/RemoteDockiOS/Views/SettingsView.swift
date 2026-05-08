@@ -56,6 +56,9 @@ struct SettingsView: View {
                             Section("配对") {
                                 Label("已连接，Mac 配对码 \(pairingCode)", systemImage: "key")
                                     .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
+
+                                Label("Mac 版本 \(macVersionText)", systemImage: "desktopcomputer")
+                                    .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
                             }
                         }
 
@@ -158,6 +161,10 @@ struct SettingsView: View {
         } set: { value in
             appModel.updateClipboardFontSize(value)
         }
+    }
+
+    private var macVersionText: String {
+        appModel.pairedMacAppVersion ?? "未知"
     }
 
     private func clearClipboardHistory() {

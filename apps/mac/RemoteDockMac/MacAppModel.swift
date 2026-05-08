@@ -22,6 +22,9 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var clipboardHistoryPanelErrorMessage: String?
     @Published private(set) var permissionStatus = PermissionCenter.Status()
     @Published private(set) var pairedDeviceName: String?
+    @Published private(set) var pairedDeviceAppVersion: String?
+    @Published private(set) var negotiatedProtocolVersion: Int?
+    @Published private(set) var peerProtocolIsCompatible = true
     @Published var clipboardSyncEnabled = true
 
     var clipboardHistoryShortcutDidChange: ((ClipboardHistoryShortcut) -> Bool)?
@@ -237,6 +240,9 @@ final class MacAppModel: ObservableObject {
         case let .stateChanged(state):
             await MainActor.run {
                 self.connectionState = state
+                if case .disconnected = state {
+                    self.clearPeerHandshakeState()
+                }
             }
         case let .messageReceived(message):
             await handleMessage(message)
@@ -252,6 +258,9 @@ final class MacAppModel: ObservableObject {
         case let .hello(payload):
             await MainActor.run {
                 self.pairedDeviceName = payload.deviceName
+                self.pairedDeviceAppVersion = payload.appVersionDisplayText
+                self.negotiatedProtocolVersion = payload.highestCompatibleProtocolVersion
+                self.peerProtocolIsCompatible = payload.isProtocolCompatible
             }
         case let .pairRequest(payload):
             await approvePairing(payload)
@@ -284,6 +293,8 @@ final class MacAppModel: ObservableObject {
             deviceId: macId,
             deviceName: Host.current().localizedName ?? "Remote Dock Mac",
             platform: .macOS,
+            appVersion: Bundle.main.remoteDockAppVersion,
+            buildNumber: Bundle.main.remoteDockBuildNumber,
             capabilities: [.appActivation, .runningApps, .clipboardHistory, .clipboardPaste, .iconSync]
         )
         try? await peerSessionManager.send(.hello(hello))
@@ -336,6 +347,12 @@ final class MacAppModel: ObservableObject {
         await snapshotPublisher.publishIconPayloads(payloads, through: peerSessionManager)
     }
 
+    private func clearPeerHandshakeState() {
+        pairedDeviceAppVersion = nil
+        negotiatedProtocolVersion = nil
+        peerProtocolIsCompatible = true
+    }
+
     private static func loadMacId() -> String {
         if let storedMacId = UserDefaults.standard.string(forKey: macIdDefaultsKey), !storedMacId.isEmpty {
             return storedMacId
@@ -364,6 +381,30 @@ final class MacAppModel: ObservableObject {
 
     private static func generatePairingCode() -> String {
         String(format: "%04d", Int.random(in: 0...9999))
+    }
+}
+
+private extension Bundle {
+    var remoteDockAppVersion: String? {
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+    }
+
+    var remoteDockBuildNumber: String? {
+        object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    }
+}
+
+private extension HelloPayload {
+    var appVersionDisplayText: String? {
+        guard let appVersion else {
+            return nil
+        }
+
+        if let buildNumber, buildNumber != appVersion {
+            return "\(appVersion) (\(buildNumber))"
+        }
+
+        return appVersion
     }
 }
 

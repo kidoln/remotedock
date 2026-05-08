@@ -39,7 +39,12 @@ public extension RemoteDockMessage {
         let header = try RemoteDockProtocolCodec.decoder.decode(ProtocolEnvelopeHeader.self, from: data)
         switch header.type {
         case .hello:
-            return .hello(try decodePayload(HelloPayload.self, from: data, expectedType: .hello))
+            return .hello(try decodePayload(
+                HelloPayload.self,
+                from: data,
+                expectedType: .hello,
+                allowUnsupportedEnvelopeVersion: true
+            ))
         case .pairRequest:
             return .pairRequest(try decodePayload(PairRequestPayload.self, from: data, expectedType: .pairRequest))
         case .pairApprove:
@@ -79,8 +84,14 @@ public extension RemoteDockMessage {
     private static func decodePayload<Payload: Codable & Equatable & Sendable>(
         _ payloadType: Payload.Type,
         from data: Data,
-        expectedType: RemoteDockMessageType
+        expectedType: RemoteDockMessageType,
+        allowUnsupportedEnvelopeVersion: Bool = false
     ) throws -> Payload {
-        try RemoteDockProtocolCodec.decode(payloadType, from: data, expectedType: expectedType).payload
+        try RemoteDockProtocolCodec.decode(
+            payloadType,
+            from: data,
+            expectedType: expectedType,
+            allowUnsupportedEnvelopeVersion: allowUnsupportedEnvelopeVersion
+        ).payload
     }
 }

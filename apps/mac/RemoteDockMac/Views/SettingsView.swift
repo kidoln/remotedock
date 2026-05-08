@@ -868,6 +868,7 @@ private struct AboutSettingsPane: View {
                 SettingsInfoRow(title: "配对码", value: appModel.pairingCode)
                 SettingsInfoRow(title: "连接状态", value: connectionText)
                 SettingsInfoRow(title: "配对设备", value: appModel.pairedDeviceName ?? "无")
+                SettingsInfoRow(title: "iOS 端版本", value: pairedDeviceVersionText)
                 SettingsInfoRow(title: "设备 ID", value: shortMacId)
                 SettingsInfoRow(title: "常用应用", value: "\(appModel.pinnedApps.count)")
                 SettingsInfoRow(title: "运行应用", value: "\(appModel.runningApps.count)")
@@ -914,6 +915,22 @@ private struct AboutSettingsPane: View {
         case let .failed(message):
             "连接失败：\(message)"
         }
+    }
+
+    private var pairedDeviceVersionText: String {
+        guard isPhoneConnected else {
+            return "未连接"
+        }
+
+        return appModel.pairedDeviceAppVersion ?? "未知"
+    }
+
+    private var isPhoneConnected: Bool {
+        if case .connected = appModel.connectionState {
+            return true
+        }
+
+        return false
     }
 }
 
