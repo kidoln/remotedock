@@ -81,6 +81,12 @@ struct SettingsView: View {
                 Text("配对码")
                     .font(.system(size: 12, weight: .medium))
                 Spacer()
+                Image(systemName: "circle.fill")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(pairingConnectionIndicatorColor)
+                    .shadow(color: pairingConnectionIndicatorColor.opacity(0.45), radius: 4)
+                    .help(pairingConnectionStatusText)
+                    .accessibilityLabel(pairingConnectionStatusText)
             }
             .foregroundStyle(SettingsPalette.secondaryText)
 
@@ -108,7 +114,23 @@ struct SettingsView: View {
                 .stroke(SettingsPalette.border, lineWidth: 1)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("配对码 \(appModel.pairingCode)")
+        .accessibilityLabel("配对码 \(appModel.pairingCode)，\(pairingConnectionStatusText)")
+    }
+
+    private var isPhoneConnected: Bool {
+        if case .connected = appModel.connectionState {
+            return true
+        }
+
+        return false
+    }
+
+    private var pairingConnectionStatusText: String {
+        isPhoneConnected ? "手机已连接" : "手机未连接"
+    }
+
+    private var pairingConnectionIndicatorColor: Color {
+        isPhoneConnected ? SettingsPalette.connectedIndicator : SettingsPalette.disconnectedIndicator
     }
 
     private var header: some View {
@@ -674,4 +696,6 @@ private enum SettingsPalette {
     static let primaryText = Color.white.opacity(0.88)
     static let secondaryText = Color.white.opacity(0.72)
     static let mutedText = Color.white.opacity(0.46)
+    static let connectedIndicator = Color(nsColor: NSColor.systemGreen)
+    static let disconnectedIndicator = Color(nsColor: NSColor.systemYellow)
 }

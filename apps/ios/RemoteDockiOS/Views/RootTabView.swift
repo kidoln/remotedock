@@ -229,8 +229,12 @@ private struct PairingCodeGateView: View {
         }
         .interactiveDismissDisabled()
         .onAppear {
+            InterfaceOrientationLock.lockToPortrait()
             isPairingCodeFocused = true
             appModel.connectToPreferredMacIfPossible()
+        }
+        .onDisappear {
+            InterfaceOrientationLock.unlock()
         }
         .onChange(of: appModel.settings.pairingCodeInput) {
             appModel.connectToPreferredMacIfPossible()
