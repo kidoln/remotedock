@@ -18,10 +18,13 @@ final class RemoteDockClientStore: ObservableObject {
 
     private let deviceId: String
     private let deviceName: String
-    private let transport: any TransportSession
-    private lazy var commandDispatcher = CommandDispatcher(transport: transport)
+    private let injectedTransport: (any TransportSession)?
+    private var transport: (any TransportSession)?
+    private var transportCreationTask: Task<any TransportSession, Never>?
+    private var startTask: Task<Void, Never>?
     private var reconnectTask: Task<Void, Never>?
     private var allowsAutomaticReconnect = true
+    private var hasCompletedInitialDiscovery = false
 
     init(transport: (any TransportSession)? = nil) {
         let storedDeviceIdKey = "remoteDock.iOS.deviceId"
@@ -33,7 +36,8 @@ final class RemoteDockClientStore: ObservableObject {
             self.deviceId = newDeviceId
         }
         self.deviceName = UIDevice.current.name
-        self.transport = transport ?? MultipeerTransportSession(role: .browser, displayName: UIDevice.current.name)
+        self.injectedTransport = transport
+        self.transport = transport
         settings.savedPairingCode = UserDefaults.standard.string(forKey: Self.savedPairingCodeDefaultsKey)
         settings.pairingCodeInput = settings.savedPairingCode ?? ""
         settings.iconGridCount = Self.loadIconGridCount()
@@ -41,9 +45,12 @@ final class RemoteDockClientStore: ObservableObject {
         dock.apps = MockBootstrap.pinnedApps
         runningApps.apps = MockBootstrap.runningApps
         clipboard.items = MockBootstrap.clipboardItems
-        Task {
-            await start()
-        }
+    }
+
+    deinit {
+        transportCreationTask?.cancel()
+        startTask?.cancel()
+        reconnectTask?.cancel()
     }
 
     func iconImage(for app: PinnedApp) -> UIImage? {
@@ -78,33 +85,83 @@ final class RemoteDockClientStore: ObservableObject {
         return false
     }
 
-    func start() async {
-        await transport.startDiscovery()
-        discovery.connectionState = await transport.state
-        discovery.availableMacs = await transport.discoveredPeers
+    func startIfNeeded() {
+        guard startTask == nil else {
+            return
+        }
 
-        for await event in await transport.events {
-            await handleTransportEvent(event)
+        startTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(200))
+            guard let self, !Task.isCancelled else {
+                return
+            }
+
+            let transport = await self.ensureTransport()
+            await self.refreshDiscovery(using: transport, restartBrowsing: true)
+
+            for await event in await transport.events {
+                if Task.isCancelled {
+                    break
+                }
+                await self.handleTransportEvent(event)
+            }
+        }
+    }
+
+    func applicationDidBecomeActive() {
+        startIfNeeded()
+
+        guard hasCompletedInitialDiscovery else {
+            return
+        }
+
+        guard shouldRefreshDiscoveryOnActivation else {
+            return
+        }
+
+        Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(250))
+            guard let self, !Task.isCancelled else {
+                return
+            }
+
+            let transport = await self.ensureTransport()
+            await self.refreshDiscovery(using: transport, restartBrowsing: true)
         }
     }
 
     func activate(_ app: PinnedApp) {
-        Task {
-            try? await commandDispatcher.activate(app)
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
+            let dispatcher = CommandDispatcher(transport: transport)
+            try? await Self.performTransportOperation {
+                try await dispatcher.activate(app)
+            }
             dock.lastActivatedAppId = app.id
         }
     }
 
     func activate(_ app: RunningApp) {
-        Task {
-            try? await commandDispatcher.activate(app)
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
+            let dispatcher = CommandDispatcher(transport: transport)
+            try? await Self.performTransportOperation {
+                try await dispatcher.activate(app)
+            }
             runningApps.lastActivatedAppId = app.id
         }
     }
 
     func paste(_ item: ClipboardItem) {
-        Task {
-            try? await commandDispatcher.paste(item)
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
+            let dispatcher = CommandDispatcher(transport: transport)
+            try? await Self.performTransportOperation {
+                try await dispatcher.paste(item)
+            }
             clipboard.lastPastedItemId = item.id
         }
     }
@@ -138,16 +195,21 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         allowsAutomaticReconnect = true
-        Task {
+        discovery.connectionState = .connecting(peer)
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
             do {
-                try await transport.connect(to: peer, pairingCode: pairingCode)
+                try await Self.performTransportOperation {
+                    try await transport.connect(to: peer, pairingCode: pairingCode)
+                }
                 connectionErrorMessage = nil
+                discovery.connectionState = await transport.state
+                settings.selectedMacId = peer.id
             } catch {
                 connectionErrorMessage = error.localizedDescription
                 discovery.connectionState = .failed(error.localizedDescription)
             }
-            discovery.connectionState = await transport.state
-            settings.selectedMacId = peer.id
         }
     }
 
@@ -161,15 +223,22 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         allowsAutomaticReconnect = true
-        Task {
+        if let peer = preferredDiscoveredMac {
+            discovery.connectionState = .reconnecting(peer)
+        }
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
             do {
-                try await transport.reconnect(pairingCode: pairingCode)
+                try await Self.performTransportOperation {
+                    try await transport.reconnect(pairingCode: pairingCode)
+                }
                 connectionErrorMessage = nil
+                discovery.connectionState = await transport.state
             } catch {
                 connectionErrorMessage = error.localizedDescription
                 discovery.connectionState = .failed(error.localizedDescription)
             }
-            discovery.connectionState = await transport.state
         }
     }
 
@@ -182,8 +251,12 @@ final class RemoteDockClientStore: ObservableObject {
         settings.pairingCodeInput = ""
         discovery.connectionState = .disconnected(reason: nil)
 
-        Task {
-            await transport.disconnect()
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
+            await Self.performTransportOperation {
+                await transport.disconnect()
+            }
             discovery.connectionState = await transport.state
         }
     }
@@ -203,7 +276,7 @@ final class RemoteDockClientStore: ObservableObject {
     private func handleTransportEvent(_ event: TransportEvent) async {
         switch event.kind {
         case let .stateChanged(state):
-            discovery.connectionState = state
+            applyTransportState(state)
             if case let .connected(peer) = state {
                 settings.selectedMacId = peer.id
                 connectionErrorMessage = nil
@@ -213,6 +286,7 @@ final class RemoteDockClientStore: ObservableObject {
             }
         case let .discoveredPeersChanged(peers):
             discovery.availableMacs = peers
+            connectToPreferredMacIfPossible()
         case let .messageReceived(message):
             await handleMessage(message)
         }
@@ -247,20 +321,25 @@ final class RemoteDockClientStore: ObservableObject {
     }
 
     private func sendPairingHandshake() async {
+        let transport = await ensureTransport()
         let hello = HelloPayload(
             deviceId: deviceId,
             deviceName: deviceName,
             platform: .iOS,
             capabilities: [.appActivation, .clipboardPaste, .iconSync]
         )
-        try? await transport.send(.hello(hello))
+        try? await Self.performTransportOperation {
+            try await transport.send(.hello(hello))
+        }
 
         let pairRequest = PairRequestPayload(
             deviceId: deviceId,
             deviceName: deviceName,
             requestedAt: Date()
         )
-        try? await transport.send(.pairRequest(pairRequest))
+        try? await Self.performTransportOperation {
+            try await transport.send(.pairRequest(pairRequest))
+        }
     }
 
     private func applyClipboardDelta(_ payload: ClipboardDeltaPayload) {
@@ -290,8 +369,12 @@ final class RemoteDockClientStore: ObservableObject {
             return
         }
 
-        Task {
-            try? await transport.send(.iconRequest(IconRequestPayload(hashes: missingHashes)))
+        Task { [weak self] in
+            guard let self else { return }
+            let transport = await self.ensureTransport()
+            try? await Self.performTransportOperation {
+                try await transport.send(.iconRequest(IconRequestPayload(hashes: missingHashes)))
+            }
         }
     }
 
@@ -330,6 +413,95 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         return discovery.availableMacs.first
+    }
+
+    private var shouldRefreshDiscoveryOnActivation: Bool {
+        switch discovery.connectionState {
+        case .connected, .connecting, .reconnecting:
+            return false
+        default:
+            return true
+        }
+    }
+
+    private func refreshDiscovery(using transport: any TransportSession, restartBrowsing: Bool) async {
+        let snapshot = await Task.detached(priority: .userInitiated) {
+            if restartBrowsing {
+                await transport.startDiscovery()
+            }
+            return (state: await transport.state, peers: await transport.discoveredPeers)
+        }.value
+
+        applyTransportState(snapshot.state)
+        discovery.availableMacs = snapshot.peers
+        hasCompletedInitialDiscovery = true
+        connectToPreferredMacIfPossible()
+    }
+
+    private func ensureTransport() async -> any TransportSession {
+        if let transport {
+            return transport
+        }
+
+        if let injectedTransport {
+            transport = injectedTransport
+            return injectedTransport
+        }
+
+        if let transportCreationTask {
+            let transport = await transportCreationTask.value
+            self.transport = transport
+            return transport
+        }
+
+        let deviceName = deviceName
+        let transportCreationTask = Task.detached(priority: .userInitiated) {
+            MultipeerTransportSession(role: .browser, displayName: deviceName) as any TransportSession
+        }
+        self.transportCreationTask = transportCreationTask
+
+        let transport = await transportCreationTask.value
+        self.transport = transport
+        self.transportCreationTask = nil
+        return transport
+    }
+
+    private static func performTransportOperation<T: Sendable>(
+        _ operation: @escaping @Sendable () async throws -> T
+    ) async throws -> T {
+        try await Task.detached(priority: .userInitiated) {
+            try await operation()
+        }.value
+    }
+
+    private static func performTransportOperation<T: Sendable>(
+        _ operation: @escaping @Sendable () async -> T
+    ) async -> T {
+        await Task.detached(priority: .userInitiated) {
+            await operation()
+        }.value
+    }
+
+    private func applyTransportState(_ state: TransportConnectionState) {
+        guard shouldApplyTransportState(state) else {
+            return
+        }
+
+        discovery.connectionState = state
+    }
+
+    private func shouldApplyTransportState(_ state: TransportConnectionState) -> Bool {
+        switch (discovery.connectionState, state) {
+        case (.connecting, .idle),
+             (.connecting, .discovering),
+             (.reconnecting, .idle),
+             (.reconnecting, .discovering),
+             (.connected, .idle),
+             (.connected, .discovering):
+            return false
+        default:
+            return true
+        }
     }
 
     private func scheduleReconnectIfNeeded() {

@@ -64,10 +64,51 @@ struct SettingsView: View {
             }
 
             Spacer()
+
+            sidebarPairingCode
+                .padding(.bottom, 12)
         }
         .padding(.horizontal, 10)
         .frame(width: 150)
         .background(SettingsPalette.sidebar)
+    }
+
+    private var sidebarPairingCode: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 6) {
+                Image(systemName: "key.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                Text("配对码")
+                    .font(.system(size: 12, weight: .medium))
+                Spacer()
+            }
+            .foregroundStyle(SettingsPalette.secondaryText)
+
+            Text(appModel.pairingCode)
+                .font(.system(size: 34, weight: .semibold, design: .monospaced))
+                .foregroundStyle(SettingsPalette.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(maxWidth: .infinity, alignment: .center)
+
+            Text("iPhone 连接时输入")
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(SettingsPalette.mutedText)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, minHeight: 104)
+        .background {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(SettingsPalette.header)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(SettingsPalette.border, lineWidth: 1)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("配对码 \(appModel.pairingCode)")
     }
 
     private var header: some View {
