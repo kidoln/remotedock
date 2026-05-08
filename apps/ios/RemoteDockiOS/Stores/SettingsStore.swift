@@ -21,10 +21,32 @@ enum PhoneIconGridCount: Int, CaseIterable, Identifiable {
     }
 }
 
+enum PhoneClipboardFontSize: Int, CaseIterable, Identifiable {
+    case small
+    case medium
+    case large
+
+    var id: Int {
+        rawValue
+    }
+
+    var title: String {
+        switch self {
+        case .small:
+            return "小"
+        case .medium:
+            return "中"
+        case .large:
+            return "大"
+        }
+    }
+}
+
 struct SettingsStore: Equatable {
     var selectedMacId: String?
     var pairingCodeInput = ""
     var savedPairingCode: String?
     var movePastedClipboardItemToTop = true
     var iconGridCount: PhoneIconGridCount = .four
+    var clipboardFontSize: PhoneClipboardFontSize = .small
 }

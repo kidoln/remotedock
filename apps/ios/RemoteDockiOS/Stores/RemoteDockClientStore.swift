@@ -41,6 +41,7 @@ final class RemoteDockClientStore: ObservableObject {
         settings.savedPairingCode = UserDefaults.standard.string(forKey: Self.savedPairingCodeDefaultsKey)
         settings.pairingCodeInput = settings.savedPairingCode ?? ""
         settings.iconGridCount = Self.loadIconGridCount()
+        settings.clipboardFontSize = Self.loadClipboardFontSize()
         settings.movePastedClipboardItemToTop = Self.loadMovePastedClipboardItemToTop()
 
         dock.apps = MockBootstrap.pinnedApps
@@ -273,6 +274,11 @@ final class RemoteDockClientStore: ObservableObject {
     func updateIconGridCount(_ value: PhoneIconGridCount) {
         settings.iconGridCount = value
         UserDefaults.standard.set(value.rawValue, forKey: Self.iconGridCountDefaultsKey)
+    }
+
+    func updateClipboardFontSize(_ value: PhoneClipboardFontSize) {
+        settings.clipboardFontSize = value
+        UserDefaults.standard.set(value.rawValue, forKey: Self.clipboardFontSizeDefaultsKey)
     }
 
     func updateMovePastedClipboardItemToTop(_ value: Bool) {
@@ -554,6 +560,7 @@ final class RemoteDockClientStore: ObservableObject {
 
     private static let savedPairingCodeDefaultsKey = "remoteDock.iOS.savedPairingCode"
     private static let iconGridCountDefaultsKey = "remoteDock.iOS.iconGridCount"
+    private static let clipboardFontSizeDefaultsKey = "remoteDock.iOS.clipboardFontSize"
     private static let movePastedClipboardItemToTopDefaultsKey = "remoteDock.iOS.movePastedClipboardItemToTop"
 
     private static func savePairingCode(_ pairingCode: String) {
@@ -563,6 +570,11 @@ final class RemoteDockClientStore: ObservableObject {
     private static func loadIconGridCount() -> PhoneIconGridCount {
         let rawValue = UserDefaults.standard.integer(forKey: iconGridCountDefaultsKey)
         return PhoneIconGridCount(rawValue: rawValue) ?? .four
+    }
+
+    private static func loadClipboardFontSize() -> PhoneClipboardFontSize {
+        let rawValue = UserDefaults.standard.integer(forKey: clipboardFontSizeDefaultsKey)
+        return PhoneClipboardFontSize(rawValue: rawValue) ?? .small
     }
 
     private static func loadMovePastedClipboardItemToTop() -> Bool {

@@ -87,7 +87,8 @@ struct ClipboardView: View {
                         } label: {
                             ClipboardItemCard(
                                 item: item,
-                                isLastPasted: appModel.clipboard.lastPastedItemId == item.id
+                                isLastPasted: appModel.clipboard.lastPastedItemId == item.id,
+                                fontSize: appModel.settings.clipboardFontSize
                             )
                         }
                         .buttonStyle(.plain)
@@ -106,6 +107,7 @@ struct ClipboardView: View {
 private struct ClipboardItemCard: View {
     var item: ClipboardItem
     var isLastPasted: Bool
+    var fontSize: PhoneClipboardFontSize
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -114,23 +116,28 @@ private struct ClipboardItemCard: View {
             if isLastPasted {
                 RoundedRectangle(cornerRadius: 1.5, style: .continuous)
                     .fill(PhoneTheme.accent.opacity(0.88))
-                    .frame(width: 3, height: 54)
+                    .frame(width: 3, height: fontSize.clipboardListAccentHeight)
                     .padding(.leading, 1)
             }
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(displayText)
-                    .font(.callout)
-                    .lineSpacing(3)
+                    .font(fontSize.clipboardListFont)
+                    .lineSpacing(fontSize.clipboardListLineSpacing)
                     .foregroundStyle(Color.white.opacity(0.9))
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, minHeight: 61, maxHeight: 61, alignment: .topLeading)
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: fontSize.clipboardListTextHeight,
+                        maxHeight: fontSize.clipboardListTextHeight,
+                        alignment: .topLeading
+                    )
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
         }
-        .frame(height: 90)
+        .frame(height: fontSize.clipboardListCardHeight)
         .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .shadow(color: Color.black.opacity(0.16), radius: 8, x: 0, y: 5)
     }
@@ -162,6 +169,63 @@ private struct ClipboardItemCard: View {
     private var displayText: String {
         let trimmedText = item.plainText.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedText.isEmpty ? "空白文本" : trimmedText
+    }
+}
+
+private extension PhoneClipboardFontSize {
+    var clipboardListFont: Font {
+        switch self {
+        case .small:
+            return .callout
+        case .medium:
+            return .body
+        case .large:
+            return .title3
+        }
+    }
+
+    var clipboardListLineSpacing: CGFloat {
+        switch self {
+        case .small:
+            return 3
+        case .medium:
+            return 3
+        case .large:
+            return 4
+        }
+    }
+
+    var clipboardListCardHeight: CGFloat {
+        switch self {
+        case .small:
+            return 90
+        case .medium:
+            return 106
+        case .large:
+            return 124
+        }
+    }
+
+    var clipboardListTextHeight: CGFloat {
+        switch self {
+        case .small:
+            return 61
+        case .medium:
+            return 77
+        case .large:
+            return 95
+        }
+    }
+
+    var clipboardListAccentHeight: CGFloat {
+        switch self {
+        case .small:
+            return 54
+        case .medium:
+            return 70
+        case .large:
+            return 88
+        }
     }
 }
 

@@ -82,6 +82,15 @@ struct SettingsView: View {
                         Toggle("点击后移到第一位", isOn: movePastedClipboardItemToTopBinding)
                             .tint(Color(uiColor: .systemGreen))
                             .listRowBackground(PhoneTheme.rowBackground)
+
+                        Picker("剪贴板字号", selection: clipboardFontSizeBinding) {
+                            ForEach(PhoneClipboardFontSize.allCases) { size in
+                                Text(size.title)
+                                    .tag(size)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .listRowBackground(PhoneTheme.rowBackground)
                     }
 
                     Section("图标大小") {
@@ -119,6 +128,14 @@ struct SettingsView: View {
             appModel.settings.movePastedClipboardItemToTop
         } set: { value in
             appModel.updateMovePastedClipboardItemToTop(value)
+        }
+    }
+
+    private var clipboardFontSizeBinding: Binding<PhoneClipboardFontSize> {
+        Binding {
+            appModel.settings.clipboardFontSize
+        } set: { value in
+            appModel.updateClipboardFontSize(value)
         }
     }
 

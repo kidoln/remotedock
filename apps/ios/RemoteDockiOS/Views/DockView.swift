@@ -74,6 +74,7 @@ struct DockView: View {
         return DockClipboardDrawer(
             items: appModel.clipboard.items,
             lastPastedItemId: appModel.clipboard.lastPastedItemId,
+            fontSize: appModel.settings.clipboardFontSize,
             width: currentWidth,
             minWidth: minWidth,
             isExpanded: isClipboardDrawerExpanded,
@@ -165,6 +166,7 @@ struct DockView: View {
 private struct DockClipboardDrawer: View {
     var items: [ClipboardItem]
     var lastPastedItemId: String?
+    var fontSize: PhoneClipboardFontSize
     var width: CGFloat
     var minWidth: CGFloat
     var isExpanded: Bool
@@ -227,7 +229,8 @@ private struct DockClipboardDrawer: View {
                             } label: {
                                 DockClipboardDrawerItem(
                                     item: item,
-                                    isLastPasted: lastPastedItemId == item.id
+                                    isLastPasted: lastPastedItemId == item.id,
+                                    fontSize: fontSize
                                 )
                             }
                             .buttonStyle(.plain)
@@ -260,6 +263,7 @@ private struct DockClipboardDrawer: View {
 private struct DockClipboardDrawerItem: View {
     var item: ClipboardItem
     var isLastPasted: Bool
+    var fontSize: PhoneClipboardFontSize
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -288,22 +292,68 @@ private struct DockClipboardDrawerItem: View {
             }
 
             Text(displayText)
-                .font(.footnote)
-                .lineSpacing(2)
+                .font(fontSize.clipboardDrawerFont)
+                .lineSpacing(fontSize.clipboardDrawerLineSpacing)
                 .foregroundStyle(Color.white.opacity(0.88))
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, minHeight: 56, alignment: .topLeading)
+                .frame(maxWidth: .infinity, minHeight: fontSize.clipboardDrawerTextMinHeight, alignment: .topLeading)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
         }
-        .frame(height: 76)
+        .frame(height: fontSize.clipboardDrawerCardHeight)
         .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     private var displayText: String {
         let trimmedText = item.plainText.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedText.isEmpty ? "空白文本" : trimmedText
+    }
+}
+
+private extension PhoneClipboardFontSize {
+    var clipboardDrawerFont: Font {
+        switch self {
+        case .small:
+            return .footnote
+        case .medium:
+            return .callout
+        case .large:
+            return .body
+        }
+    }
+
+    var clipboardDrawerLineSpacing: CGFloat {
+        switch self {
+        case .small:
+            return 2
+        case .medium:
+            return 3
+        case .large:
+            return 3
+        }
+    }
+
+    var clipboardDrawerCardHeight: CGFloat {
+        switch self {
+        case .small:
+            return 76
+        case .medium:
+            return 92
+        case .large:
+            return 108
+        }
+    }
+
+    var clipboardDrawerTextMinHeight: CGFloat {
+        switch self {
+        case .small:
+            return 56
+        case .medium:
+            return 68
+        case .large:
+            return 84
+        }
     }
 }
 
