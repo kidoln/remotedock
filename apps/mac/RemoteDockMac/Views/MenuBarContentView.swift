@@ -14,6 +14,7 @@ struct MenuBarContentView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Label(connectionText, systemImage: connectionSymbol)
+                Label("配对码 \(appModel.pairingCode)", systemImage: "key")
                 if let pairedDeviceName = appModel.pairedDeviceName {
                     Label(pairedDeviceName, systemImage: "iphone")
                 }

@@ -4,9 +4,14 @@ import RemoteDockProtocol
 import RemoteDockTransport
 import SwiftUI
 
+private let macIdDefaultsKey = "remoteDock.mac.id"
+private let macPairingCodeDefaultsKey = "remoteDock.mac.pairingCode"
+
 @MainActor
 final class MacAppModel: ObservableObject {
     @Published private(set) var connectionState: TransportConnectionState = .idle
+    @Published private(set) var macId: String
+    @Published private(set) var pairingCode: String
     @Published private(set) var pinnedApps: [PinnedApp] = []
     @Published private(set) var runningApps: [RunningApp] = []
     @Published private(set) var catalogApps: [CatalogApp] = []
@@ -17,7 +22,7 @@ final class MacAppModel: ObservableObject {
     @Published var clipboardSyncEnabled = true
 
     private let permissionCenter = PermissionCenter()
-    private let peerSessionManager = PeerSessionManager()
+    private let peerSessionManager: PeerSessionManager
     private let pinnedAppsService = PinnedAppsService()
     private let runningAppsService = RunningAppsService()
     private let appCatalogService = AppCatalogService()
@@ -29,6 +34,13 @@ final class MacAppModel: ObservableObject {
     private var refreshTask: Task<Void, Never>?
 
     init() {
+        let macId = Self.loadMacId()
+        let pairingCode = Self.loadPairingCode()
+        self.macId = macId
+        self.pairingCode = pairingCode
+        peerSessionManager = PeerSessionManager(macId: macId, pairingCodeValidator: { submittedCode in
+            submittedCode == UserDefaults.standard.string(forKey: macPairingCodeDefaultsKey)
+        })
         pinnedApps = pinnedAppsService.loadPinnedApps()
         refresh()
         start()
@@ -84,6 +96,11 @@ final class MacAppModel: ObservableObject {
 
     func openAccessibilitySettings() {
         permissionCenter.openAccessibilitySettings()
+    }
+
+    func regeneratePairingCode() {
+        pairingCode = Self.generatePairingCode()
+        Self.savePairingCode(pairingCode)
     }
 
     func activatePinnedApp(_ app: PinnedApp) {
@@ -189,12 +206,12 @@ final class MacAppModel: ObservableObject {
         let approval = PairApprovePayload(
             deviceId: payload.deviceId,
             approvedAt: Date(),
-            pairingCode: Self.pairingCode(for: payload.deviceId)
+            pairingCode: pairingCode
         )
         try? await peerSessionManager.send(.pairApprove(approval))
 
         let hello = HelloPayload(
-            deviceId: Host.current().localizedName ?? "remote-dock-mac",
+            deviceId: macId,
             deviceName: Host.current().localizedName ?? "Remote Dock Mac",
             platform: .macOS,
             capabilities: [.appActivation, .runningApps, .clipboardHistory, .clipboardPaste, .iconSync]
@@ -227,9 +244,34 @@ final class MacAppModel: ObservableObject {
         }
     }
 
-    private static func pairingCode(for deviceId: String) -> String {
-        let scalarSum = deviceId.unicodeScalars.reduce(0) { $0 + Int($1.value) }
-        return String(format: "%06d", scalarSum % 1_000_000)
+    private static func loadMacId() -> String {
+        if let storedMacId = UserDefaults.standard.string(forKey: macIdDefaultsKey), !storedMacId.isEmpty {
+            return storedMacId
+        }
+
+        let macId = UUID().uuidString
+        UserDefaults.standard.set(macId, forKey: macIdDefaultsKey)
+        return macId
+    }
+
+    private static func loadPairingCode() -> String {
+        if let storedPairingCode = UserDefaults.standard.string(forKey: macPairingCodeDefaultsKey),
+           storedPairingCode.count == 4,
+           storedPairingCode.allSatisfy(\.isNumber) {
+            return storedPairingCode
+        }
+
+        let pairingCode = generatePairingCode()
+        savePairingCode(pairingCode)
+        return pairingCode
+    }
+
+    private static func savePairingCode(_ pairingCode: String) {
+        UserDefaults.standard.set(pairingCode, forKey: macPairingCodeDefaultsKey)
+    }
+
+    private static func generatePairingCode() -> String {
+        String(format: "%04d", Int.random(in: 0...9999))
     }
 }
 

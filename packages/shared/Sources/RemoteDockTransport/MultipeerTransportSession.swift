@@ -8,19 +8,26 @@ public enum MultipeerTransportRole: Sendable {
     case browser
 }
 
+private struct MultipeerInvitationContext: Codable {
+    var pairingCode: String?
+}
+
 public final class MultipeerTransportSession: NSObject, @unchecked Sendable, TransportSession {
     private let role: MultipeerTransportRole
     private let serviceType: String
     private let localPeerID: MCPeerID
-    private let session: MCSession
+    private var session: MCSession
+    private let pairingCodeValidator: (@Sendable (String?) -> Bool)?
     private let queue = DispatchQueue(label: "remote-dock.multipeer-transport")
 
     private var advertiser: MCNearbyServiceAdvertiser?
     private var browser: MCNearbyServiceBrowser?
     private var currentState: TransportConnectionState = .idle
     private var discoveredPeerIDsById: [String: MCPeerID] = [:]
+    private var peerIdsByObjectID: [ObjectIdentifier: String] = [:]
     private var peers: [TransportPeer] = []
     private var lastConnectedPeerID: MCPeerID?
+    private var lastConnectedPeerDisplayName: String?
 
     private let stream: AsyncStream<TransportEvent>
     private let continuation: AsyncStream<TransportEvent>.Continuation
@@ -40,12 +47,15 @@ public final class MultipeerTransportSession: NSObject, @unchecked Sendable, Tra
     public init(
         role: MultipeerTransportRole,
         serviceType: String = "erdock",
-        displayName: String = "Remote Dock"
+        displayName: String = "Remote Dock",
+        discoveryInfo: [String: String]? = nil,
+        pairingCodeValidator: (@Sendable (String?) -> Bool)? = nil
     ) {
         self.role = role
         self.serviceType = serviceType
         self.localPeerID = MCPeerID(displayName: displayName)
         self.session = MCSession(peer: localPeerID, securityIdentity: nil, encryptionPreference: .required)
+        self.pairingCodeValidator = pairingCodeValidator
 
         var localContinuation: AsyncStream<TransportEvent>.Continuation!
         self.stream = AsyncStream<TransportEvent> { continuation in
@@ -61,7 +71,7 @@ public final class MultipeerTransportSession: NSObject, @unchecked Sendable, Tra
         case .advertiser:
             let advertiser = MCNearbyServiceAdvertiser(
                 peer: localPeerID,
-                discoveryInfo: nil,
+                discoveryInfo: discoveryInfo,
                 serviceType: serviceType
             )
             advertiser.delegate = self
@@ -85,13 +95,13 @@ public final class MultipeerTransportSession: NSObject, @unchecked Sendable, Tra
         case .advertiser:
             advertiser?.startAdvertisingPeer()
         case .browser:
-            browser?.startBrowsingForPeers()
+            restartBrowsing(clearPeers: false)
         }
         setState(.discovering)
         emit(.discoveredPeersChanged(await discoveredPeers))
     }
 
-    public func connect(to peer: TransportPeer) async throws {
+    public func connect(to peer: TransportPeer, pairingCode: String? = nil) async throws {
         guard role == .browser else {
             throw TransportSessionError.unsupportedRole("Only browser sessions can initiate a connection.")
         }
@@ -99,27 +109,42 @@ public final class MultipeerTransportSession: NSObject, @unchecked Sendable, Tra
             throw TransportSessionError.peerNotFound(peer.displayName)
         }
 
+        resetSession()
         setState(.connecting(peer))
-        browser?.invitePeer(peerID, to: session, withContext: nil, timeout: 15)
+        browser?.invitePeer(peerID, to: session, withContext: invitationContextData(pairingCode: pairingCode), timeout: 10)
     }
 
     public func disconnect() async {
         session.disconnect()
+        resetSession()
         setState(.disconnected(reason: nil))
     }
 
-    public func reconnect() async throws {
+    public func reconnect(pairingCode: String? = nil) async throws {
         guard role == .browser else {
             await startDiscovery()
             return
         }
-        guard let peerID = queue.sync(execute: { lastConnectedPeerID }) else {
+
+        let targetDisplayName = queue.sync {
+            lastConnectedPeerDisplayName ?? lastConnectedPeerID?.displayName
+        }
+        guard let targetDisplayName else {
+            await startDiscovery()
             throw TransportSessionError.peerNotFound("No previously connected peer.")
         }
 
+        restartBrowsing(clearPeers: true)
+        setState(.discovering)
+
+        guard let peerID = await waitForPeer(displayName: targetDisplayName, timeout: .seconds(6)) else {
+            throw TransportSessionError.peerNotFound(targetDisplayName)
+        }
+
         let peer = remember(peerID)
+        resetSession()
         setState(.reconnecting(peer))
-        browser?.invitePeer(peerID, to: session, withContext: nil, timeout: 15)
+        browser?.invitePeer(peerID, to: session, withContext: invitationContextData(pairingCode: pairingCode), timeout: 10)
     }
 
     public func send(_ message: RemoteDockMessage) async throws {
@@ -137,28 +162,118 @@ public final class MultipeerTransportSession: NSObject, @unchecked Sendable, Tra
         }
     }
 
-    private func remember(_ peerID: MCPeerID) -> TransportPeer {
-        let peer = TransportPeer(id: peerID.displayName, displayName: peerID.displayName)
+    private func remember(_ peerID: MCPeerID, discoveryInfo: [String: String]? = nil) -> TransportPeer {
         let nextPeers = queue.sync {
-            discoveredPeerIDsById[peer.id] = peerID
-            peers = discoveredPeerIDsById.values
-                .map { TransportPeer(id: $0.displayName, displayName: $0.displayName) }
-                .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+            let objectID = ObjectIdentifier(peerID)
+            let peerId = discoveryInfo?["macId"] ??
+                peerIdsByObjectID[objectID] ??
+                "\(peerID.displayName)#\(UUID().uuidString)"
+            peerIdsByObjectID[objectID] = peerId
+            discoveredPeerIDsById[peerId] = peerID
+            rebuildPeers()
             return peers
         }
+        let peer = TransportPeer(id: peerId(for: peerID), displayName: peerID.displayName)
         emit(.discoveredPeersChanged(nextPeers))
         return peer
     }
 
     private func forget(_ peerID: MCPeerID) {
         let nextPeers = queue.sync {
-            discoveredPeerIDsById.removeValue(forKey: peerID.displayName)
-            peers = discoveredPeerIDsById.values
-                .map { TransportPeer(id: $0.displayName, displayName: $0.displayName) }
-                .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+            let objectID = ObjectIdentifier(peerID)
+            if let peerId = peerIdsByObjectID.removeValue(forKey: objectID),
+               discoveredPeerIDsById[peerId] == peerID {
+                discoveredPeerIDsById.removeValue(forKey: peerId)
+            }
+            rebuildPeers()
             return peers
         }
         emit(.discoveredPeersChanged(nextPeers))
+    }
+
+    private func peerId(for peerID: MCPeerID) -> String {
+        queue.sync {
+            peerIdsByObjectID[ObjectIdentifier(peerID)] ?? peerID.displayName
+        }
+    }
+
+    private func peer(displayName: String) -> MCPeerID? {
+        return discoveredPeerIDsById.values.first {
+            $0.displayName == displayName
+        }
+    }
+
+    private func waitForPeer(displayName: String, timeout: Duration) async -> MCPeerID? {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while clock.now < deadline {
+            if let peerID = queue.sync(execute: { peer(displayName: displayName) }) {
+                return peerID
+            }
+
+            try? await Task.sleep(for: .milliseconds(250))
+        }
+
+        return queue.sync(execute: { peer(displayName: displayName) })
+    }
+
+    private func rebuildPeers() {
+        peers = discoveredPeerIDsById
+            .map { id, peerID in
+                TransportPeer(id: id, displayName: peerID.displayName)
+            }
+            .sorted { lhs, rhs in
+                lhs.displayName.localizedCaseInsensitiveCompare(rhs.displayName) == .orderedAscending
+            }
+    }
+
+    private func clearPeers() -> [TransportPeer] {
+        queue.sync {
+            discoveredPeerIDsById.removeAll()
+            peerIdsByObjectID.removeAll()
+            peers.removeAll()
+            return peers
+        }
+    }
+
+    private func restartBrowsing(clearPeers shouldClearPeers: Bool) {
+        guard role == .browser else {
+            return
+        }
+
+        browser?.stopBrowsingForPeers()
+        if shouldClearPeers {
+            emit(.discoveredPeersChanged(clearPeers()))
+        }
+
+        let browser = MCNearbyServiceBrowser(peer: localPeerID, serviceType: serviceType)
+        browser.delegate = self
+        self.browser = browser
+        browser.startBrowsingForPeers()
+    }
+
+    private func resetSession() {
+        let oldSession = session
+        oldSession.delegate = nil
+        oldSession.disconnect()
+        session = MCSession(peer: localPeerID, securityIdentity: nil, encryptionPreference: .required)
+        session.delegate = self
+    }
+
+    private func invitationContextData(pairingCode: String?) -> Data? {
+        guard let pairingCode else {
+            return nil
+        }
+
+        return try? JSONEncoder().encode(MultipeerInvitationContext(pairingCode: pairingCode))
+    }
+
+    private func pairingCode(from context: Data?) -> String? {
+        guard let context else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode(MultipeerInvitationContext.self, from: context).pairingCode
     }
 
     private func setState(_ state: TransportConnectionState) {
@@ -179,7 +294,7 @@ extension MultipeerTransportSession: MCNearbyServiceBrowserDelegate {
         foundPeer peerID: MCPeerID,
         withDiscoveryInfo info: [String: String]?
     ) {
-        _ = remember(peerID)
+        _ = remember(peerID, discoveryInfo: info)
     }
 
     public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
@@ -199,6 +314,14 @@ extension MultipeerTransportSession: MCNearbyServiceAdvertiserDelegate {
         invitationHandler: @escaping (Bool, MCSession?) -> Void
     ) {
         let peer = remember(peerID)
+
+        if let pairingCodeValidator, !pairingCodeValidator(pairingCode(from: context)) {
+            setState(.failed("配对码不正确"))
+            invitationHandler(false, nil)
+            return
+        }
+
+        resetSession()
         setState(.connecting(peer))
         invitationHandler(true, session)
     }
@@ -223,6 +346,7 @@ extension MultipeerTransportSession: MCSessionDelegate {
         case .connected:
             queue.sync {
                 lastConnectedPeerID = peerID
+                lastConnectedPeerDisplayName = peerID.displayName
             }
             setState(.connected(peer))
         @unknown default:

@@ -100,8 +100,18 @@ public protocol TransportSession: Sendable {
     var events: AsyncStream<TransportEvent> { get async }
 
     func startDiscovery() async
-    func connect(to peer: TransportPeer) async throws
+    func connect(to peer: TransportPeer, pairingCode: String?) async throws
     func disconnect() async
-    func reconnect() async throws
+    func reconnect(pairingCode: String?) async throws
     func send(_ message: RemoteDockMessage) async throws
+}
+
+public extension TransportSession {
+    func connect(to peer: TransportPeer) async throws {
+        try await connect(to: peer, pairingCode: nil)
+    }
+
+    func reconnect() async throws {
+        try await reconnect(pairingCode: nil)
+    }
 }

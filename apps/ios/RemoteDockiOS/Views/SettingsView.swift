@@ -31,11 +31,19 @@ struct SettingsView: View {
                     } label: {
                         Label("重连", systemImage: "arrow.clockwise")
                     }
+
+                    if appModel.isConnected {
+                        Button(role: .destructive) {
+                            appModel.disconnectFromMac()
+                        } label: {
+                            Label("断开连接", systemImage: "xmark.circle")
+                        }
+                    }
                 }
 
                 if let pairingCode = appModel.pairingCode {
                     Section("配对") {
-                        Label("配对码 \(pairingCode)", systemImage: "key")
+                        Label("已连接，Mac 配对码 \(pairingCode)", systemImage: "key")
                     }
                 }
 

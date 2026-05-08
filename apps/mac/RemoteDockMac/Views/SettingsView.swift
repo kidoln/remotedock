@@ -542,8 +542,10 @@ private struct AboutSettingsPane: View {
                 .foregroundStyle(SettingsPalette.primaryText)
 
             VStack(alignment: .leading, spacing: 10) {
+                SettingsInfoRow(title: "配对码", value: appModel.pairingCode)
                 SettingsInfoRow(title: "连接状态", value: connectionText)
                 SettingsInfoRow(title: "配对设备", value: appModel.pairedDeviceName ?? "无")
+                SettingsInfoRow(title: "设备 ID", value: shortMacId)
                 SettingsInfoRow(title: "常用应用", value: "\(appModel.pinnedApps.count)")
                 SettingsInfoRow(title: "运行应用", value: "\(appModel.runningApps.count)")
             }
@@ -553,11 +555,23 @@ private struct AboutSettingsPane: View {
                     .fill(SettingsPalette.panel)
             }
 
+            Button {
+                appModel.regeneratePairingCode()
+            } label: {
+                Label("重新生成配对码", systemImage: "arrow.triangle.2.circlepath")
+            }
+            .buttonStyle(.bordered)
+            .help("重新生成后，iPhone 需要输入新的四位配对码。")
+
             Spacer()
         }
         .padding(28)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(SettingsPalette.content)
+    }
+
+    private var shortMacId: String {
+        String(appModel.macId.prefix(8))
     }
 
     private var connectionText: String {

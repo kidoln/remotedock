@@ -48,7 +48,7 @@ public actor MockTransportSession: TransportSession {
         emit(.discoveredPeersChanged(peers))
     }
 
-    public func connect(to peer: TransportPeer) async throws {
+    public func connect(to peer: TransportPeer, pairingCode: String? = nil) async throws {
         await setState(.connecting(peer))
         lastConnectedPeer = peer
         await setState(.connected(peer))
@@ -58,7 +58,7 @@ public actor MockTransportSession: TransportSession {
         await setState(.disconnected(reason: nil))
     }
 
-    public func reconnect() async throws {
+    public func reconnect(pairingCode: String? = nil) async throws {
         guard let lastConnectedPeer else {
             await setState(.failed("No previous peer to reconnect."))
             return

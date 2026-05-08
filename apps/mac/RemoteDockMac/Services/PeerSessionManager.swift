@@ -9,10 +9,16 @@ final class PeerSessionManager: ObservableObject {
 
     private let session: any TransportSession
 
-    init(session: (any TransportSession)? = nil) {
+    init(
+        session: (any TransportSession)? = nil,
+        macId: String? = nil,
+        pairingCodeValidator: (@Sendable (String?) -> Bool)? = nil
+    ) {
         self.session = session ?? MultipeerTransportSession(
             role: .advertiser,
-            displayName: Host.current().localizedName ?? "Remote Dock Mac"
+            displayName: Host.current().localizedName ?? "Remote Dock Mac",
+            discoveryInfo: macId.map { ["macId": $0] },
+            pairingCodeValidator: pairingCodeValidator
         )
     }
 
