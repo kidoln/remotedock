@@ -1,5 +1,6 @@
 import RemoteDockCore
 import SwiftUI
+import UIKit
 
 struct DockView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
@@ -78,6 +79,9 @@ struct DockView: View {
             width: currentWidth,
             minWidth: minWidth,
             isExpanded: isClipboardDrawerExpanded,
+            sourceAppIconImage: { item in
+                appModel.sourceAppIconImage(for: item)
+            },
             onPaste: { item in
                 appModel.paste(item)
             },
@@ -170,6 +174,7 @@ private struct DockClipboardDrawer: View {
     var width: CGFloat
     var minWidth: CGFloat
     var isExpanded: Bool
+    var sourceAppIconImage: (ClipboardItem) -> UIImage?
     var onPaste: (ClipboardItem) -> Void
     var onToggle: () -> Void
     var onHandleDragChanged: (DragGesture.Value) -> Void
@@ -230,7 +235,8 @@ private struct DockClipboardDrawer: View {
                                 DockClipboardDrawerItem(
                                     item: item,
                                     isLastPasted: lastPastedItemId == item.id,
-                                    fontSize: fontSize
+                                    fontSize: fontSize,
+                                    sourceAppIconImage: sourceAppIconImage(item)
                                 )
                             }
                             .buttonStyle(.plain)
@@ -264,6 +270,7 @@ private struct DockClipboardDrawerItem: View {
     var item: ClipboardItem
     var isLastPasted: Bool
     var fontSize: PhoneClipboardFontSize
+    var sourceAppIconImage: UIImage?
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -291,15 +298,21 @@ private struct DockClipboardDrawerItem: View {
                     .padding(.leading, 1)
             }
 
-            Text(displayText)
-                .font(fontSize.clipboardDrawerFont)
-                .lineSpacing(fontSize.clipboardDrawerLineSpacing)
-                .foregroundStyle(Color.white.opacity(0.88))
-                .lineLimit(3)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, minHeight: fontSize.clipboardDrawerTextMinHeight, alignment: .topLeading)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+            HStack(alignment: .top, spacing: 9) {
+                ClipboardSourceAppIconView(image: sourceAppIconImage, size: fontSize.clipboardDrawerSourceIconSize)
+                    .padding(.top, 1)
+
+                Text(displayText)
+                    .font(fontSize.clipboardDrawerFont)
+                    .lineSpacing(fontSize.clipboardDrawerLineSpacing)
+                    .foregroundStyle(Color.white.opacity(0.88))
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, minHeight: fontSize.clipboardDrawerTextMinHeight, alignment: .topLeading)
+            }
+            .padding(.leading, 12)
+            .padding(.trailing, 10)
+            .padding(.vertical, 10)
         }
         .frame(height: fontSize.clipboardDrawerCardHeight)
         .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
@@ -353,6 +366,17 @@ private extension PhoneClipboardFontSize {
             return 68
         case .large:
             return 84
+        }
+    }
+
+    var clipboardDrawerSourceIconSize: CGFloat {
+        switch self {
+        case .small:
+            return 28
+        case .medium:
+            return 34
+        case .large:
+            return 38
         }
     }
 }

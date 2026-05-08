@@ -1,5 +1,6 @@
 import RemoteDockCore
 import SwiftUI
+import UIKit
 
 struct ClipboardView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
@@ -88,7 +89,8 @@ struct ClipboardView: View {
                             ClipboardItemCard(
                                 item: item,
                                 isLastPasted: appModel.clipboard.lastPastedItemId == item.id,
-                                fontSize: appModel.settings.clipboardFontSize
+                                fontSize: appModel.settings.clipboardFontSize,
+                                sourceAppIconImage: appModel.sourceAppIconImage(for: item)
                             )
                         }
                         .buttonStyle(.plain)
@@ -108,6 +110,7 @@ private struct ClipboardItemCard: View {
     var item: ClipboardItem
     var isLastPasted: Bool
     var fontSize: PhoneClipboardFontSize
+    var sourceAppIconImage: UIImage?
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -120,7 +123,10 @@ private struct ClipboardItemCard: View {
                     .padding(.leading, 1)
             }
 
-            VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top, spacing: 12) {
+                ClipboardSourceAppIconView(image: sourceAppIconImage, size: fontSize.clipboardListSourceIconSize)
+                    .padding(.top, 1)
+
                 Text(displayText)
                     .font(fontSize.clipboardListFont)
                     .lineSpacing(fontSize.clipboardListLineSpacing)
@@ -134,7 +140,8 @@ private struct ClipboardItemCard: View {
                         alignment: .topLeading
                     )
             }
-            .padding(.horizontal, 16)
+            .padding(.leading, 16)
+            .padding(.trailing, 14)
             .padding(.vertical, 14)
         }
         .frame(height: fontSize.clipboardListCardHeight)
@@ -169,6 +176,47 @@ private struct ClipboardItemCard: View {
     private var displayText: String {
         let trimmedText = item.plainText.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedText.isEmpty ? "空白文本" : trimmedText
+    }
+}
+
+struct ClipboardSourceAppIconView: View {
+    var image: UIImage?
+    var size: CGFloat
+
+    var body: some View {
+        ZStack {
+            if let image {
+                Image(uiImage: image.withRenderingMode(.alwaysOriginal))
+                    .renderingMode(.original)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .padding(1)
+            } else {
+                RoundedRectangle(cornerRadius: max(7, size * 0.22), style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.11),
+                                Color.white.opacity(0.045)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay {
+                        Image(systemName: "app.dashed")
+                            .font(.system(size: max(14, size * 0.42), weight: .semibold))
+                            .foregroundStyle(Color.white.opacity(0.36))
+                    }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: max(7, size * 0.22), style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                    }
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }
 
@@ -225,6 +273,17 @@ private extension PhoneClipboardFontSize {
             return 70
         case .large:
             return 88
+        }
+    }
+
+    var clipboardListSourceIconSize: CGFloat {
+        switch self {
+        case .small:
+            return 34
+        case .medium:
+            return 40
+        case .large:
+            return 46
         }
     }
 }

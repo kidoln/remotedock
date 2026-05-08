@@ -72,6 +72,16 @@ final class RemoteDockClientStore: ObservableObject {
         return runningApps.iconImagesByHash[hash] ?? dock.iconImagesByHash[hash]
     }
 
+    func sourceAppIconImage(for item: ClipboardItem) -> UIImage? {
+        guard let hash = clipboardIconHash(for: item) else {
+            return nil
+        }
+
+        return clipboard.sourceAppIconImagesByHash[hash] ??
+            runningApps.iconImagesByHash[hash] ??
+            dock.iconImagesByHash[hash]
+    }
+
     var shouldShowPairingGate: Bool {
         if case .connected = discovery.connectionState {
             return false
@@ -333,6 +343,7 @@ final class RemoteDockClientStore: ObservableObject {
             requestMissingIcons(for: payload.apps.compactMap(\.iconAssetHash))
         case let .clipboardSnapshot(payload):
             clipboard.items = payload.items
+            requestMissingClipboardIcons(for: payload.items)
         case let .clipboardDelta(payload):
             applyClipboardDelta(payload)
         case let .iconManifest(payload):
@@ -373,6 +384,7 @@ final class RemoteDockClientStore: ObservableObject {
         case .inserted:
             guard let item = payload.item else { return }
             clipboard.items = ClipboardHistoryReducer.inserting(item, into: clipboard.items)
+            requestMissingClipboardIcons(for: [item])
         case .deleted:
             guard let itemId = payload.itemId else { return }
             clipboard.items.removeAll { $0.id == itemId }
@@ -443,8 +455,14 @@ final class RemoteDockClientStore: ObservableObject {
         requestMissingIcons(for: payload.assets.map(\.hash))
     }
 
+    private func requestMissingClipboardIcons(for items: [ClipboardItem]) {
+        requestMissingIcons(for: items.compactMap { clipboardIconHash(for: $0) })
+    }
+
     private func requestMissingIcons(for hashes: [String]) {
-        let knownHashes = Set(dock.iconImagesByHash.keys).union(runningApps.iconImagesByHash.keys)
+        let knownHashes = Set(dock.iconImagesByHash.keys)
+            .union(runningApps.iconImagesByHash.keys)
+            .union(clipboard.sourceAppIconImagesByHash.keys)
         let missingHashes = Array(Set(hashes))
             .filter { !$0.isEmpty && !knownHashes.contains($0) }
             .sorted()
@@ -475,6 +493,19 @@ final class RemoteDockClientStore: ObservableObject {
         var updatedRunningApps = runningApps
         updatedRunningApps.iconImagesByHash[payload.asset.hash] = image
         runningApps = updatedRunningApps
+
+        var updatedClipboard = clipboard
+        updatedClipboard.sourceAppIconImagesByHash[payload.asset.hash] = image
+        clipboard = updatedClipboard
+    }
+
+    private func clipboardIconHash(for item: ClipboardItem) -> String? {
+        guard let hash = item.sourceAppBundleId?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !hash.isEmpty else {
+            return nil
+        }
+
+        return hash
     }
 
     private var normalizedPairingCodeInput: String {

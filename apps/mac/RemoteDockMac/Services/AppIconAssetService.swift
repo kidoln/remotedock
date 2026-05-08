@@ -16,10 +16,15 @@ final class AppIconAssetService {
     func payloads(
         for hashes: [String],
         pinnedApps: [PinnedApp],
-        runningApps: [RunningApp]
+        runningApps: [RunningApp],
+        clipboardItems: [ClipboardItem] = []
     ) -> [IconPayload] {
         let descriptorsByHash = Dictionary(
-            uniqueKeysWithValues: iconDescriptors(for: pinnedApps, runningApps: runningApps).map { ($0.hash, $0) }
+            uniqueKeysWithValues: iconDescriptors(
+                for: pinnedApps,
+                runningApps: runningApps,
+                clipboardItems: clipboardItems
+            ).map { ($0.hash, $0) }
         )
 
         return hashes.compactMap { hash in
@@ -53,6 +58,14 @@ final class AppIconAssetService {
     }
 
     private func iconDescriptors(for pinnedApps: [PinnedApp], runningApps: [RunningApp]) -> [IconDescriptor] {
+        iconDescriptors(for: pinnedApps, runningApps: runningApps, clipboardItems: [])
+    }
+
+    private func iconDescriptors(
+        for pinnedApps: [PinnedApp],
+        runningApps: [RunningApp],
+        clipboardItems: [ClipboardItem]
+    ) -> [IconDescriptor] {
         var descriptorsByHash: [String: IconDescriptor] = [:]
 
         for app in pinnedApps {
@@ -79,6 +92,20 @@ final class AppIconAssetService {
             descriptorsByHash[hash] = IconDescriptor(
                 hash: hash,
                 bundleIdentifier: app.bundleIdentifier,
+                appPath: nil
+            )
+        }
+
+        for item in clipboardItems {
+            guard let bundleIdentifier = item.sourceAppBundleId?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !bundleIdentifier.isEmpty,
+                  descriptorsByHash[bundleIdentifier] == nil else {
+                continue
+            }
+
+            descriptorsByHash[bundleIdentifier] = IconDescriptor(
+                hash: bundleIdentifier,
+                bundleIdentifier: bundleIdentifier,
                 appPath: nil
             )
         }

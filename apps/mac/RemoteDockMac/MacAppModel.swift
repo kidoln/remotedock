@@ -318,7 +318,10 @@ final class MacAppModel: ObservableObject {
     }
 
     private func publishIconManifestAndPayloads() async {
-        let manifest = appIconAssetService.manifest(for: pinnedApps, runningApps: visibleRunningApps)
+        let manifest = appIconAssetService.manifest(
+            for: pinnedApps,
+            runningApps: visibleRunningApps
+        )
         await snapshotPublisher.publishIconManifest(manifest, through: peerSessionManager)
         await publishIconPayloads(for: manifest.assets.map(\.hash))
     }
@@ -327,7 +330,8 @@ final class MacAppModel: ObservableObject {
         let payloads = appIconAssetService.payloads(
             for: hashes,
             pinnedApps: pinnedApps,
-            runningApps: visibleRunningApps
+            runningApps: visibleRunningApps,
+            clipboardItems: clipboardSyncEnabled ? clipboardItems : []
         )
         await snapshotPublisher.publishIconPayloads(payloads, through: peerSessionManager)
     }
