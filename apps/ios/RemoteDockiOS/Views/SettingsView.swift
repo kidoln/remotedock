@@ -1,7 +1,10 @@
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
+    @State private var didClearClipboardHistory = false
+    @State private var clearClipboardFeedbackTask: Task<Void, Never>?
 
     var body: some View {
         NavigationStack {
@@ -53,15 +56,36 @@ struct SettingsView: View {
                         }
                     }
 
-                    Section("同步") {
-                        Toggle("剪贴板历史", isOn: $appModel.settings.clipboardSyncEnabled)
-                            .listRowBackground(PhoneTheme.rowBackground)
-                        Toggle("粘贴前确认", isOn: $appModel.settings.pasteConfirmationEnabled)
+                    Section("剪贴板") {
+                        HStack(spacing: 12) {
+                            Text("清除剪贴板历史")
+
+                            Spacer(minLength: 16)
+
+                            Button {
+                                clearClipboardHistory()
+                            } label: {
+                                Image(systemName: didClearClipboardHistory ? "checkmark" : "trash")
+                                    .font(.system(size: didClearClipboardHistory ? 13 : 12, weight: .semibold))
+                                    .frame(width: 51, height: 31)
+                                    .foregroundStyle(PhoneTheme.canvas)
+                                    .background {
+                                        Capsule()
+                                            .fill(Color.white.opacity(didClearClipboardHistory ? 0.96 : 0.88))
+                                    }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(didClearClipboardHistory ? "已清除剪贴板历史" : "清除剪贴板历史")
+                        }
+                        .listRowBackground(PhoneTheme.rowBackground)
+
+                        Toggle("点击后移到第一位", isOn: movePastedClipboardItemToTopBinding)
+                            .tint(Color(uiColor: .systemGreen))
                             .listRowBackground(PhoneTheme.rowBackground)
                     }
 
-                    Section("显示") {
-                        Picker("图标网格", selection: iconGridCountBinding) {
+                    Section("图标大小") {
+                        Picker("大小", selection: iconGridCountBinding) {
                             ForEach(PhoneIconGridCount.allCases) { count in
                                 Text(count.title)
                                     .tag(count)
@@ -69,18 +93,6 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.segmented)
                         .listRowBackground(PhoneTheme.rowBackground)
-
-                        Text("竖屏每行图标数，横屏显示行数。")
-                            .font(.footnote)
-                            .foregroundStyle(.white.opacity(0.56))
-                            .listRowBackground(PhoneTheme.rowBackground)
-                    }
-
-                    Section("隐私") {
-                        Label("文本历史仅在已配对设备间同步", systemImage: "lock")
-                            .listRowBackground(PhoneTheme.rowBackground)
-                        Label("图片、文件、富文本不在 MVP 范围", systemImage: "doc.plaintext")
-                            .listRowBackground(PhoneTheme.rowBackground)
                     }
                 }
                 .foregroundStyle(.white.opacity(0.88))
@@ -88,6 +100,9 @@ struct SettingsView: View {
                 .listStyle(.insetGrouped)
             }
             .navigationTitle("Settings")
+            .onDisappear {
+                clearClipboardFeedbackTask?.cancel()
+            }
         }
     }
 
@@ -96,6 +111,35 @@ struct SettingsView: View {
             appModel.settings.iconGridCount
         } set: { value in
             appModel.updateIconGridCount(value)
+        }
+    }
+
+    private var movePastedClipboardItemToTopBinding: Binding<Bool> {
+        Binding {
+            appModel.settings.movePastedClipboardItemToTop
+        } set: { value in
+            appModel.updateMovePastedClipboardItemToTop(value)
+        }
+    }
+
+    private func clearClipboardHistory() {
+        clearClipboardFeedbackTask?.cancel()
+        appModel.clearLocalClipboardHistory()
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        withAnimation(.easeInOut(duration: 0.15)) {
+            didClearClipboardHistory = true
+        }
+
+        clearClipboardFeedbackTask = Task {
+            try? await Task.sleep(for: .seconds(1.2))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    didClearClipboardHistory = false
+                }
+                clearClipboardFeedbackTask = nil
+            }
         }
     }
 }

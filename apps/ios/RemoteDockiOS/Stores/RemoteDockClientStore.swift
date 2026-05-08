@@ -41,6 +41,7 @@ final class RemoteDockClientStore: ObservableObject {
         settings.savedPairingCode = UserDefaults.standard.string(forKey: Self.savedPairingCodeDefaultsKey)
         settings.pairingCodeInput = settings.savedPairingCode ?? ""
         settings.iconGridCount = Self.loadIconGridCount()
+        settings.movePastedClipboardItemToTop = Self.loadMovePastedClipboardItemToTop()
 
         dock.apps = MockBootstrap.pinnedApps
         runningApps.apps = MockBootstrap.runningApps
@@ -155,6 +156,8 @@ final class RemoteDockClientStore: ObservableObject {
     }
 
     func paste(_ item: ClipboardItem) {
+        markClipboardItemAsPasted(item)
+
         Task { [weak self] in
             guard let self else { return }
             let transport = await self.ensureTransport()
@@ -162,7 +165,6 @@ final class RemoteDockClientStore: ObservableObject {
             try? await Self.performTransportOperation {
                 try await dispatcher.paste(item)
             }
-            clipboard.lastPastedItemId = item.id
         }
     }
 
@@ -273,6 +275,17 @@ final class RemoteDockClientStore: ObservableObject {
         UserDefaults.standard.set(value.rawValue, forKey: Self.iconGridCountDefaultsKey)
     }
 
+    func updateMovePastedClipboardItemToTop(_ value: Bool) {
+        settings.movePastedClipboardItemToTop = value
+        UserDefaults.standard.set(value, forKey: Self.movePastedClipboardItemToTopDefaultsKey)
+    }
+
+    func clearLocalClipboardHistory() {
+        clipboard.items.removeAll()
+        clipboard.searchText = ""
+        clipboard.lastPastedItemId = nil
+    }
+
     private func handleTransportEvent(_ event: TransportEvent) async {
         switch event.kind {
         case let .stateChanged(state):
@@ -352,7 +365,22 @@ final class RemoteDockClientStore: ObservableObject {
             clipboard.items.removeAll { $0.id == itemId }
         case .cleared:
             clipboard.items.removeAll()
+            clipboard.searchText = ""
+            clipboard.lastPastedItemId = nil
         }
+    }
+
+    private func markClipboardItemAsPasted(_ item: ClipboardItem) {
+        clipboard.lastPastedItemId = item.id
+
+        guard settings.movePastedClipboardItemToTop,
+              let index = clipboard.items.firstIndex(where: { $0.id == item.id }),
+              index != clipboard.items.startIndex else {
+            return
+        }
+
+        let pastedItem = clipboard.items.remove(at: index)
+        clipboard.items.insert(pastedItem, at: clipboard.items.startIndex)
     }
 
     private func requestMissingIcons(from payload: IconManifestPayload) {
@@ -526,6 +554,7 @@ final class RemoteDockClientStore: ObservableObject {
 
     private static let savedPairingCodeDefaultsKey = "remoteDock.iOS.savedPairingCode"
     private static let iconGridCountDefaultsKey = "remoteDock.iOS.iconGridCount"
+    private static let movePastedClipboardItemToTopDefaultsKey = "remoteDock.iOS.movePastedClipboardItemToTop"
 
     private static func savePairingCode(_ pairingCode: String) {
         UserDefaults.standard.set(pairingCode, forKey: savedPairingCodeDefaultsKey)
@@ -534,5 +563,13 @@ final class RemoteDockClientStore: ObservableObject {
     private static func loadIconGridCount() -> PhoneIconGridCount {
         let rawValue = UserDefaults.standard.integer(forKey: iconGridCountDefaultsKey)
         return PhoneIconGridCount(rawValue: rawValue) ?? .four
+    }
+
+    private static func loadMovePastedClipboardItemToTop() -> Bool {
+        guard UserDefaults.standard.object(forKey: movePastedClipboardItemToTopDefaultsKey) != nil else {
+            return true
+        }
+
+        return UserDefaults.standard.bool(forKey: movePastedClipboardItemToTopDefaultsKey)
     }
 }

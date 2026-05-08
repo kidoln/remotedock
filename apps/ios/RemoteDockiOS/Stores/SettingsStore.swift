@@ -10,7 +10,14 @@ enum PhoneIconGridCount: Int, CaseIterable, Identifiable {
     }
 
     var title: String {
-        "\(rawValue)"
+        switch self {
+        case .four:
+            return "小"
+        case .three:
+            return "中"
+        case .two:
+            return "大"
+        }
     }
 }
 
@@ -18,7 +25,6 @@ struct SettingsStore: Equatable {
     var selectedMacId: String?
     var pairingCodeInput = ""
     var savedPairingCode: String?
-    var clipboardSyncEnabled = true
-    var pasteConfirmationEnabled = true
+    var movePastedClipboardItemToTop = true
     var iconGridCount: PhoneIconGridCount = .four
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import RemoteDockTransport
 
 struct RootTabView: View {
@@ -30,28 +31,23 @@ struct RootTabView: View {
     private var portraitTabs: some View {
         TabView(selection: $selectedTab) {
             DockView()
-                .tabItem {
-                    Label(RemoteDockTab.dock.title, systemImage: RemoteDockTab.dock.systemImage)
-                }
                 .tag(RemoteDockTab.dock)
 
             RunningAppsView()
-                .tabItem {
-                    Label(RemoteDockTab.running.title, systemImage: RemoteDockTab.running.systemImage)
-                }
                 .tag(RemoteDockTab.running)
 
             ClipboardView()
-                .tabItem {
-                    Label(RemoteDockTab.clipboard.title, systemImage: RemoteDockTab.clipboard.systemImage)
-                }
                 .tag(RemoteDockTab.clipboard)
 
             SettingsView()
-                .tabItem {
-                    Label(RemoteDockTab.settings.title, systemImage: RemoteDockTab.settings.systemImage)
-                }
                 .tag(RemoteDockTab.settings)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            PortraitSystemTabBar(selectedTab: $selectedTab)
+                .frame(height: PortraitSystemTabBar.height)
+                .background(.bar)
+                .ignoresSafeArea(edges: .bottom)
         }
     }
 
@@ -99,6 +95,69 @@ private enum RemoteDockTab: CaseIterable, Hashable {
             "doc.on.clipboard"
         case .settings:
             "gearshape"
+        }
+    }
+}
+
+private struct PortraitSystemTabBar: UIViewRepresentable {
+    static let height: CGFloat = 49
+
+    @Binding var selectedTab: RemoteDockTab
+
+    func makeUIView(context: Context) -> UITabBar {
+        let tabBar = UITabBar()
+        tabBar.delegate = context.coordinator
+        tabBar.items = RemoteDockTab.allCases.map { tab in
+            UITabBarItem(
+                title: tab.title,
+                image: UIImage(systemName: tab.systemImage),
+                selectedImage: UIImage(systemName: tab.systemImage)
+            )
+        }
+        selectCurrentTab(in: tabBar)
+        return tabBar
+    }
+
+    func updateUIView(_ tabBar: UITabBar, context: Context) {
+        context.coordinator.selectedTab = $selectedTab
+        selectCurrentTab(in: tabBar)
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(selectedTab: $selectedTab)
+    }
+
+    private func selectCurrentTab(in tabBar: UITabBar) {
+        let tabs = RemoteDockTab.allCases
+        guard
+            let selectedIndex = tabs.firstIndex(of: selectedTab),
+            let items = tabBar.items,
+            items.indices.contains(selectedIndex)
+        else {
+            return
+        }
+
+        tabBar.selectedItem = items[selectedIndex]
+    }
+
+    final class Coordinator: NSObject, UITabBarDelegate {
+        var selectedTab: Binding<RemoteDockTab>
+
+        init(selectedTab: Binding<RemoteDockTab>) {
+            self.selectedTab = selectedTab
+        }
+
+        func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+            guard
+                let selectedIndex = tabBar.items?.firstIndex(of: item),
+                RemoteDockTab.allCases.indices.contains(selectedIndex)
+            else {
+                return
+            }
+
+            withAnimation(.easeInOut(duration: 0.24)) {
+                selectedTab.wrappedValue = RemoteDockTab.allCases[selectedIndex]
+            }
         }
     }
 }

@@ -8,7 +8,10 @@ struct ClipboardView: View {
     var body: some View {
         PhonePageSurface {
             VStack(spacing: 16) {
-                searchField
+                if !appModel.clipboard.items.isEmpty {
+                    searchField
+                }
+
                 clipboardContent
             }
             .padding(.horizontal, 14)
@@ -70,9 +73,11 @@ struct ClipboardView: View {
     @ViewBuilder
     private var clipboardContent: some View {
         let items = appModel.clipboard.filteredItems
+        let hasClipboardItems = !appModel.clipboard.items.isEmpty
+        let hasSearchText = hasClipboardItems && !appModel.clipboard.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
         if items.isEmpty {
-            ClipboardEmptyState(hasSearchText: !appModel.clipboard.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            ClipboardEmptyState(hasSearchText: hasSearchText)
         } else {
             ScrollView {
                 LazyVStack(spacing: 10) {
