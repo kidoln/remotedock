@@ -60,6 +60,22 @@ struct SettingsView: View {
                             .listRowBackground(PhoneTheme.rowBackground)
                     }
 
+                    Section("显示") {
+                        Picker("图标网格", selection: iconGridCountBinding) {
+                            ForEach(PhoneIconGridCount.allCases) { count in
+                                Text(count.title)
+                                    .tag(count)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .listRowBackground(PhoneTheme.rowBackground)
+
+                        Text("竖屏每行图标数，横屏显示行数。")
+                            .font(.footnote)
+                            .foregroundStyle(.white.opacity(0.56))
+                            .listRowBackground(PhoneTheme.rowBackground)
+                    }
+
                     Section("隐私") {
                         Label("文本历史仅在已配对设备间同步", systemImage: "lock")
                             .listRowBackground(PhoneTheme.rowBackground)
@@ -72,6 +88,14 @@ struct SettingsView: View {
                 .listStyle(.insetGrouped)
             }
             .navigationTitle("Settings")
+        }
+    }
+
+    private var iconGridCountBinding: Binding<PhoneIconGridCount> {
+        Binding {
+            appModel.settings.iconGridCount
+        } set: { value in
+            appModel.updateIconGridCount(value)
         }
     }
 }

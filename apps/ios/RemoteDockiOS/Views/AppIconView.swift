@@ -10,12 +10,6 @@ struct AppIconView: View {
         ZStack(alignment: .bottomTrailing) {
             iconContent
                 .aspectRatio(1, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(isActive ? Color.green.opacity(0.75) : Color.white.opacity(0.12), lineWidth: isActive ? 2 : 1)
-                }
-                .shadow(color: .black.opacity(0.28), radius: 10, x: 0, y: 6)
 
             if isActive {
                 Circle()
@@ -135,11 +129,69 @@ struct PhoneIconWellBackground: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .fill(isActive ? PhoneTheme.activeIconWellBackground : PhoneTheme.iconWellBackground)
+            .fill(Color.clear)
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(isActive ? Color.green.opacity(0.24) : Color.white.opacity(0.055), lineWidth: 1)
+                    .strokeBorder(Color.clear, lineWidth: 1)
             }
+    }
+}
+
+struct PhoneIconGrid<Content: View>: View {
+    var gridCount: PhoneIconGridCount
+    private let content: (_ iconSize: CGFloat) -> Content
+
+    private let spacing: CGFloat = 18
+    private let edgePadding: CGFloat = 18
+
+    init(gridCount: PhoneIconGridCount, @ViewBuilder content: @escaping (_ iconSize: CGFloat) -> Content) {
+        self.gridCount = gridCount
+        self.content = content
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            let isLandscape = proxy.size.width > proxy.size.height
+            let count = max(1, gridCount.rawValue)
+            let availableWidth = max(1, proxy.size.width - edgePadding * 2)
+            let availableHeight = max(1, proxy.size.height - edgePadding * 2)
+            let iconSize = resolvedIconSize(
+                count: count,
+                isLandscape: isLandscape,
+                availableWidth: availableWidth,
+                availableHeight: availableHeight
+            )
+
+            ScrollView(isLandscape ? .horizontal : .vertical) {
+                if isLandscape {
+                    LazyHGrid(rows: gridItems(count: count, size: iconSize), spacing: spacing) {
+                        content(iconSize)
+                    }
+                    .padding(edgePadding)
+                } else {
+                    LazyVGrid(columns: gridItems(count: count, size: iconSize), spacing: spacing) {
+                        content(iconSize)
+                    }
+                    .padding(edgePadding)
+                }
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+
+    private func gridItems(count: Int, size: CGFloat) -> [GridItem] {
+        Array(repeating: GridItem(.fixed(size), spacing: spacing), count: count)
+    }
+
+    private func resolvedIconSize(
+        count: Int,
+        isLandscape: Bool,
+        availableWidth: CGFloat,
+        availableHeight: CGFloat
+    ) -> CGFloat {
+        let constrainedLength = isLandscape ? availableHeight : availableWidth
+        let rawSize = (constrainedLength - spacing * CGFloat(count - 1)) / CGFloat(count)
+        return max(44, floor(rawSize))
     }
 }
 

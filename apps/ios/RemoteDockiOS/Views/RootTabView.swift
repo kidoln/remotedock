@@ -3,28 +3,17 @@ import RemoteDockTransport
 
 struct RootTabView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
+    @State private var selectedTab: RemoteDockTab = .dock
 
     var body: some View {
-        TabView {
-            DockView()
-                .tabItem {
-                    Label("Dock", systemImage: "dock.rectangle")
+        GeometryReader { proxy in
+            if proxy.size.width > proxy.size.height {
+                LandscapeTabLayout(selectedTab: $selectedTab) {
+                    selectedContent
                 }
-
-            RunningAppsView()
-                .tabItem {
-                    Label("Running", systemImage: "rectangle.stack")
-                }
-
-            ClipboardView()
-                .tabItem {
-                    Label("Clipboard", systemImage: "doc.on.clipboard")
-                }
-
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
+            } else {
+                portraitTabs
+            }
         }
         .fullScreenCover(isPresented: pairingGateBinding) {
             PairingCodeGateView()
@@ -36,6 +25,131 @@ struct RootTabView: View {
         Binding {
             appModel.shouldShowPairingGate
         } set: { _ in }
+    }
+
+    private var portraitTabs: some View {
+        TabView(selection: $selectedTab) {
+            DockView()
+                .tabItem {
+                    Label(RemoteDockTab.dock.title, systemImage: RemoteDockTab.dock.systemImage)
+                }
+                .tag(RemoteDockTab.dock)
+
+            RunningAppsView()
+                .tabItem {
+                    Label(RemoteDockTab.running.title, systemImage: RemoteDockTab.running.systemImage)
+                }
+                .tag(RemoteDockTab.running)
+
+            ClipboardView()
+                .tabItem {
+                    Label(RemoteDockTab.clipboard.title, systemImage: RemoteDockTab.clipboard.systemImage)
+                }
+                .tag(RemoteDockTab.clipboard)
+
+            SettingsView()
+                .tabItem {
+                    Label(RemoteDockTab.settings.title, systemImage: RemoteDockTab.settings.systemImage)
+                }
+                .tag(RemoteDockTab.settings)
+        }
+    }
+
+    @ViewBuilder
+    private var selectedContent: some View {
+        switch selectedTab {
+        case .dock:
+            DockView()
+        case .running:
+            RunningAppsView()
+        case .clipboard:
+            ClipboardView()
+        case .settings:
+            SettingsView()
+        }
+    }
+}
+
+private enum RemoteDockTab: CaseIterable, Hashable {
+    case dock
+    case running
+    case clipboard
+    case settings
+
+    var title: String {
+        switch self {
+        case .dock:
+            "Dock"
+        case .running:
+            "Running"
+        case .clipboard:
+            "Clipboard"
+        case .settings:
+            "Settings"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .dock:
+            "dock.rectangle"
+        case .running:
+            "rectangle.stack"
+        case .clipboard:
+            "doc.on.clipboard"
+        case .settings:
+            "gearshape"
+        }
+    }
+}
+
+private struct LandscapeTabLayout<Content: View>: View {
+    @Binding var selectedTab: RemoteDockTab
+    @ViewBuilder var content: () -> Content
+
+    private let tabBarWidth: CGFloat = 58
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            content()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.leading, tabBarWidth)
+
+            tabBar
+                .zIndex(1)
+        }
+        .background(PhoneTheme.canvas)
+    }
+
+    private var tabBar: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+
+            VStack(spacing: 10) {
+                ForEach(RemoteDockTab.allCases, id: \.self) { tab in
+                    Button {
+                        selectedTab = tab
+                    } label: {
+                        Image(systemName: tab.systemImage)
+                            .font(.system(size: 20, weight: .semibold))
+                            .frame(width: 44, height: 44)
+                            .foregroundStyle(selectedTab == tab ? Color.white : Color.white.opacity(0.48))
+                            .background {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(selectedTab == tab ? PhoneTheme.accent.opacity(0.26) : Color.clear)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(tab.title)
+                    .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .frame(width: tabBarWidth)
+        .frame(maxHeight: .infinity)
+        .background(PhoneTheme.bannerBackground)
     }
 }
 

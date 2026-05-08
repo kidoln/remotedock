@@ -36,6 +36,7 @@ final class RemoteDockClientStore: ObservableObject {
         self.transport = transport ?? MultipeerTransportSession(role: .browser, displayName: UIDevice.current.name)
         settings.savedPairingCode = UserDefaults.standard.string(forKey: Self.savedPairingCodeDefaultsKey)
         settings.pairingCodeInput = settings.savedPairingCode ?? ""
+        settings.iconGridCount = Self.loadIconGridCount()
 
         dock.apps = MockBootstrap.pinnedApps
         runningApps.apps = MockBootstrap.runningApps
@@ -194,6 +195,11 @@ final class RemoteDockClientStore: ObservableObject {
         }
     }
 
+    func updateIconGridCount(_ value: PhoneIconGridCount) {
+        settings.iconGridCount = value
+        UserDefaults.standard.set(value.rawValue, forKey: Self.iconGridCountDefaultsKey)
+    }
+
     private func handleTransportEvent(_ event: TransportEvent) async {
         switch event.kind {
         case let .stateChanged(state):
@@ -347,8 +353,14 @@ final class RemoteDockClientStore: ObservableObject {
     }
 
     private static let savedPairingCodeDefaultsKey = "remoteDock.iOS.savedPairingCode"
+    private static let iconGridCountDefaultsKey = "remoteDock.iOS.iconGridCount"
 
     private static func savePairingCode(_ pairingCode: String) {
         UserDefaults.standard.set(pairingCode, forKey: savedPairingCodeDefaultsKey)
+    }
+
+    private static func loadIconGridCount() -> PhoneIconGridCount {
+        let rawValue = UserDefaults.standard.integer(forKey: iconGridCountDefaultsKey)
+        return PhoneIconGridCount(rawValue: rawValue) ?? .four
     }
 }
