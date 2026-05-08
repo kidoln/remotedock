@@ -53,18 +53,18 @@ struct ClipboardView: View {
         .background {
             LinearGradient(
                 colors: [
-                    Color.white.opacity(isSearchFocused ? 0.075 : 0.055),
-                    PhoneTheme.rowBackground.opacity(0.94)
+                    PhoneTheme.panelBackgroundTop.opacity(isSearchFocused ? 0.85 : 0.75),
+                    PhoneTheme.panelBackground.opacity(0.82)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(
-                    isSearchFocused ? PhoneTheme.accent.opacity(0.42) : Color.white.opacity(0.06),
+                    isSearchFocused ? PhoneTheme.accent.opacity(0.56) : Color.white.opacity(0.16),
                     lineWidth: 1
                 )
         }
@@ -81,7 +81,7 @@ struct ClipboardView: View {
             ClipboardEmptyState(hasSearchText: hasSearchText)
         } else {
             ScrollView {
-                LazyVStack(spacing: 10) {
+                LazyVStack(spacing: 14) {
                     ForEach(items) { item in
                         Button {
                             appModel.paste(item)
@@ -123,15 +123,14 @@ private struct ClipboardItemCard: View {
                     .padding(.leading, 1)
             }
 
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 ClipboardSourceAppIconView(image: sourceAppIconImage, size: fontSize.clipboardListSourceIconSize)
-                    .padding(.top, 1)
 
                 Text(displayText)
                     .font(fontSize.clipboardListFont)
                     .lineSpacing(fontSize.clipboardListLineSpacing)
-                    .foregroundStyle(Color.white.opacity(0.9))
-                    .lineLimit(3)
+                    .foregroundStyle(Color.white.opacity(0.96))
+                    .lineLimit(2)
                     .multilineTextAlignment(.leading)
                     .frame(
                         maxWidth: .infinity,
@@ -145,17 +144,17 @@ private struct ClipboardItemCard: View {
             .padding(.vertical, 14)
         }
         .frame(height: fontSize.clipboardListCardHeight)
-        .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .shadow(color: Color.black.opacity(0.16), radius: 8, x: 0, y: 5)
     }
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
+        RoundedRectangle(cornerRadius: 18, style: .continuous)
             .fill(
                 LinearGradient(
                     colors: [
-                        isLastPasted ? PhoneTheme.accent.opacity(0.2) : Color.white.opacity(0.055),
-                        isLastPasted ? PhoneTheme.rowBackground.opacity(0.98) : PhoneTheme.rowBackground.opacity(0.93)
+                        isLastPasted ? PhoneTheme.panelBackgroundTop.opacity(0.88) : PhoneTheme.panelBackgroundTop.opacity(0.80),
+                        isLastPasted ? PhoneTheme.rowBackground.opacity(0.88) : PhoneTheme.panelBackground.opacity(0.82)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -163,13 +162,13 @@ private struct ClipboardItemCard: View {
             )
             .overlay(alignment: .top) {
                 Rectangle()
-                    .fill(Color.white.opacity(0.055))
+                    .fill(Color.white.opacity(0.10))
                     .frame(height: 1)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
             .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(isLastPasted ? PhoneTheme.accent.opacity(0.44) : Color.white.opacity(0.07), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(isLastPasted ? PhoneTheme.accent.opacity(0.52) : Color.white.opacity(0.15), lineWidth: 1)
             }
     }
 
@@ -246,33 +245,33 @@ private extension PhoneClipboardFontSize {
     var clipboardListCardHeight: CGFloat {
         switch self {
         case .small:
-            return 90
+            return 68
         case .medium:
-            return 106
+            return 82
         case .large:
-            return 124
+            return 96
         }
     }
 
     var clipboardListTextHeight: CGFloat {
         switch self {
         case .small:
-            return 61
+            return 40
         case .medium:
-            return 77
+            return 54
         case .large:
-            return 95
+            return 66
         }
     }
 
     var clipboardListAccentHeight: CGFloat {
         switch self {
         case .small:
-            return 54
+            return 32
         case .medium:
-            return 70
+            return 46
         case .large:
-            return 88
+            return 58
         }
     }
 
@@ -304,12 +303,12 @@ private struct ClipboardEmptyState: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 42)
         .background {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(PhoneTheme.rowBackground.opacity(0.72))
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(PhoneTheme.panelBackground.opacity(0.82))
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.055), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
         }
     }
 }

@@ -170,7 +170,7 @@ struct SettingsView: View {
         }
         .padding(.leading, 14)
         .padding(.trailing, 12)
-        .frame(height: 52)
+        .frame(height: 28)
         .background(SettingsPalette.header)
     }
 

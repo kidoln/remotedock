@@ -255,14 +255,7 @@ private struct DockClipboardDrawer: View {
     }
 
     private var drawerBackground: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.10, green: 0.11, blue: 0.13).opacity(0.96),
-                Color(red: 0.075, green: 0.083, blue: 0.098).opacity(0.98)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        Color.clear
     }
 }
 
@@ -274,48 +267,62 @@ private struct DockClipboardDrawerItem: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            isLastPasted ? PhoneTheme.accent.opacity(0.20) : Color.white.opacity(0.065),
-                            PhoneTheme.rowBackground.opacity(0.94)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(isLastPasted ? PhoneTheme.accent.opacity(0.44) : Color.white.opacity(0.075), lineWidth: 1)
-                }
+            cardBackground
 
             if isLastPasted {
                 RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                    .fill(PhoneTheme.accent.opacity(0.9))
-                    .frame(width: 3)
-                    .padding(.vertical, 10)
+                    .fill(PhoneTheme.accent.opacity(0.88))
+                    .frame(width: 3, height: fontSize.clipboardDrawerAccentHeight)
                     .padding(.leading, 1)
             }
 
-            HStack(alignment: .top, spacing: 9) {
+            HStack(alignment: .center, spacing: 12) {
                 ClipboardSourceAppIconView(image: sourceAppIconImage, size: fontSize.clipboardDrawerSourceIconSize)
-                    .padding(.top, 1)
 
                 Text(displayText)
                     .font(fontSize.clipboardDrawerFont)
                     .lineSpacing(fontSize.clipboardDrawerLineSpacing)
-                    .foregroundStyle(Color.white.opacity(0.88))
-                    .lineLimit(3)
+                    .foregroundStyle(Color.white.opacity(0.96))
+                    .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, minHeight: fontSize.clipboardDrawerTextMinHeight, alignment: .topLeading)
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: fontSize.clipboardDrawerTextHeight,
+                        maxHeight: fontSize.clipboardDrawerTextHeight,
+                        alignment: .topLeading
+                    )
             }
-            .padding(.leading, 12)
-            .padding(.trailing, 10)
-            .padding(.vertical, 10)
+            .padding(.leading, 16)
+            .padding(.trailing, 14)
+            .padding(.vertical, 14)
         }
         .frame(height: fontSize.clipboardDrawerCardHeight)
-        .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: Color.black.opacity(0.16), radius: 8, x: 0, y: 5)
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .fill(
+                LinearGradient(
+                    colors: [
+                        isLastPasted ? PhoneTheme.panelBackgroundTop.opacity(0.88) : PhoneTheme.panelBackgroundTop.opacity(0.80),
+                        isLastPasted ? PhoneTheme.rowBackground.opacity(0.88) : PhoneTheme.panelBackground.opacity(0.82)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(Color.white.opacity(0.10))
+                    .frame(height: 1)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(isLastPasted ? PhoneTheme.accent.opacity(0.52) : Color.white.opacity(0.15), lineWidth: 1)
+            }
     }
 
     private var displayText: String {
@@ -328,55 +335,66 @@ private extension PhoneClipboardFontSize {
     var clipboardDrawerFont: Font {
         switch self {
         case .small:
-            return .footnote
-        case .medium:
             return .callout
-        case .large:
+        case .medium:
             return .body
+        case .large:
+            return .title3
         }
     }
 
     var clipboardDrawerLineSpacing: CGFloat {
         switch self {
         case .small:
-            return 2
+            return 3
         case .medium:
             return 3
         case .large:
-            return 3
+            return 4
         }
     }
 
     var clipboardDrawerCardHeight: CGFloat {
         switch self {
         case .small:
-            return 76
+            return 68
         case .medium:
-            return 92
+            return 82
         case .large:
-            return 108
+            return 96
         }
     }
 
-    var clipboardDrawerTextMinHeight: CGFloat {
+    var clipboardDrawerTextHeight: CGFloat {
         switch self {
         case .small:
-            return 56
+            return 40
         case .medium:
-            return 68
+            return 54
         case .large:
-            return 84
+            return 66
+        }
+    }
+
+    var clipboardDrawerAccentHeight: CGFloat {
+        switch self {
+        case .small:
+            return 32
+        case .medium:
+            return 46
+        case .large:
+            return 58
         }
     }
 
     var clipboardDrawerSourceIconSize: CGFloat {
         switch self {
         case .small:
-            return 28
-        case .medium:
             return 34
+        case .medium:
+            return 40
         case .large:
-            return 38
+            return 46
         }
     }
 }
@@ -395,12 +413,12 @@ private struct DockClipboardDrawerEmptyState: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 28)
         .background {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(PhoneTheme.rowBackground.opacity(0.70))
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(PhoneTheme.panelBackground.opacity(0.82))
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
         }
     }
 }

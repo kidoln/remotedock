@@ -49,9 +49,10 @@ struct RootTabView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             PortraitSystemTabBar(selectedTab: $selectedTab)
-                .frame(height: PortraitSystemTabBar.height)
-                .background(.bar)
-                .ignoresSafeArea(edges: .bottom)
+                .padding(.horizontal, 18)
+                .padding(.top, 8)
+                .padding(.bottom, 9)
+                .background(Color.clear)
         }
     }
 
@@ -103,66 +104,111 @@ private enum RemoteDockTab: CaseIterable, Hashable {
     }
 }
 
-private struct PortraitSystemTabBar: UIViewRepresentable {
-    static let height: CGFloat = 49
-
+private struct PortraitSystemTabBar: View {
     @Binding var selectedTab: RemoteDockTab
 
-    func makeUIView(context: Context) -> UITabBar {
-        let tabBar = UITabBar()
-        tabBar.delegate = context.coordinator
-        tabBar.items = RemoteDockTab.allCases.map { tab in
-            UITabBarItem(
-                title: tab.title,
-                image: UIImage(systemName: tab.systemImage),
-                selectedImage: UIImage(systemName: tab.systemImage)
-            )
-        }
-        selectCurrentTab(in: tabBar)
-        return tabBar
-    }
-
-    func updateUIView(_ tabBar: UITabBar, context: Context) {
-        context.coordinator.selectedTab = $selectedTab
-        selectCurrentTab(in: tabBar)
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(selectedTab: $selectedTab)
-    }
-
-    private func selectCurrentTab(in tabBar: UITabBar) {
-        let tabs = RemoteDockTab.allCases
-        guard
-            let selectedIndex = tabs.firstIndex(of: selectedTab),
-            let items = tabBar.items,
-            items.indices.contains(selectedIndex)
-        else {
-            return
-        }
-
-        tabBar.selectedItem = items[selectedIndex]
-    }
-
-    final class Coordinator: NSObject, UITabBarDelegate {
-        var selectedTab: Binding<RemoteDockTab>
-
-        init(selectedTab: Binding<RemoteDockTab>) {
-            self.selectedTab = selectedTab
-        }
-
-        func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-            guard
-                let selectedIndex = tabBar.items?.firstIndex(of: item),
-                RemoteDockTab.allCases.indices.contains(selectedIndex)
-            else {
-                return
-            }
-
-            withAnimation(.easeInOut(duration: 0.24)) {
-                selectedTab.wrappedValue = RemoteDockTab.allCases[selectedIndex]
+    var body: some View {
+        HStack(spacing: 7) {
+            ForEach(RemoteDockTab.allCases, id: \.self) { tab in
+                Button {
+                    withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                        selectedTab = tab
+                    }
+                } label: {
+                    PortraitTabBarItem(tab: tab, isSelected: selectedTab == tab)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(tab.title)
+                .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
             }
         }
+        .padding(7)
+        .frame(height: 54)
+        .background {
+            Capsule(style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.13),
+                            PhoneTheme.tabBarBackground.opacity(0.88),
+                            Color.black.opacity(0.28)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .background {
+                    Capsule(style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.32)
+                }
+                .overlay {
+                    Capsule(style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.24),
+                                    PhoneTheme.tabBarStroke.opacity(0.58),
+                                    Color.black.opacity(0.18)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+                .shadow(color: Color.black.opacity(0.32), radius: 24, x: 0, y: 13)
+                .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.18), radius: 20, x: 0, y: 0)
+        }
+    }
+}
+
+private struct PortraitTabBarItem: View {
+    var tab: RemoteDockTab
+    var isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: isSelected ? 7 : 0) {
+            Image(systemName: tab.systemImage)
+                .font(.system(size: 16, weight: .bold))
+                .symbolVariant(isSelected ? .fill : .none)
+                .frame(width: 18, height: 18)
+
+            if isSelected {
+                Text(tab.shortTitle)
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+                    .transition(.opacity.combined(with: .scale(scale: 0.92, anchor: .leading)))
+            }
+        }
+        .foregroundStyle(isSelected ? Color.white.opacity(0.98) : Color.white.opacity(0.68))
+        .frame(maxWidth: isSelected ? 64 : 50, minHeight: isSelected ? 26 : 36, maxHeight: 40)
+        .padding(.horizontal, isSelected ? 0 : 0)
+        .padding(.vertical, isSelected ? 3 : 0)
+        .background {
+            if isSelected {
+                Capsule(style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.20),
+                                PhoneTheme.tabBarSelectedBackground.opacity(0.95),
+                                Color.black.opacity(0.14)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay {
+                        Capsule(style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+                    }
+                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.34), radius: 12, x: 0, y: 0)
+                    .shadow(color: Color.black.opacity(0.18), radius: 8, x: 0, y: 5)
+            }
+        }
+        .contentShape(Capsule(style: .continuous))
     }
 }
 
@@ -193,31 +239,126 @@ private struct LandscapeTabLayout<Content: View>: View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
 
-            VStack(spacing: 10) {
+            VStack(spacing: 7) {
                 ForEach(RemoteDockTab.allCases, id: \.self) { tab in
                     Button {
-                        selectedTab = tab
+                        withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                            selectedTab = tab
+                        }
                     } label: {
-                        Image(systemName: tab.systemImage)
-                            .font(.system(size: 20, weight: .semibold))
-                            .frame(width: 44, height: 44)
-                            .foregroundStyle(selectedTab == tab ? Color.white : Color.white.opacity(0.48))
-                            .background {
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(selectedTab == tab ? PhoneTheme.accent.opacity(0.26) : Color.clear)
-                            }
+                        LandscapeTabBarItem(tab: tab, isSelected: selectedTab == tab)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(tab.title)
                     .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
                 }
             }
+            .padding(7)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.13),
+                                PhoneTheme.tabBarBackground.opacity(0.88),
+                                Color.black.opacity(0.28)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .background {
+                        Capsule(style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.32)
+                    }
+                    .overlay {
+                        Capsule(style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.24),
+                                        PhoneTheme.tabBarStroke.opacity(0.58),
+                                        Color.black.opacity(0.18)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    }
+                    .shadow(color: Color.black.opacity(0.32), radius: 24, x: 0, y: 13)
+                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.18), radius: 20, x: 0, y: 0)
+            }
 
             Spacer(minLength: 0)
         }
         .frame(width: tabBarWidth)
         .frame(maxHeight: .infinity)
-        .background(PhoneTheme.bannerBackground)
+        .background(Color.clear)
+    }
+
+    private struct LandscapeTabBarItem: View {
+        var tab: RemoteDockTab
+        var isSelected: Bool
+
+        var body: some View {
+            VStack(spacing: isSelected ? 4 : 0) {
+                Image(systemName: tab.systemImage)
+                    .font(.system(size: 18, weight: .bold))
+                    .symbolVariant(isSelected ? .fill : .none)
+                    .frame(width: 20, height: 20)
+
+                if isSelected {
+                    Text(tab.shortTitle)
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
+                        .transition(.opacity.combined(with: .scale(scale: 0.92, anchor: .top)))
+                }
+            }
+            .foregroundStyle(isSelected ? Color.white.opacity(0.98) : Color.white.opacity(0.68))
+            .frame(maxWidth: 50, minHeight: isSelected ? 52 : 40, maxHeight: 52)
+            .padding(.vertical, isSelected ? 6 : 0)
+            .background {
+                if isSelected {
+                    Capsule(style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.20),
+                                    PhoneTheme.tabBarSelectedBackground.opacity(0.95),
+                                    Color.black.opacity(0.14)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay {
+                            Capsule(style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+                        }
+                        .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.34), radius: 12, x: 0, y: 0)
+                        .shadow(color: Color.black.opacity(0.18), radius: 8, x: 0, y: 5)
+                }
+            }
+            .contentShape(Capsule(style: .continuous))
+        }
+    }
+}
+
+private extension RemoteDockTab {
+    var shortTitle: String {
+        switch self {
+        case .dock:
+            "Dock"
+        case .running:
+            "Run"
+        case .clipboard:
+            "Clip"
+        case .settings:
+            "Set"
+        }
     }
 }
 
@@ -229,57 +370,84 @@ private struct PairingCodeGateView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
-                    Image(systemName: "macbook.and.iphone")
-                        .font(.system(size: 48, weight: .semibold))
-                        .foregroundStyle(.tint)
+            ZStack {
+                PhonePageBackground()
 
-                    Text("输入四位数字")
-                        .font(.largeTitle.weight(.semibold))
-                        .multilineTextAlignment(.center)
+                VStack(spacing: 28) {
+                    VStack(spacing: 14) {
+                        Image(systemName: "macbook.and.iphone")
+                            .font(.system(size: 52, weight: .semibold))
+                            .foregroundStyle(Color.white.opacity(0.92))
+                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
 
-                    Text("请查看 Mac 上显示的配对码。")
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-
-                pairingCodeInput
-                    .frame(maxWidth: .infinity)
-
-                VStack(spacing: 10) {
-                    Label(statusText, systemImage: statusSymbol)
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(statusColor)
-                        .multilineTextAlignment(.center)
-
-                    if let message = appModel.connectionErrorMessage {
-                        Text(message)
-                            .font(.footnote)
-                            .foregroundStyle(.orange)
+                        Text("输入配对码")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.94))
+                            .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
                             .multilineTextAlignment(.center)
+
+                        Text("本应用需要配合 Mac 版本的应用配对使用，请查看 Mac 上显示的配对码")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.72))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(7.5)
+                            .frame(maxWidth: 280)
                     }
-                }
-                .frame(minHeight: 48)
+                    .padding(.top, 48)
 
-                Button {
-                    appModel.connectToPreferredMacIfPossible(manuallyTriggered: true)
-                } label: {
-                    Label("连接", systemImage: "link")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(!canTapConnectButton)
+                    PhonePageSurface {
+                        pairingCodeInput
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 24)
+                    }
 
-                Spacer()
+                    VStack(spacing: 10) {
+                        Label(statusText, systemImage: statusSymbol)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(statusColor)
+                            .multilineTextAlignment(.center)
+
+                        if let message = appModel.connectionErrorMessage {
+                            Text(message)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(Color.white.opacity(0.86))
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    .frame(minHeight: 52)
+                    .padding(.horizontal, 24)
+
+                    Button {
+                        appModel.connectToPreferredMacIfPossible(manuallyTriggered: true)
+                    } label: {
+                        Label("连接", systemImage: "link")
+                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .foregroundStyle(PhoneTheme.canvas)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .background {
+                                Capsule(style: .continuous)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.98),
+                                                PhoneTheme.accent.opacity(0.95)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.44), radius: 12, x: 0, y: 4)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canTapConnectButton)
+                    .opacity(canTapConnectButton ? 1 : 0.52)
+                    .padding(.horizontal, 24)
+
+                    Spacer()
+                }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 72)
-            .padding(.bottom, 24)
-            .background(Color(.systemGroupedBackground))
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -287,11 +455,16 @@ private struct PairingCodeGateView: View {
                         isPairingCodeFocused = true
                     } label: {
                         Image(systemName: "keyboard")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(Color.white.opacity(0.86))
                     }
                     .accessibilityLabel("输入配对码")
                 }
             }
         }
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .tint(PhoneTheme.accent)
         .interactiveDismissDisabled()
         .onAppear {
             InterfaceOrientationLock.lockToPortrait()
@@ -311,10 +484,10 @@ private struct PairingCodeGateView: View {
 
     private var pairingCodeInput: some View {
         GeometryReader { proxy in
-            let spacing: CGFloat = 12
+            let spacing: CGFloat = 14
             let availableWidth = proxy.size.width
-            let boxWidth = min(64, max(50, (availableWidth - spacing * CGFloat(digitCount - 1)) / CGFloat(digitCount)))
-            let boxHeight = boxWidth * 1.28
+            let boxWidth = min(68, max(54, (availableWidth - spacing * CGFloat(digitCount - 1)) / CGFloat(digitCount)))
+            let boxHeight = boxWidth * 1.32
 
             ZStack {
                 TextField("", text: pairingCodeBinding)
@@ -342,7 +515,7 @@ private struct PairingCodeGateView: View {
             }
             .frame(width: proxy.size.width, height: boxHeight)
         }
-        .frame(height: 82)
+        .frame(height: 90)
     }
 
     private var pairingCodeBinding: Binding<String> {
@@ -396,11 +569,11 @@ private struct PairingCodeGateView: View {
     private var statusColor: Color {
         switch appModel.discovery.connectionState {
         case .failed:
-            .orange
+            Color(red: 1.00, green: 0.58, blue: 0.44)
         case .connected:
-            .green
+            Color(red: 0.40, green: 1.00, blue: 0.66)
         default:
-            .secondary
+            Color.white.opacity(0.68)
         }
     }
 
@@ -433,17 +606,50 @@ private struct DigitBox: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color(.secondarySystemGroupedBackground))
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            PhoneTheme.panelBackgroundTop.opacity(0.96),
+                            PhoneTheme.panelBackground.opacity(0.98)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
 
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(isActive ? Color.accentColor : Color(.separator), lineWidth: isActive ? 2 : 1)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: isActive ? [
+                            PhoneTheme.accent.opacity(0.98),
+                            PhoneTheme.iconWarmGlow.opacity(0.82)
+                        ] : [
+                            Color.white.opacity(0.22),
+                            PhoneTheme.tabBarStroke.opacity(0.38)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: isActive ? 2.2 : 1.2
+                )
 
             Text(value ?? "")
-                .font(.system(size: 34, weight: .semibold, design: .rounded))
+                .font(.system(size: 36, weight: .semibold, design: .rounded))
                 .monospacedDigit()
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.96),
+                            PhoneTheme.accent.opacity(0.88)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: size.width, height: size.height)
+        .shadow(color: isActive ? PhoneTheme.iconWarmGlow.opacity(0.34) : Color.black.opacity(0.16), radius: isActive ? 12 : 8, x: 0, y: isActive ? 4 : 3)
     }
 }
