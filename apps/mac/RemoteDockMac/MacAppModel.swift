@@ -17,9 +17,14 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var catalogApps: [CatalogApp] = []
     @Published private(set) var hiddenRunningAppBundleIds: Set<String> = []
     @Published private(set) var clipboardItems: [ClipboardItem] = []
+    @Published private(set) var clipboardHistorySettings: ClipboardHistorySettings
+    @Published private(set) var clipboardHistoryShortcutIsRegistered = true
+    @Published private(set) var clipboardHistoryPanelErrorMessage: String?
     @Published private(set) var permissionStatus = PermissionCenter.Status()
     @Published private(set) var pairedDeviceName: String?
     @Published var clipboardSyncEnabled = true
+
+    var clipboardHistoryShortcutDidChange: ((ClipboardHistoryShortcut) -> Bool)?
 
     private let permissionCenter = PermissionCenter()
     private let peerSessionManager: PeerSessionManager
@@ -27,7 +32,8 @@ final class MacAppModel: ObservableObject {
     private let runningAppsService = RunningAppsService()
     private let appCatalogService = AppCatalogService()
     private let runningAppsVisibilityService = RunningAppsVisibilityService()
-    private let clipboardHistoryService = ClipboardHistoryService()
+    private let clipboardHistorySettingsService: ClipboardHistorySettingsService
+    private let clipboardHistoryService: ClipboardHistoryService
     private let appIconAssetService = AppIconAssetService()
     private let commandExecutor = MacCommandExecutor()
     private let snapshotPublisher = SnapshotPublisher()
@@ -35,6 +41,14 @@ final class MacAppModel: ObservableObject {
     private var refreshTask: Task<Void, Never>?
 
     init() {
+        let clipboardHistorySettingsService = ClipboardHistorySettingsService()
+        let clipboardHistorySettings = clipboardHistorySettingsService.load()
+        self.clipboardHistorySettingsService = clipboardHistorySettingsService
+        self.clipboardHistorySettings = clipboardHistorySettings
+        self.clipboardHistoryService = ClipboardHistoryService(
+            policy: ClipboardHistoryPolicy(maxItems: clipboardHistorySettings.maxItems)
+        )
+
         let macId = Self.loadMacId()
         let pairingCode = Self.loadPairingCode()
         self.macId = macId
@@ -74,8 +88,8 @@ final class MacAppModel: ObservableObject {
         Task { [weak self] in
             guard let self else { return }
             for await item in clipboardHistoryService.startMonitoring() {
+                self.clipboardItems = self.clipboardHistoryService.currentItems
                 if self.clipboardSyncEnabled {
-                    self.clipboardItems = self.clipboardHistoryService.currentItems
                     await self.snapshotPublisher.publishClipboardInserted(item, through: self.peerSessionManager)
                 }
             }
@@ -150,7 +164,7 @@ final class MacAppModel: ObservableObject {
     }
 
     func toggleRunningAppVisibility(_ app: RunningApp) {
-        runningAppsVisibilityService.toggle(bundleIdentifier: app.bundleIdentifier)
+        _ = runningAppsVisibilityService.toggle(bundleIdentifier: app.bundleIdentifier)
         refresh()
         publishRunningAppsSnapshot()
     }
@@ -163,6 +177,53 @@ final class MacAppModel: ObservableObject {
                 await snapshotPublisher.publishClipboardCleared(through: peerSessionManager)
             }
         }
+    }
+
+    func updateClipboardHistoryMaxItems(_ maxItems: Int) {
+        let clampedMaxItems = min(max(maxItems, 1), ClipboardHistorySettings.maxAllowedItems)
+        clipboardHistorySettings.maxItems = clampedMaxItems
+        clipboardHistorySettingsService.saveMaxItems(clampedMaxItems)
+        clipboardHistoryService.updateMaxItems(clampedMaxItems)
+        refresh()
+        if clipboardSyncEnabled {
+            Task {
+                await snapshotPublisher.publishClipboardSnapshot(clipboardItems, through: peerSessionManager)
+            }
+        }
+    }
+
+    func updateClipboardHistoryShortcut(_ shortcut: ClipboardHistoryShortcut) {
+        clipboardHistorySettings.shortcut = shortcut
+        clipboardHistorySettingsService.saveShortcut(shortcut)
+        clipboardHistoryShortcutIsRegistered = clipboardHistoryShortcutDidChange?(shortcut) ?? false
+        clipboardHistoryPanelErrorMessage = clipboardHistoryShortcutIsRegistered ? nil : "快捷键注册失败，可能已被系统或其他应用占用"
+    }
+
+    func updateClipboardHistoryShortcutRegistration(isRegistered: Bool) {
+        clipboardHistoryShortcutIsRegistered = isRegistered
+        if !isRegistered {
+            clipboardHistoryPanelErrorMessage = "快捷键注册失败，可能已被系统或其他应用占用"
+        }
+    }
+
+    func reportClipboardHistoryPanelError(_ message: String) {
+        clipboardHistoryPanelErrorMessage = message
+    }
+
+    func clearClipboardHistoryPanelError() {
+        clipboardHistoryPanelErrorMessage = nil
+    }
+
+    @discardableResult
+    func promoteClipboardHistoryItem(_ item: ClipboardItem) -> ClipboardItem {
+        let promotedItem = clipboardHistoryService.promote(item)
+        refresh()
+        if clipboardSyncEnabled {
+            Task {
+                await snapshotPublisher.publishClipboardSnapshot(clipboardItems, through: peerSessionManager)
+            }
+        }
+        return promotedItem
     }
 
     private func handleTransportEvent(_ event: TransportEvent) async {
