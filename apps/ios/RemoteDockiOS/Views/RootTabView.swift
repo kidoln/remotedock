@@ -29,20 +29,24 @@ struct RootTabView: View {
     }
 
     private var portraitTabs: some View {
-        TabView(selection: $selectedTab) {
-            DockView()
-                .tag(RemoteDockTab.dock)
+        ZStack {
+            PhonePageBackground()
 
-            RunningAppsView()
-                .tag(RemoteDockTab.running)
+            TabView(selection: $selectedTab) {
+                DockView()
+                    .tag(RemoteDockTab.dock)
 
-            ClipboardView()
-                .tag(RemoteDockTab.clipboard)
+                RunningAppsView()
+                    .tag(RemoteDockTab.running)
 
-            SettingsView()
-                .tag(RemoteDockTab.settings)
+                ClipboardView()
+                    .tag(RemoteDockTab.clipboard)
+
+                SettingsView()
+                    .tag(RemoteDockTab.settings)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
         .safeAreaInset(edge: .bottom, spacing: 0) {
             PortraitSystemTabBar(selectedTab: $selectedTab)
                 .frame(height: PortraitSystemTabBar.height)
@@ -172,6 +176,8 @@ private struct LandscapeTabLayout<Content: View>: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
+            PhonePageBackground()
+
             content()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.leading, contentLeadingInset)

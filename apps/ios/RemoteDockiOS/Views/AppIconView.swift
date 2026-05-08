@@ -63,10 +63,9 @@ struct PhonePageSurface<Content: View>: View {
     }
 
     var body: some View {
-        ZStack {
-            PhonePageBackground()
-            content
-        }
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .tint(PhoneTheme.accent)

@@ -384,6 +384,8 @@ final class RemoteDockClientStore: ObservableObject {
     }
 
     private func applyRunningAppsSnapshot(_ apps: [RunningApp]) {
+        runningApps.lastActivatedAppId = apps.first(where: \.isActive)?.id
+
         guard !settings.moveActivatedRunningAppToTop else {
             runningApps.apps = apps
             return
@@ -421,6 +423,11 @@ final class RemoteDockClientStore: ObservableObject {
 
     private func markRunningAppAsActivated(_ app: RunningApp) {
         runningApps.lastActivatedAppId = app.id
+        runningApps.apps = runningApps.apps.map { runningApp in
+            var updatedApp = runningApp
+            updatedApp.isActive = runningApp.id == app.id
+            return updatedApp
+        }
 
         guard settings.moveActivatedRunningAppToTop,
               let index = runningApps.apps.firstIndex(where: { $0.id == app.id }),
