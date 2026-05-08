@@ -24,17 +24,6 @@ final class MacAppModel: ObservableObject {
 
     private var refreshTask: Task<Void, Never>?
 
-    var menuBarSystemImage: String {
-        switch connectionState {
-        case .connected:
-            "dot.radiowaves.left.and.right"
-        case .failed:
-            "exclamationmark.triangle"
-        default:
-            "dock.rectangle"
-        }
-    }
-
     init() {
         pinnedApps = pinnedAppsService.loadPinnedApps()
         refresh()

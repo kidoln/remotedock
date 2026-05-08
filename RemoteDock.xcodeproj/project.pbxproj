@@ -21,6 +21,8 @@
 		11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */; };
 		11111111111111111111000D /* Views/RunningAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200D /* Views/RunningAppsSettingsView.swift */; };
 		11111111111111111111000E /* Views/PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200E /* Views/PrivacySettingsView.swift */; };
+		111111111111111111110020 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112020 /* AppIcon.icns */; };
+		111111111111111111110021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112021 /* Assets.xcassets */; };
 		111111111111111111110101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
 		111111111111111111110102 /* RemoteDockProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990002 /* RemoteDockProtocol */; };
 		111111111111111111110103 /* RemoteDockTransport in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990003 /* RemoteDockTransport */; };
@@ -40,6 +42,7 @@
 		22222222222222222222000E /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200E /* Views/SettingsView.swift */; };
 		22222222222222222222000F /* Views/ConnectionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200F /* Views/ConnectionBanner.swift */; };
 		222222222222222222220010 /* Views/AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222010 /* Views/AppIconView.swift */; };
+		222222222222222222220020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222020 /* Assets.xcassets */; };
 		222222222222222222220101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
 		222222222222222222220102 /* RemoteDockProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990002 /* RemoteDockProtocol */; };
 		222222222222222222220103 /* RemoteDockTransport in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990003 /* RemoteDockTransport */; };
@@ -60,6 +63,8 @@
 		11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PinnedAppsSettingsView.swift; sourceTree = "<group>"; };
 		11111111111111111111200D /* Views/RunningAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RunningAppsSettingsView.swift; sourceTree = "<group>"; };
 		11111111111111111111200E /* Views/PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacySettingsView.swift; sourceTree = "<group>"; };
+		111111111111111111112020 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Assets/AppIcon.icns; sourceTree = "<group>"; };
+		111111111111111111112021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1111111111111111111120FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		111111111111111111113001 /* RemoteDockMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteDockMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		222222222222222222222001 /* RemoteDockiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDockiOSApp.swift; sourceTree = "<group>"; };
@@ -78,6 +83,7 @@
 		22222222222222222222200E /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		22222222222222222222200F /* Views/ConnectionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ConnectionBanner.swift; sourceTree = "<group>"; };
 		222222222222222222222010 /* Views/AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AppIconView.swift; sourceTree = "<group>"; };
+		222222222222222222222020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2222222222222222222220FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		222222222222222222223001 /* RemoteDockiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteDockiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -141,6 +147,8 @@
 				11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */,
 				11111111111111111111200D /* Views/RunningAppsSettingsView.swift */,
 				11111111111111111111200E /* Views/PrivacySettingsView.swift */,
+				111111111111111111112020 /* AppIcon.icns */,
+				111111111111111111112021 /* Assets.xcassets */,
 				1111111111111111111120FF /* Info.plist */,
 			);
 			path = apps/mac/RemoteDockMac;
@@ -165,6 +173,7 @@
 				22222222222222222222200E /* Views/SettingsView.swift */,
 				22222222222222222222200F /* Views/ConnectionBanner.swift */,
 				222222222222222222222010 /* Views/AppIconView.swift */,
+				222222222222222222222020 /* Assets.xcassets */,
 				2222222222222222222220FF /* Info.plist */,
 			);
 			path = apps/ios/RemoteDockiOS;
@@ -262,6 +271,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				111111111111111111110020 /* AppIcon.icns in Resources */,
+				111111111111111111110021 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +280,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				222222222222222222220020 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,6 +498,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QSZ6C2FCXK;
@@ -511,6 +524,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QSZ6C2FCXK;

@@ -5,7 +5,7 @@ struct RemoteDockMacApp: App {
     @StateObject private var appModel = MacAppModel()
 
     var body: some Scene {
-        MenuBarExtra("Remote Dock", systemImage: appModel.menuBarSystemImage) {
+        MenuBarExtra("Remote Dock", image: "MenuBarIcon") {
             MenuBarContentView()
                 .environmentObject(appModel)
                 .frame(width: 320)
