@@ -45,6 +45,22 @@ final class RemoteDockClientStore: ObservableObject {
         }
     }
 
+    func iconImage(for app: PinnedApp) -> UIImage? {
+        guard let hash = app.iconAssetHash else {
+            return nil
+        }
+
+        return dock.iconImagesByHash[hash]
+    }
+
+    func iconImage(for app: RunningApp) -> UIImage? {
+        guard let hash = app.iconAssetHash else {
+            return nil
+        }
+
+        return runningApps.iconImagesByHash[hash] ?? dock.iconImagesByHash[hash]
+    }
+
     var shouldShowPairingGate: Bool {
         if case .connected = discovery.connectionState {
             return false
@@ -205,12 +221,18 @@ final class RemoteDockClientStore: ObservableObject {
             Self.savePairingCode(payload.pairingCode)
         case let .appsSnapshot(payload):
             dock.apps = payload.apps
+            requestMissingIcons(for: payload.apps.compactMap(\.iconAssetHash))
         case let .runningAppsSnapshot(payload):
             runningApps.apps = payload.apps
+            requestMissingIcons(for: payload.apps.compactMap(\.iconAssetHash))
         case let .clipboardSnapshot(payload):
             clipboard.items = payload.items
         case let .clipboardDelta(payload):
             applyClipboardDelta(payload)
+        case let .iconManifest(payload):
+            requestMissingIcons(from: payload)
+        case let .iconPayload(payload):
+            applyIconPayload(payload)
         case let .commandResult(payload):
             lastCommandResult = payload
         default:
@@ -223,7 +245,7 @@ final class RemoteDockClientStore: ObservableObject {
             deviceId: deviceId,
             deviceName: deviceName,
             platform: .iOS,
-            capabilities: [.appActivation, .clipboardPaste]
+            capabilities: [.appActivation, .clipboardPaste, .iconSync]
         )
         try? await transport.send(.hello(hello))
 
@@ -246,6 +268,40 @@ final class RemoteDockClientStore: ObservableObject {
         case .cleared:
             clipboard.items.removeAll()
         }
+    }
+
+    private func requestMissingIcons(from payload: IconManifestPayload) {
+        requestMissingIcons(for: payload.assets.map(\.hash))
+    }
+
+    private func requestMissingIcons(for hashes: [String]) {
+        let knownHashes = Set(dock.iconImagesByHash.keys).union(runningApps.iconImagesByHash.keys)
+        let missingHashes = Array(Set(hashes))
+            .filter { !$0.isEmpty && !knownHashes.contains($0) }
+            .sorted()
+
+        guard !missingHashes.isEmpty else {
+            return
+        }
+
+        Task {
+            try? await transport.send(.iconRequest(IconRequestPayload(hashes: missingHashes)))
+        }
+    }
+
+    private func applyIconPayload(_ payload: IconPayload) {
+        guard let data = Data(base64Encoded: payload.base64PNGData),
+              let image = UIImage(data: data) else {
+            return
+        }
+
+        var updatedDock = dock
+        updatedDock.iconImagesByHash[payload.asset.hash] = image
+        dock = updatedDock
+
+        var updatedRunningApps = runningApps
+        updatedRunningApps.iconImagesByHash[payload.asset.hash] = image
+        runningApps = updatedRunningApps
     }
 
     private var normalizedPairingCodeInput: String {

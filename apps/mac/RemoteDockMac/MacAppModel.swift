@@ -28,6 +28,7 @@ final class MacAppModel: ObservableObject {
     private let appCatalogService = AppCatalogService()
     private let runningAppsVisibilityService = RunningAppsVisibilityService()
     private let clipboardHistoryService = ClipboardHistoryService()
+    private let appIconAssetService = AppIconAssetService()
     private let commandExecutor = MacCommandExecutor()
     private let snapshotPublisher = SnapshotPublisher()
 
@@ -193,6 +194,8 @@ final class MacAppModel: ObservableObject {
         case let .pasteClipboardItemCommand(payload):
             let result = await commandExecutor.handlePasteClipboardItemCommand(payload)
             await snapshotPublisher.publishCommandResult(result, through: peerSessionManager)
+        case let .iconRequest(payload):
+            await publishIconPayloads(for: payload.hashes)
         default:
             break
         }
@@ -223,6 +226,7 @@ final class MacAppModel: ObservableObject {
     private func publishSnapshots() async {
         await snapshotPublisher.publishAppsSnapshot(pinnedApps, through: peerSessionManager)
         await snapshotPublisher.publishRunningAppsSnapshot(visibleRunningApps, through: peerSessionManager)
+        await publishIconManifestAndPayloads()
         if clipboardSyncEnabled {
             await snapshotPublisher.publishClipboardSnapshot(clipboardItems, through: peerSessionManager)
         }
@@ -235,13 +239,30 @@ final class MacAppModel: ObservableObject {
     private func publishAppsSnapshot() {
         Task {
             await snapshotPublisher.publishAppsSnapshot(pinnedApps, through: peerSessionManager)
+            await publishIconManifestAndPayloads()
         }
     }
 
     private func publishRunningAppsSnapshot() {
         Task {
             await snapshotPublisher.publishRunningAppsSnapshot(visibleRunningApps, through: peerSessionManager)
+            await publishIconManifestAndPayloads()
         }
+    }
+
+    private func publishIconManifestAndPayloads() async {
+        let manifest = appIconAssetService.manifest(for: pinnedApps, runningApps: visibleRunningApps)
+        await snapshotPublisher.publishIconManifest(manifest, through: peerSessionManager)
+        await publishIconPayloads(for: manifest.assets.map(\.hash))
+    }
+
+    private func publishIconPayloads(for hashes: [String]) async {
+        let payloads = appIconAssetService.payloads(
+            for: hashes,
+            pinnedApps: pinnedApps,
+            runningApps: visibleRunningApps
+        )
+        await snapshotPublisher.publishIconPayloads(payloads, through: peerSessionManager)
     }
 
     private static func loadMacId() -> String {

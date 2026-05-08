@@ -8,6 +8,7 @@ enum MockBootstrap {
             bundleIdentifier: "com.apple.finder",
             displayName: "Finder",
             appPath: "/System/Library/CoreServices/Finder.app",
+            iconAssetHash: "com.apple.finder",
             sortOrder: 0
         ),
         PinnedApp(
@@ -15,6 +16,7 @@ enum MockBootstrap {
             bundleIdentifier: "com.apple.Safari",
             displayName: "Safari",
             appPath: "/Applications/Safari.app",
+            iconAssetHash: "com.apple.Safari",
             sortOrder: 1
         ),
         PinnedApp(
@@ -22,6 +24,7 @@ enum MockBootstrap {
             bundleIdentifier: "com.apple.dt.Xcode",
             displayName: "Xcode",
             appPath: "/Applications/Xcode.app",
+            iconAssetHash: "com.apple.dt.Xcode",
             sortOrder: 2
         ),
         PinnedApp(
@@ -29,6 +32,7 @@ enum MockBootstrap {
             bundleIdentifier: "com.apple.Terminal",
             displayName: "Terminal",
             appPath: "/System/Applications/Utilities/Terminal.app",
+            iconAssetHash: "com.apple.Terminal",
             sortOrder: 3
         )
     ]
@@ -40,7 +44,8 @@ enum MockBootstrap {
             displayName: "Safari",
             pid: 431,
             isActive: true,
-            launchedAt: Date(timeIntervalSinceNow: -4200)
+            launchedAt: Date(timeIntervalSinceNow: -4200),
+            iconAssetHash: "com.apple.Safari"
         ),
         RunningApp(
             id: "com.apple.dt.Xcode",
@@ -48,7 +53,8 @@ enum MockBootstrap {
             displayName: "Xcode",
             pid: 611,
             isActive: false,
-            launchedAt: Date(timeIntervalSinceNow: -2200)
+            launchedAt: Date(timeIntervalSinceNow: -2200),
+            iconAssetHash: "com.apple.dt.Xcode"
         ),
         RunningApp(
             id: "com.apple.finder",
@@ -56,7 +62,8 @@ enum MockBootstrap {
             displayName: "Finder",
             pid: 188,
             isActive: false,
-            launchedAt: Date(timeIntervalSinceNow: -9800)
+            launchedAt: Date(timeIntervalSinceNow: -9800),
+            iconAssetHash: "com.apple.finder"
         )
     ]
 

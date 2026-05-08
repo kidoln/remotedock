@@ -18,6 +18,22 @@ struct SnapshotPublisher {
         try? await peerSessionManager.send(.runningAppsSnapshot(RunningAppsSnapshotPayload(apps: apps)))
     }
 
+    func publishIconManifest(
+        _ manifest: IconManifestPayload,
+        through peerSessionManager: PeerSessionManager
+    ) async {
+        try? await peerSessionManager.send(.iconManifest(manifest))
+    }
+
+    func publishIconPayloads(
+        _ payloads: [IconPayload],
+        through peerSessionManager: PeerSessionManager
+    ) async {
+        for payload in payloads {
+            try? await peerSessionManager.send(.iconPayload(payload))
+        }
+    }
+
     func publishClipboardSnapshot(
         _ items: [ClipboardItem],
         through peerSessionManager: PeerSessionManager

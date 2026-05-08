@@ -18,6 +18,7 @@
 		111111111111111111110009 /* Services/SnapshotPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112009 /* Services/SnapshotPublisher.swift */; };
 		111111111111111111110010 /* Services/AppCatalogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112010 /* Services/AppCatalogService.swift */; };
 		111111111111111111110011 /* Services/RunningAppsVisibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112011 /* Services/RunningAppsVisibilityService.swift */; };
+		111111111111111111110012 /* Services/AppIconAssetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112012 /* Services/AppIconAssetService.swift */; };
 		11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200A /* Views/MenuBarContentView.swift */; };
 		11111111111111111111000B /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200B /* Views/SettingsView.swift */; };
 		11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */; };
@@ -63,6 +64,7 @@
 		111111111111111111112009 /* Services/SnapshotPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SnapshotPublisher.swift; sourceTree = "<group>"; };
 		111111111111111111112010 /* Services/AppCatalogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AppCatalogService.swift; sourceTree = "<group>"; };
 		111111111111111111112011 /* Services/RunningAppsVisibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/RunningAppsVisibilityService.swift; sourceTree = "<group>"; };
+		111111111111111111112012 /* Services/AppIconAssetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AppIconAssetService.swift; sourceTree = "<group>"; };
 		11111111111111111111200A /* Views/MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/MenuBarContentView.swift; sourceTree = "<group>"; };
 		11111111111111111111200B /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PinnedAppsSettingsView.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 				111111111111111111112009 /* Services/SnapshotPublisher.swift */,
 				111111111111111111112010 /* Services/AppCatalogService.swift */,
 				111111111111111111112011 /* Services/RunningAppsVisibilityService.swift */,
+				111111111111111111112012 /* Services/AppIconAssetService.swift */,
 				11111111111111111111200A /* Views/MenuBarContentView.swift */,
 				11111111111111111111200B /* Views/SettingsView.swift */,
 				11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */,
@@ -311,6 +314,7 @@
 				111111111111111111110009 /* Services/SnapshotPublisher.swift in Sources */,
 				111111111111111111110010 /* Services/AppCatalogService.swift in Sources */,
 				111111111111111111110011 /* Services/RunningAppsVisibilityService.swift in Sources */,
+				111111111111111111110012 /* Services/AppIconAssetService.swift in Sources */,
 				11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */,
 				11111111111111111111000B /* Views/SettingsView.swift in Sources */,
 				11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */,

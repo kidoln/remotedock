@@ -25,7 +25,7 @@ struct ConnectionBanner: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(.thinMaterial)
+        .background(PhoneTheme.bannerBackground)
     }
 
     private var title: String {

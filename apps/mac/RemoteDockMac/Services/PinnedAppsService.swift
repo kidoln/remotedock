@@ -12,9 +12,11 @@ final class PinnedAppsService {
     func loadPinnedApps() -> [PinnedApp] {
         guard let data = defaults.data(forKey: storageKey),
               let apps = try? JSONDecoder().decode([PinnedApp].self, from: data) else {
-            return Self.defaultPinnedApps
+            return Self.defaultPinnedApps.map(normalizedIconHash)
         }
-        return apps.sorted { $0.sortOrder < $1.sortOrder }
+        return apps
+            .map(normalizedIconHash)
+            .sorted { $0.sortOrder < $1.sortOrder }
     }
 
     func upsertPinnedApp(_ app: PinnedApp) {
@@ -28,10 +30,24 @@ final class PinnedAppsService {
     }
 
     private func save(_ apps: [PinnedApp]) {
-        guard let data = try? JSONEncoder().encode(apps.sorted(by: { $0.sortOrder < $1.sortOrder })) else {
+        let normalizedApps = apps
+            .map(normalizedIconHash)
+            .sorted(by: { $0.sortOrder < $1.sortOrder })
+
+        guard let data = try? JSONEncoder().encode(normalizedApps) else {
             return
         }
         defaults.set(data, forKey: storageKey)
+    }
+
+    private func normalizedIconHash(_ app: PinnedApp) -> PinnedApp {
+        guard app.iconAssetHash?.isEmpty != false else {
+            return app
+        }
+
+        var normalizedApp = app
+        normalizedApp.iconAssetHash = app.bundleIdentifier
+        return normalizedApp
     }
 
     static let defaultPinnedApps: [PinnedApp] = [
@@ -40,6 +56,7 @@ final class PinnedAppsService {
             bundleIdentifier: "com.apple.finder",
             displayName: "Finder",
             appPath: "/System/Library/CoreServices/Finder.app",
+            iconAssetHash: "com.apple.finder",
             sortOrder: 0
         ),
         PinnedApp(
@@ -47,6 +64,7 @@ final class PinnedAppsService {
             bundleIdentifier: "com.apple.Safari",
             displayName: "Safari",
             appPath: "/Applications/Safari.app",
+            iconAssetHash: "com.apple.Safari",
             sortOrder: 1
         ),
         PinnedApp(
@@ -54,6 +72,7 @@ final class PinnedAppsService {
             bundleIdentifier: "com.apple.Terminal",
             displayName: "Terminal",
             appPath: "/System/Applications/Utilities/Terminal.app",
+            iconAssetHash: "com.apple.Terminal",
             sortOrder: 2
         )
     ]

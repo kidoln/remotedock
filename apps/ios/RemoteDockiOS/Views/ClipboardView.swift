@@ -6,41 +6,48 @@ struct ClipboardView: View {
 
     var body: some View {
         NavigationStack {
-            List(appModel.clipboard.filteredItems) { item in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(item.plainText)
-                        .font(.body)
-                        .lineLimit(3)
+            PhonePageSurface {
+                List(appModel.clipboard.filteredItems) { item in
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(item.plainText)
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.88))
+                            .lineLimit(3)
 
-                    HStack {
-                        Text(item.createdAt, style: .relative)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Spacer()
-
-                        if appModel.clipboard.lastPastedItemId == item.id {
-                            Label("已发送", systemImage: "checkmark.circle.fill")
+                        HStack {
+                            Text(item.createdAt, style: .relative)
                                 .font(.caption)
-                                .foregroundStyle(.green)
-                        }
+                                .foregroundStyle(.white.opacity(0.52))
 
-                        Button {
-                            UIPasteboard.general.string = item.plainText
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                        }
-                        .buttonStyle(.borderless)
+                            Spacer()
 
-                        Button {
-                            appModel.paste(item)
-                        } label: {
-                            Image(systemName: "paperplane")
+                            if appModel.clipboard.lastPastedItemId == item.id {
+                                Label("已发送", systemImage: "checkmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.green)
+                            }
+
+                            Button {
+                                UIPasteboard.general.string = item.plainText
+                            } label: {
+                                Image(systemName: "doc.on.doc")
+                            }
+                            .buttonStyle(.borderless)
+
+                            Button {
+                                appModel.paste(item)
+                            } label: {
+                                Image(systemName: "paperplane")
+                            }
+                            .buttonStyle(.borderless)
                         }
-                        .buttonStyle(.borderless)
                     }
+                    .padding(.vertical, 8)
+                    .listRowBackground(PhoneTheme.rowBackground)
+                    .listRowSeparatorTint(PhoneTheme.rowSeparator)
                 }
-                .padding(.vertical, 6)
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
             }
             .navigationTitle("Clipboard")
             .searchable(text: $appModel.clipboard.searchText, placement: .navigationBarDrawer(displayMode: .always))

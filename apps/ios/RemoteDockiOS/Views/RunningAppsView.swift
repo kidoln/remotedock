@@ -3,35 +3,44 @@ import SwiftUI
 struct RunningAppsView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
 
+    private let columns = [
+        GridItem(.adaptive(minimum: 72, maximum: 96), spacing: 18)
+    ]
+
     var body: some View {
         NavigationStack {
-            List(appModel.runningApps.apps) { app in
-                Button {
-                    appModel.activate(app)
-                } label: {
-                    HStack(spacing: 12) {
-                        AppIconView(title: app.displayName, isActive: app.isActive)
-                            .frame(width: 44, height: 44)
+            PhonePageSurface {
+                ScrollView {
+                    if appModel.runningApps.apps.isEmpty {
+                        PhoneEmptyState(title: "暂无运行中的应用", systemImage: "rectangle.stack")
+                    } else {
+                        LazyVGrid(columns: columns, spacing: 18) {
+                            ForEach(appModel.runningApps.apps) { app in
+                                let isSelected = app.isActive || appModel.runningApps.lastActivatedAppId == app.id
 
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(app.displayName)
-                                .font(.body.weight(.medium))
-                            Text(app.bundleIdentifier)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
+                                Button {
+                                    appModel.activate(app)
+                                } label: {
+                                    AppIconView(
+                                        title: app.displayName,
+                                        isActive: isSelected,
+                                        image: appModel.iconImage(for: app)
+                                    )
+                                    .frame(width: 62, height: 62)
+                                    .padding(10)
+                                    .frame(maxWidth: .infinity)
+                                    .background(PhoneIconWellBackground(isActive: isSelected))
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(app.displayName)
+                                .accessibilityValue(app.isActive ? "当前活跃" : "")
+                                .accessibilityHint("切换到 Mac 上的这个应用")
+                            }
                         }
-
-                        Spacer()
-
-                        if app.isActive || appModel.runningApps.lastActivatedAppId == app.id {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                        }
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 18)
                     }
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
             }
             .navigationTitle("Running")
             .safeAreaInset(edge: .top) {
