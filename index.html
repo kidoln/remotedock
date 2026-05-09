@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Remote Dock - 你的 Mac 控制助手 | Your Mac Control Center</title>
+    <title>Remote Dock - 隐私政策</title>
     <style>
       * {
         margin: 0;
@@ -25,22 +25,83 @@
         max-width: 800px;
         margin: 0 auto;
         background: white;
-        border-radius: 16px;
-        padding: 50px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
       }
 
+      .language-switch {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .language-switch a {
+        display: inline-block;
+        padding: 10px 24px;
+        margin: 0 5px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .lang-cn {
+        background: #007aff;
+        color: white;
+      }
+
+      .lang-en {
+        background: #e5e5e5;
+        color: #333;
+      }
+
+      .lang-cn:hover,
+      .lang-en:hover {
+        opacity: 0.9;
+      }
+
+      .lang-active-cn {
+        background: #007aff;
+        color: white;
+      }
+
+      .lang-active-en {
+        background: #007aff;
+        color: white;
+      }
+
+      .lang-inactive-cn {
+        background: #e5e5e5;
+        color: #333;
+      }
+
+      .lang-inactive-en {
+        background: #e5e5e5;
+        color: #333;
+      }
+
+      /* Content sections */
+      .content {
+        display: none;
+      }
+
+      .content.active {
+        display: block;
+      }
+
+      /* Hero */
       .hero {
         text-align: center;
-        padding: 40px 0 50px;
+        padding: 30px 0 40px;
         border-bottom: 1px solid #e5e5e5;
         margin-bottom: 40px;
       }
 
       .hero h1 {
-        font-size: 42px;
+        font-size: 36px;
         font-weight: 700;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         background: linear-gradient(135deg, #007aff 0%, #5ac8fa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -50,13 +111,7 @@
       .hero-tagline {
         font-size: 18px;
         color: #86868b;
-        margin-bottom: 30px;
-      }
-
-      .hero-tagline .en {
-        display: block;
-        font-size: 16px;
-        margin-top: 4px;
+        margin-bottom: 25px;
       }
 
       .hero-buttons {
@@ -83,8 +138,6 @@
 
       .btn-primary:hover {
         background: #0051d5;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
       }
 
       .btn-secondary {
@@ -98,26 +151,17 @@
       }
 
       .section {
-        margin-bottom: 50px;
+        margin-bottom: 40px;
       }
 
       .section-title {
-        font-size: 26px;
+        font-size: 22px;
         font-weight: 600;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         color: #1d1d1f;
-        text-align: center;
       }
 
-      .section-title .en {
-        display: block;
-        font-size: 18px;
-        font-weight: 500;
-        color: #86868b;
-        margin-top: 6px;
-      }
-
-      /* Quick Start Steps */
+      /* Steps */
       .steps {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -126,23 +170,16 @@
       }
 
       .step {
-        background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-        border-radius: 16px;
+        background: #f8f9fa;
+        border-radius: 12px;
         padding: 24px 20px;
         text-align: center;
-        border: 2px solid #e5e5e5;
-        transition: all 0.2s;
-      }
-
-      .step:hover {
-        border-color: #007aff;
-        box-shadow: 0 4px 16px rgba(0, 122, 255, 0.15);
       }
 
       .step-number {
         width: 48px;
         height: 48px;
-        background: linear-gradient(135deg, #007aff 0%, #5ac8fa 100%);
+        background: #007aff;
         color: white;
         border-radius: 50%;
         text-align: center;
@@ -155,16 +192,8 @@
       .step-title {
         font-weight: 600;
         font-size: 17px;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         color: #1d1d1f;
-      }
-
-      .step-title .en {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: #86868b;
-        margin-top: 4px;
       }
 
       .step-desc {
@@ -194,29 +223,21 @@
       .feature-title {
         font-weight: 600;
         font-size: 16px;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         color: #1d1d1f;
       }
 
-      .feature-title .en {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        color: #86868b;
-        margin-top: 4px;
-      }
-
       .feature-desc {
-        font-size: 13px;
+        font-size: 14px;
         color: #86868b;
       }
 
       /* Unique Features */
       .unique-box {
-        background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-        border-radius: 16px;
-        padding: 28px;
-        border: 2px solid #ffe8cc;
+        background: #fff9e6;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #ffe8cc;
       }
 
       .unique-grid {
@@ -243,16 +264,8 @@
         color: #1d1d1f;
       }
 
-      .unique-content h4 .en {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        color: #86868b;
-        margin-top: 4px;
-      }
-
       .unique-content p {
-        font-size: 13px;
+        font-size: 14px;
         color: #86868b;
         margin: 0;
       }
@@ -260,9 +273,9 @@
       /* Requirements */
       .requirements {
         background: #f0f8ff;
-        border-radius: 12px;
-        padding: 24px;
         border-left: 4px solid #007aff;
+        padding: 20px;
+        border-radius: 8px;
       }
 
       .req-item {
@@ -278,7 +291,7 @@
 
       .req-icon {
         margin-right: 12px;
-        font-size: 22px;
+        font-size: 20px;
       }
 
       /* FAQ */
@@ -290,27 +303,19 @@
 
       .faq-item {
         background: #f8f9fa;
-        border-radius: 10px;
+        border-radius: 8px;
         padding: 18px;
       }
 
       .faq-question {
         font-weight: 600;
         font-size: 15px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         color: #1d1d1f;
       }
 
-      .faq-question .en {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        color: #86868b;
-        margin-top: 4px;
-      }
-
       .faq-answer {
-        font-size: 13px;
+        font-size: 14px;
         color: #86868b;
         line-height: 1.5;
       }
@@ -363,6 +368,15 @@
         text-decoration: underline;
       }
 
+      a {
+        color: #007aff;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
       /* Responsive */
       @media (max-width: 700px) {
         .container {
@@ -370,7 +384,7 @@
         }
 
         .hero h1 {
-          font-size: 32px;
+          font-size: 28px;
         }
 
         .steps {
@@ -393,238 +407,413 @@
   </head>
   <body>
     <div class="container">
-      <!-- Hero -->
-      <div class="hero">
-        <h1>Remote Dock</h1>
-        <p class="hero-tagline">
-          让 iPhone 成为 Mac 的完美控制中心
-          <span class="en">Your Mac Control Center, From Your iPhone</span>
-        </p>
-        <div class="hero-buttons">
-          <a href="#quick-start" class="btn btn-primary"
-            >快速开始 / Get Started</a
-          >
-          <a href="privacy-policy.html" class="btn btn-secondary"
-            >隐私政策 / Privacy</a
-          >
-        </div>
+      <div class="language-switch">
+        <a href="#chinese" id="btn-cn" class="lang-cn lang-active-cn">中文</a>
+        <a href="#english" id="btn-en" class="lang-en lang-inactive-en"
+          >English</a
+        >
       </div>
 
-      <!-- Quick Start -->
-      <div class="section" id="quick-start">
-        <h2 class="section-title">
-          🚀 快速开始
-          <span class="en">Quick Start</span>
-        </h2>
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-title">
-              启动 Mac 应用
-              <span class="en">Launch Mac App</span>
-            </div>
-            <div class="step-desc">在 Mac 上打开 Remote Dock</div>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-title">
-              查看配对码
-              <span class="en">View Pairing Code</span>
-            </div>
-            <div class="step-desc">菜单栏显示 4 位数字</div>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-title">
-              打开 iPhone 应用
-              <span class="en">Open iPhone App</span>
-            </div>
-            <div class="step-desc">输入配对码完成连接</div>
-          </div>
-          <div class="step">
-            <div class="step-number">4</div>
-            <div class="step-title">
-              开始使用
-              <span class="en">Start Controlling</span>
-            </div>
-            <div class="step-desc">用 iPhone 控制 Mac</div>
+      <!-- 中文版本 -->
+      <div id="chinese" class="content active">
+        <div class="hero">
+          <h1>Remote Dock</h1>
+          <p class="hero-tagline">让 iPhone 成为 Mac 的完美控制中心</p>
+          <div class="hero-buttons">
+            <a href="#quick-start" class="btn btn-primary">快速开始</a>
+            <a href="privacy-policy.html" class="btn btn-secondary">隐私政策</a>
           </div>
         </div>
-      </div>
 
-      <!-- Features -->
-      <div class="section">
-        <h2 class="section-title">
-          ⚡ 主要功能
-          <span class="en">Main Features</span>
-        </h2>
-        <div class="feature-grid">
-          <div class="feature">
-            <div class="feature-icon">📱</div>
-            <div class="feature-title">
-              常用应用
-              <span class="en">Dock Apps</span>
+        <!-- 快速开始 -->
+        <div class="section" id="quick-start">
+          <h2 class="section-title">🚀 快速开始</h2>
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-title">启动 Mac 应用</div>
+              <div class="step-desc">在 Mac 上打开 Remote Dock</div>
             </div>
-            <div class="feature-desc">固定常用应用，快速访问</div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🔄</div>
-            <div class="feature-title">
-              运行中的应用
-              <span class="en">Running Apps</span>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-title">查看配对码</div>
+              <div class="step-desc">菜单栏显示 4 位配对码</div>
             </div>
-            <div class="feature-desc">实时同步 Mac 上所有运行中的应用</div>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">📋</div>
-            <div class="feature-title">
-              剪贴板管理器
-              <span class="en">Clipboard</span>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-title">打开 iPhone 应用</div>
+              <div class="step-desc">输入配对码完成连接</div>
             </div>
-            <div class="feature-desc">功能强大的历史记录和搜索</div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-title">开始使用</div>
+              <div class="step-desc">用 iPhone 控制 Mac</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Unique Features -->
-      <div class="section">
-        <h2 class="section-title">
-          🌟 独特功能
-          <span class="en">Unique Features</span>
-        </h2>
-        <div class="unique-box">
-          <div class="unique-grid">
-            <div class="unique-item">
-              <div class="unique-icon">✨</div>
-              <div class="unique-content">
-                <h4>
-                  富文本支持
-                  <span class="en">Rich Text Support</span>
-                </h4>
-                <p>复制时保留文本格式</p>
-              </div>
+        <!-- 主要功能 -->
+        <div class="section">
+          <h2 class="section-title">⚡ 主要功能</h2>
+          <div class="feature-grid">
+            <div class="feature">
+              <div class="feature-icon">📱</div>
+              <div class="feature-title">常用应用</div>
+              <div class="feature-desc">固定常用应用，快速访问</div>
             </div>
-            <div class="unique-item">
-              <div class="unique-icon">🔍</div>
-              <div class="unique-content">
-                <h4>
-                  拼音搜索
-                  <span class="en">Pinyin Search</span>
-                </h4>
-                <p>支持使用拼音搜索剪贴板内容</p>
-              </div>
+            <div class="feature">
+              <div class="feature-icon">🔄</div>
+              <div class="feature-title">运行中的应用</div>
+              <div class="feature-desc">实时同步 Mac 上所有运行中的应用</div>
             </div>
-            <div class="unique-item">
-              <div class="unique-icon">📏</div>
-              <div class="unique-content">
-                <h4>
-                  可调整浮窗
-                  <span class="en">Resizable Drawer</span>
-                </h4>
-                <p>支持大小调整和字体缩放</p>
-              </div>
+            <div class="feature">
+              <div class="feature-icon">📋</div>
+              <div class="feature-title">剪贴板管理器</div>
+              <div class="feature-desc">功能强大的历史记录和搜索</div>
             </div>
-            <div class="unique-item">
-              <div class="unique-icon">🙈</div>
-              <div class="unique-content">
-                <h4>
-                  隐藏敏感应用
-                  <span class="en">Hide Sensitive Apps</span>
-                </h4>
-                <p>保护隐私，隐藏特定应用</p>
+          </div>
+        </div>
+
+        <!-- 独特功能 -->
+        <div class="section">
+          <h2 class="section-title">🌟 独特功能</h2>
+          <div class="unique-box">
+            <div class="unique-grid">
+              <div class="unique-item">
+                <div class="unique-icon">✨</div>
+                <div class="unique-content">
+                  <h4>富文本支持</h4>
+                  <p>复制时保留文本格式</p>
+                </div>
+              </div>
+              <div class="unique-item">
+                <div class="unique-icon">🔍</div>
+                <div class="unique-content">
+                  <h4>拼音搜索</h4>
+                  <p>支持使用拼音搜索剪贴板内容</p>
+                </div>
+              </div>
+              <div class="unique-item">
+                <div class="unique-icon">📏</div>
+                <div class="unique-content">
+                  <h4>可调整浮窗</h4>
+                  <p>支持大小调整和字体缩放</p>
+                </div>
+              </div>
+              <div class="unique-item">
+                <div class="unique-icon">🙈</div>
+                <div class="unique-content">
+                  <h4>隐藏敏感应用</h4>
+                  <p>保护隐私，隐藏特定应用</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Requirements -->
-      <div class="section">
-        <h2 class="section-title">
-          📱 系统要求
-          <span class="en">Requirements</span>
-        </h2>
-        <div class="requirements">
-          <div class="req-item">
-            <span class="req-icon">🍎</span>
-            <span><strong>Mac:</strong> macOS 14.0 及更高版本</span>
+        <!-- 系统要求 -->
+        <div class="section">
+          <h2 class="section-title">📱 系统要求</h2>
+          <div class="requirements">
+            <div class="req-item">
+              <span class="req-icon">🍎</span>
+              <span><strong>Mac:</strong> macOS 14.0 及更高版本</span>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">📱</span>
+              <span><strong>iPhone:</strong> iOS 17.6 及更高版本</span>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">🔗</span>
+              <span><strong>网络:</strong> 同一 Wi-Fi 或 Apple 近距连接</span>
+            </div>
           </div>
-          <div class="req-item">
-            <span class="req-icon">📱</span>
-            <span><strong>iPhone:</strong> iOS 17.6 及更高版本</span>
+        </div>
+
+        <!-- 常见问题 -->
+        <div class="section">
+          <h2 class="section-title">❓ 常见问题</h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <div class="faq-question">Remote Dock 是免费的吗？</div>
+              <div class="faq-answer">
+                <strong>Mac 版本：</strong>完全免费<br />
+                <strong>iOS 版本：</strong>基础功能免费，高级功能需一次性购买
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">需要互联网连接吗？</div>
+              <div class="faq-answer">
+                不需要。只需本地网络或 Apple 近距连接即可使用。
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">可以连接多个 Mac 吗？</div>
+              <div class="faq-answer">
+                目前一次只能连接一个 Mac，断开后可切换。
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">数据安全吗？</div>
+              <div class="faq-answer">
+                完全安全。所有数据仅在本地设备间传输，不上传云端。
+              </div>
+            </div>
           </div>
-          <div class="req-item">
-            <span class="req-icon">🔗</span>
-            <span><strong>网络:</strong> 同一 Wi-Fi 或 Apple 近距连接</span>
+        </div>
+
+        <!-- 联系我们 -->
+        <div class="contact">
+          <p>需要帮助？联系我们：</p>
+          <p>
+            <a href="mailto:kido.ln@gmail.com">kido.ln@gmail.com</a> •
+            <a href="https://github.com/kidoln/remotedock">GitHub</a>
+          </p>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+          <div class="footer-links">
+            <a href="privacy-policy.html">隐私政策</a>
+            <a href="https://github.com/kidoln/remotedock">GitHub 仓库</a>
           </div>
         </div>
       </div>
 
-      <!-- FAQ -->
-      <div class="section">
-        <h2 class="section-title">
-          ❓ 常见问题
-          <span class="en">FAQ</span>
-        </h2>
-        <div class="faq-grid">
-          <div class="faq-item">
-            <div class="faq-question">
-              Remote Dock 是免费的吗？
-              <span class="en">Is Remote Dock free?</span>
-            </div>
-            <div class="faq-answer">
-              <strong>Mac 版本：</strong>完全免费<br />
-              <strong>iOS 版本：</strong>基础功能免费，高级功能需一次性购买
-            </div>
+      <!-- 英文版本 -->
+      <div id="english" class="content">
+        <div class="hero">
+          <h1>Remote Dock</h1>
+          <p class="hero-tagline">Your Mac Control Center, From Your iPhone</p>
+          <div class="hero-buttons">
+            <a href="#quick-start" class="btn btn-primary">Get Started</a>
+            <a href="privacy-policy.html" class="btn btn-secondary"
+              >Privacy Policy</a
+            >
           </div>
-          <div class="faq-item">
-            <div class="faq-question">
-              需要互联网连接吗？
-              <span class="en">Need internet connection?</span>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="section" id="quick-start">
+          <h2 class="section-title">🚀 Quick Start</h2>
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-title">Launch Mac App</div>
+              <div class="step-desc">Open Remote Dock on your Mac</div>
             </div>
-            <div class="faq-answer">
-              不需要。只需本地网络或 Apple 近距连接即可使用。
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-title">View Pairing Code</div>
+              <div class="step-desc">4-digit code shown in menu bar</div>
             </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
-              可以连接多个 Mac 吗？
-              <span class="en">Can connect to multiple Macs?</span>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-title">Open iPhone App</div>
+              <div class="step-desc">Enter the pairing code to connect</div>
             </div>
-            <div class="faq-answer">
-              目前一次只能连接一个 Mac，断开后可切换。
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
-              数据安全吗？
-              <span class="en">Is my data secure?</span>
-            </div>
-            <div class="faq-answer">
-              完全安全。所有数据仅在本地设备间传输，不上传云端。
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-title">Start Controlling</div>
+              <div class="step-desc">Use iPhone to control your Mac</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Contact -->
-      <div class="contact">
-        <p>需要帮助？联系我们 / Need help? Contact us:</p>
-        <p>
-          <a href="mailto:kido.ln@gmail.com">kido.ln@gmail.com</a> •
-          <a href="https://github.com/kidoln/remotedock">GitHub</a>
-        </p>
-      </div>
+        <!-- Features -->
+        <div class="section">
+          <h2 class="section-title">⚡ Features</h2>
+          <div class="feature-grid">
+            <div class="feature">
+              <div class="feature-icon">📱</div>
+              <div class="feature-title">Dock Apps</div>
+              <div class="feature-desc">Pin favorite apps for quick access</div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">🔄</div>
+              <div class="feature-title">Running Apps</div>
+              <div class="feature-desc">
+                See all running apps on your Mac in real-time
+              </div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">📋</div>
+              <div class="feature-title">Clipboard Manager</div>
+              <div class="feature-desc">Powerful history with search</div>
+            </div>
+          </div>
+        </div>
 
-      <!-- Footer -->
-      <div class="footer">
-        <div class="footer-links">
-          <a href="privacy-policy.html">隐私政策 / Privacy Policy</a>
-          <a href="https://github.com/kidoln/remotedock"
-            >GitHub 仓库 / Repository</a
-          >
+        <!-- Unique Features -->
+        <div class="section">
+          <h2 class="section-title">🌟 Unique Features</h2>
+          <div class="unique-box">
+            <div class="unique-grid">
+              <div class="unique-item">
+                <div class="unique-icon">✨</div>
+                <div class="unique-content">
+                  <h4>Rich Text Support</h4>
+                  <p>Preserve text formatting when copying</p>
+                </div>
+              </div>
+              <div class="unique-item">
+                <div class="unique-icon">🔍</div>
+                <div class="unique-content">
+                  <h4>Pinyin Search</h4>
+                  <p>Search clipboard content using Chinese Pinyin</p>
+                </div>
+              </div>
+              <div class="unique-item">
+                <div class="unique-icon">📏</div>
+                <div class="unique-content">
+                  <h4>Resizable Drawer</h4>
+                  <p>Adjust size and font zoom (zoom in/out)</p>
+                </div>
+              </div>
+              <div class="unique-item">
+                <div class="unique-icon">🙈</div>
+                <div class="unique-content">
+                  <h4>Hide Sensitive Apps</h4>
+                  <p>Exclude specific apps for privacy</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements -->
+        <div class="section">
+          <h2 class="section-title">📱 Requirements</h2>
+          <div class="requirements">
+            <div class="req-item">
+              <span class="req-icon">🍎</span>
+              <span><strong>Mac:</strong> macOS 14.0 or later</span>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">📱</span>
+              <span><strong>iPhone:</strong> iOS 17.6 or later</span>
+            </div>
+            <div class="req-item">
+              <span class="req-icon">🔗</span>
+              <span
+                ><strong>Network:</strong> Same Wi-Fi or Apple
+                Peer-to-Peer</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="section">
+          <h2 class="section-title">❓ FAQ</h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <div class="faq-question">Is Remote Dock free?</div>
+              <div class="faq-answer">
+                <strong>Mac version:</strong> Completely free<br />
+                <strong>iOS version:</strong> Basic features free, one-time
+                purchase for advanced features
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">Need internet connection?</div>
+              <div class="faq-answer">
+                No. Just local network or Apple Peer-to-Peer connection.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">Can connect to multiple Macs?</div>
+              <div class="faq-answer">
+                One Mac at a time currently. Disconnect to switch.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">Is my data secure?</div>
+              <div class="faq-answer">
+                Completely secure. All data is transferred locally between
+                devices, never uploaded to the cloud.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact">
+          <p>Need help? Contact us:</p>
+          <p>
+            <a href="mailto:kido.ln@gmail.com">kido.ln@gmail.com</a> •
+            <a href="https://github.com/kidoln/remotedock">GitHub</a>
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <div class="footer-links">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="https://github.com/kidoln/remotedock">GitHub Repository</a>
+          </div>
         </div>
       </div>
     </div>
+
+    <script>
+      // 语言切换
+      document.addEventListener("DOMContentLoaded", function () {
+        const btnCn = document.getElementById("btn-cn");
+        const btnEn = document.getElementById("btn-en");
+        const contentCn = document.getElementById("chinese");
+        const contentEn = document.getElementById("english");
+
+        function switchToChinese() {
+          contentCn.classList.add("active");
+          contentEn.classList.remove("active");
+          btnCn.className = "lang-cn lang-active-cn";
+          btnEn.className = "lang-en lang-inactive-en";
+          window.location.hash = "chinese";
+        }
+
+        function switchToEnglish() {
+          contentEn.classList.add("active");
+          contentCn.classList.remove("active");
+          btnEn.className = "lang-en lang-active-en";
+          btnCn.className = "lang-cn lang-inactive-cn";
+          window.location.hash = "english";
+        }
+
+        btnCn.addEventListener("click", function (e) {
+          e.preventDefault();
+          switchToChinese();
+        });
+
+        btnEn.addEventListener("click", function (e) {
+          e.preventDefault();
+          switchToEnglish();
+        });
+
+        // 根据浏览器语言自动切换
+        const userLang = navigator.language || navigator.userLanguage;
+        const hash = window.location.hash;
+
+        if (hash === "#english") {
+          switchToEnglish();
+        } else if (hash === "#chinese") {
+          switchToChinese();
+        } else if (userLang.startsWith("zh")) {
+          switchToChinese();
+        } else {
+          switchToEnglish();
+        }
+
+        // 平滑滚动到对应语言
+        if (window.location.hash) {
+          const target = document.querySelector(window.location.hash);
+          if (target) {
+            setTimeout(() => {
+              target.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+          }
+        }
+      });
+    </script>
   </body>
 </html>
