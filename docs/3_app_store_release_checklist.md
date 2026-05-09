@@ -168,7 +168,7 @@
 - [x] NSBluetoothAlwaysUsageDescription 已配置
 - [x] NSLocalNetworkUsageDescription 已配置
 - [x] LSUIElement = true（菜单栏应用）
-- [x] 最小系统版本: macOS 14.0（需确认）
+- [x] 最小系统版本: macOS 15.6（需确认）
 
 ### 权限描述文案审核
 

@@ -162,3 +162,5 @@ build_mac/*
 build_ios/*
 RemoteDockMac.app/*
 RemoteDockiOS.app/*
+
+docs/website/*

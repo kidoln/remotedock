@@ -30,6 +30,7 @@ final class RemoteDockClientStore: ObservableObject {
     @Published private(set) var negotiatedProtocolVersion: Int?
     @Published private(set) var peerProtocolIsCompatible = true
     @Published private(set) var isBackgroundReconnecting = false
+    private var isBackgroundReconnectCompleted = false
 
     private let deviceId: String
     private let deviceName: String
@@ -66,6 +67,7 @@ final class RemoteDockClientStore: ObservableObject {
         settings.movePastedClipboardItemToTop = Self.loadMovePastedClipboardItemToTop()
         settings.moveActivatedRunningAppToTop = Self.loadMoveActivatedRunningAppToTop()
         isBackgroundReconnecting = Self.validPairingCode(from: storedPairingCode) != nil
+        isBackgroundReconnectCompleted = true  // 初始状态标记为已完成，避免 app 启动时显示对码页面
 
         dock.apps = MockBootstrap.pinnedApps
         runningApps.apps = MockBootstrap.runningApps
@@ -110,7 +112,8 @@ final class RemoteDockClientStore: ObservableObject {
             return false
         }
 
-        if isBackgroundReconnecting {
+        // 后台重连中或刚完成时，不显示对码页面（避免闪现）
+        if isBackgroundReconnecting || !isBackgroundReconnectCompleted {
             return false
         }
 
@@ -195,6 +198,7 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         hasFailedBackgroundReconnect = false
+        isBackgroundReconnectCompleted = false  // 标记后台重连未完成
         isBackgroundReconnecting = true
         backgroundReconnectTask?.cancel()
         backgroundReconnectTask = Task { [weak self] in
@@ -211,6 +215,7 @@ final class RemoteDockClientStore: ObservableObject {
     ) async {
         guard let pairingCode = validSavedPairingCode else {
             isBackgroundReconnecting = false
+            isBackgroundReconnectCompleted = true
             return
         }
 
@@ -227,6 +232,7 @@ final class RemoteDockClientStore: ObservableObject {
             if case .connected = currentState {
                 applyTransportState(currentState)
                 isBackgroundReconnecting = false
+                isBackgroundReconnectCompleted = true
                 backgroundReconnectTask = nil
                 return
             }
@@ -251,11 +257,13 @@ final class RemoteDockClientStore: ObservableObject {
                 selectMac(peer)
                 connectionErrorMessage = nil
                 isBackgroundReconnecting = false
+                isBackgroundReconnectCompleted = true
             } else {
                 finishBackgroundReconnectFailure(connectionFailureMessage(for: connectionState))
             }
             backgroundReconnectTask = nil
         } catch is CancellationError {
+            isBackgroundReconnectCompleted = true
             backgroundReconnectTask = nil
         } catch {
             finishBackgroundReconnectFailure(error.localizedDescription)
@@ -342,6 +350,7 @@ final class RemoteDockClientStore: ObservableObject {
         discovery.connectionState = .failed(message)
         settings.pairingCodeInput = ""
         isBackgroundReconnecting = false
+        isBackgroundReconnectCompleted = true  // 标记后台重连已完成（即使失败）
     }
 
     func activate(_ app: PinnedApp) {
@@ -472,6 +481,7 @@ final class RemoteDockClientStore: ObservableObject {
         backgroundReconnectTask?.cancel()
         backgroundReconnectTask = nil
         isBackgroundReconnecting = false
+        isBackgroundReconnectCompleted = true
         connectionErrorMessage = nil
         pairingCode = nil
         versionMismatchNotice = nil
@@ -534,6 +544,7 @@ final class RemoteDockClientStore: ObservableObject {
             if case let .connected(peer) = state {
                 hasFailedBackgroundReconnect = false
                 isBackgroundReconnecting = false
+                isBackgroundReconnectCompleted = true
                 selectMac(peer)
                 connectionErrorMessage = nil
                 await sendPairingHandshake()
