@@ -702,6 +702,7 @@
           transparent
         );
         transition: left 0.5s;
+        pointer-events: none;
       }
 
       .btn:hover::before {
@@ -733,6 +734,7 @@
         );
         transform: rotate(45deg) translateX(-100%);
         transition: transform 0.6s;
+        pointer-events: none;
       }
 
       .btn-primary:hover::after {
@@ -2291,14 +2293,19 @@
                 <div class="unique-icon">📏</div>
                 <div class="unique-content">
                   <h4>Adjustable Floating Window</h4>
-                  <p>Adjust text size in the floating window using keyboard zoom in/out</p>
+                  <p>
+                    Adjust text size in the floating window using keyboard zoom
+                    in/out
+                  </p>
                 </div>
               </div>
               <div class="unique-item">
                 <div class="unique-icon">🎯</div>
                 <div class="unique-content">
                   <h4>Highly Customizable App Management</h4>
-                  <p>Configure to hide unwanted apps from the current app list</p>
+                  <p>
+                    Configure to hide unwanted apps from the current app list
+                  </p>
                 </div>
               </div>
             </div>
