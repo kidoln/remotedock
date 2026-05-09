@@ -48,11 +48,11 @@ MAC_BUILD() {
 		-configuration "$BUILD_CONFIG" \
 		-derivedDataPath "$DERIVED_DATA" \
 		build \
-		CODE_SIGN_IDENTITY="-" \
+		CODE_SIGN_IDENTITY="Apple Development" \
 		CODE_SIGNING_REQUIRED=YES \
 		CODE_SIGNING_ALLOWED=YES \
 		ONLY_ACTIVE_ARCH=NO \
-		DEVELOPMENT_TEAM="TY92V4UW5Z"
+		DEVELOPMENT_TEAM="QSZ6C2FCXK"
 
 	# 检查构建是否成功
 	if [ $? -ne 0 ]; then

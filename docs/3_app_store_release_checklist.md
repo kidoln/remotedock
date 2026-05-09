@@ -46,13 +46,13 @@
 
 - [x] 主类别: 工具类 (Utilities)
 - [ ] 副类别（可选）
-- [ ] 内容版权信息（格式：© 2026 李楠）
+- [x] 内容版权信息: `© 2026 Kido Apps`
 
 ### macOS 应用
 
 - [x] 主类别: 工具类 (Utilities)
 - [ ] 副类别（可选）
-- [ ] 内容版权信息（格式：© 2026 李楠）
+- [x] 内容版权信息: `© 2026 Kido Apps`
 
 ---
 
@@ -61,7 +61,7 @@
 ### 应用图标
 
 - [x] iOS App Icon（已存在）
-- [ ] TODO: 确认 iOS 图标质量（1024x1024 用于 App Store）
+- [x] 确认 iOS 图标质量（1024x1024 用于 App Store）✅ 已检查
 - [x] macOS App Icon（已存在）
 - [ ] TODO: 确认 macOS 图标质量
 
@@ -296,10 +296,16 @@
 
 ### 沙盒与权限（macOS 特有）
 
-- [ ] TODO: 确认 macOS 应用符合 App Store 沙盒要求
-  - [ ] Entitlements 配置正确
-  - [ ] 文件访问权限声明
-  - [ ] 网络访问权限声明
+- [x] Entitlements 文件已创建: `RemoteDockMac.entitlements`
+- [x] 包含权限:
+  - [x] App Sandbox（强制）
+  - [x] Network Client/Server
+  - [x] Bonjour/mDNS
+  - [x] Bluetooth
+  - [x] Apple Events（用于应用切换）
+- [ ] TODO: 在 Xcode 中配置 Code Signing Entitlements
+  - Build Settings → Code Signing Entitlements = `RemoteDockMac/RemoteDockMac.entitlements`
+- [ ] TODO: 测试构建验证沙盒配置正确
 
 ---
 
