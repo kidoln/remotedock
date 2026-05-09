@@ -303,9 +303,13 @@ struct PhoneIconGrid<Content: View>: View {
     var metricsSize: CGSize?
     private let content: (_ iconSize: CGFloat) -> Content
 
-    private let defaultSpacing: CGFloat = 24
+    private let largeIconSpacing: CGFloat = 24
+    private let mediumIconSpacing: CGFloat = 10
+    private let smallIconSpacing: CGFloat = 6
     private let compactLandscapeSpacing: CGFloat = 10
-    private let portraitEdgePadding: CGFloat = 26
+    private let largeEdgePadding: CGFloat = 26
+    private let mediumEdgePadding: CGFloat = 14
+    private let smallEdgePadding: CGFloat = 10
     private let landscapeEdgePadding: CGFloat = 12
     private let minimumIconSize: CGFloat = 40
     private let landscapeTwoRowVisibleColumns = 4
@@ -377,7 +381,19 @@ struct PhoneIconGrid<Content: View>: View {
         isLandscape: Bool,
         containerSize: CGSize
     ) -> (iconSize: CGFloat, spacing: CGFloat, edgePadding: CGFloat) {
-        let edgePadding = isLandscape ? landscapeEdgePadding : portraitEdgePadding
+        let edgePadding: CGFloat
+        if isLandscape {
+            edgePadding = landscapeEdgePadding
+        } else {
+            switch gridCount {
+            case .four:
+                edgePadding = smallEdgePadding
+            case .three:
+                edgePadding = mediumEdgePadding
+            case .two:
+                edgePadding = largeEdgePadding
+            }
+        }
         let availableWidth = max(1, containerSize.width - edgePadding * 2)
         let availableHeight = max(1, containerSize.height - edgePadding * 2)
         let shouldFitFourColumns = isLandscape && count == 2
@@ -408,15 +424,31 @@ struct PhoneIconGrid<Content: View>: View {
         availableHeight: CGFloat,
         shouldFitFourColumns: Bool
     ) -> CGFloat {
-        guard shouldFitFourColumns else {
-            return defaultSpacing
+        if shouldFitFourColumns {
+            let baseSpacing: CGFloat
+            switch gridCount {
+            case .four:
+                baseSpacing = smallIconSpacing
+            case .three:
+                baseSpacing = mediumIconSpacing
+            case .two:
+                baseSpacing = largeIconSpacing
+            }
+            let heightConstrainedSize = (availableHeight - baseSpacing * CGFloat(count - 1)) / CGFloat(count)
+            let requiredWidth = heightConstrainedSize * CGFloat(landscapeTwoRowVisibleColumns)
+                + baseSpacing * CGFloat(landscapeTwoRowVisibleColumns - 1)
+
+            return requiredWidth > availableWidth ? compactLandscapeSpacing : baseSpacing
         }
 
-        let heightConstrainedSize = (availableHeight - defaultSpacing * CGFloat(count - 1)) / CGFloat(count)
-        let requiredWidth = heightConstrainedSize * CGFloat(landscapeTwoRowVisibleColumns)
-            + defaultSpacing * CGFloat(landscapeTwoRowVisibleColumns - 1)
-
-        return requiredWidth > availableWidth ? compactLandscapeSpacing : defaultSpacing
+        switch gridCount {
+        case .four:
+            return smallIconSpacing
+        case .three:
+            return mediumIconSpacing
+        case .two:
+            return largeIconSpacing
+        }
     }
 }
 
