@@ -5,6 +5,16 @@ import RemoteDockTransport
 import SwiftUI
 import UIKit
 
+struct RemoteDockVersionMismatchNotice: Equatable, Identifiable {
+    var mismatch: RemoteDockAppVersionMismatch
+    var phoneVersion: String
+    var macVersion: String
+
+    var id: String {
+        "\(mismatch)-\(phoneVersion)-\(macVersion)"
+    }
+}
+
 @MainActor
 final class RemoteDockClientStore: ObservableObject {
     @Published var discovery = DiscoveryStore()
@@ -16,6 +26,7 @@ final class RemoteDockClientStore: ObservableObject {
     @Published private(set) var pairingCode: String?
     @Published private(set) var connectionErrorMessage: String?
     @Published private(set) var pairedMacAppVersion: String?
+    @Published private(set) var versionMismatchNotice: RemoteDockVersionMismatchNotice?
     @Published private(set) var negotiatedProtocolVersion: Int?
     @Published private(set) var peerProtocolIsCompatible = true
     @Published private(set) var isBackgroundReconnecting = false
@@ -31,6 +42,7 @@ final class RemoteDockClientStore: ObservableObject {
     private var allowsAutomaticReconnect = true
     private var hasCompletedInitialDiscovery = false
     private var hasFailedBackgroundReconnect = false
+    private var dismissedVersionMismatchNoticeID: String?
 
     init(transport: (any TransportSession)? = nil) {
         let storedDeviceIdKey = "remoteDock.iOS.deviceId"
@@ -462,6 +474,7 @@ final class RemoteDockClientStore: ObservableObject {
         isBackgroundReconnecting = false
         connectionErrorMessage = nil
         pairingCode = nil
+        versionMismatchNotice = nil
         clearPeerHandshakeState()
         settings.pairingCodeInput = ""
         discovery.connectionState = .disconnected(reason: nil)
@@ -509,6 +522,11 @@ final class RemoteDockClientStore: ObservableObject {
         clipboard.lastPastedItemId = nil
     }
 
+    func dismissVersionMismatchNotice() {
+        dismissedVersionMismatchNoticeID = versionMismatchNotice?.id
+        versionMismatchNotice = nil
+    }
+
     private func handleTransportEvent(_ event: TransportEvent) async {
         switch event.kind {
         case let .stateChanged(state):
@@ -543,6 +561,7 @@ final class RemoteDockClientStore: ObservableObject {
         switch message {
         case let .hello(payload):
             pairedMacAppVersion = payload.appVersionDisplayText
+            updateVersionMismatchNotice(remoteAppVersion: payload.appVersion)
             negotiatedProtocolVersion = payload.highestCompatibleProtocolVersion
             peerProtocolIsCompatible = payload.isProtocolCompatible
             if let remoteLanguage = RemoteDockLanguage.resolved(from: payload.languageCode) {
@@ -854,8 +873,33 @@ final class RemoteDockClientStore: ObservableObject {
 
     private func clearPeerHandshakeState() {
         pairedMacAppVersion = nil
+        versionMismatchNotice = nil
+        dismissedVersionMismatchNoticeID = nil
         negotiatedProtocolVersion = nil
         peerProtocolIsCompatible = true
+    }
+
+    private func updateVersionMismatchNotice(remoteAppVersion: String?) {
+        guard let mismatch = RemoteDockAppVersionComparator.mismatch(
+            local: Bundle.main.remoteDockAppVersion,
+            remote: remoteAppVersion
+        ),
+              let phoneVersion = Bundle.main.remoteDockAppVersionDisplayText,
+              let macVersion = pairedMacAppVersion else {
+            versionMismatchNotice = nil
+            return
+        }
+
+        let notice = RemoteDockVersionMismatchNotice(
+            mismatch: mismatch,
+            phoneVersion: phoneVersion,
+            macVersion: macVersion
+        )
+        guard dismissedVersionMismatchNoticeID != notice.id else {
+            return
+        }
+
+        versionMismatchNotice = notice
     }
 
     private func updateRemoteLanguage(_ language: RemoteDockLanguage) {
@@ -965,6 +1009,18 @@ private extension Bundle {
 
     var remoteDockBuildNumber: String? {
         object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    }
+
+    var remoteDockAppVersionDisplayText: String? {
+        guard let appVersion = remoteDockAppVersion else {
+            return nil
+        }
+
+        if let buildNumber = remoteDockBuildNumber, buildNumber != appVersion {
+            return "\(appVersion) (\(buildNumber))"
+        }
+
+        return appVersion
     }
 }
 

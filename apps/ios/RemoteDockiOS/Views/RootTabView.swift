@@ -18,9 +18,21 @@ struct RootTabView: View {
             }
         }
         .overlay {
-            // 后台重连时显示 loading 界面
-            if appModel.isBackgroundReconnecting {
-                ReconnectingOverlay()
+            ZStack {
+                // 后台重连时显示 loading 界面
+                if appModel.isBackgroundReconnecting {
+                    ReconnectingOverlay()
+                }
+
+                if let notice = appModel.versionMismatchNotice, appModel.isConnected {
+                    VersionMismatchNoticeOverlay(
+                        notice: notice,
+                        language: appModel.settings.remoteLanguage,
+                        onDismiss: {
+                            appModel.dismissVersionMismatchNotice()
+                        }
+                    )
+                }
             }
         }
         .fullScreenCover(isPresented: pairingGateBinding) {
@@ -670,35 +682,19 @@ private struct DigitBox: View {
 /// 后台重连时显示的 loading 覆盖层
 private struct ReconnectingOverlay: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
+    @State private var rotation: Double = 0
+
+    private let cardSize = CGSize(width: 180, height: 180)
 
     var body: some View {
         ZStack {
             // 半透明背景
-            Color.black.opacity(0.72)
+            Color.black.opacity(0.52)
                 .ignoresSafeArea()
 
-            VStack(spacing: 20) {
-                // 旋转的加载指示器
-                ProgressView()
-                    .scaleEffect(1.4)
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color.white.opacity(0.94)))
-                    .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
-
-                Text(appModel.settings.remoteLanguage.localizedString("connection.reconnectingMacWithEllipsis"))
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.94))
-                    .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
-
-                // 如果有已保存的 Mac 名称，显示出来
-                if let macName = appModel.discovery.availableMacs.first?.displayName {
-                    Text(macName)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.white.opacity(0.68))
-                }
-            }
-            .padding(32)
-            .background {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+            ZStack {
+                // 主卡片背景
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [
@@ -709,13 +705,19 @@ private struct ReconnectingOverlay: View {
                             endPoint: .bottomTrailing
                         )
                     )
+                    .background {
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.35)
+                    }
                     .overlay {
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
                             .strokeBorder(
                                 LinearGradient(
                                     colors: [
-                                        Color.white.opacity(0.22),
-                                        PhoneTheme.tabBarStroke.opacity(0.38)
+                                        Color.white.opacity(0.28),
+                                        PhoneTheme.tabBarStroke.opacity(0.52),
+                                        Color.black.opacity(0.14)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -723,11 +725,290 @@ private struct ReconnectingOverlay: View {
                                 lineWidth: 1.2
                             )
                     }
-                    .shadow(color: Color.black.opacity(0.32), radius: 24, x: 0, y: 13)
-                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.18), radius: 20, x: 0, y: 0)
+                    .shadow(color: Color.black.opacity(0.36), radius: 32, x: 0, y: 16)
+                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.22), radius: 28, x: 0, y: 0)
+
+                VStack(spacing: 16) {
+                    // 旋转的连接图标
+                    ZStack {
+                        // 外圈光环
+                        Circle()
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        PhoneTheme.iconWarmGlow.opacity(0.6),
+                                        PhoneTheme.iconWarmGlow.opacity(0.1),
+                                        PhoneTheme.iconWarmGlow.opacity(0.6)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 3
+                            )
+                            .frame(width: 64, height: 64)
+                            .rotationEffect(.degrees(rotation))
+                            .blur(radius: 2)
+
+                        // 内圈背景
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        PhoneTheme.tabBarSelectedBackground.opacity(0.5),
+                                        Color.black.opacity(0.2)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(width: 52, height: 52)
+
+                        // 中心图标
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.98),
+                                        PhoneTheme.accent.opacity(0.9)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    }
+                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.4), radius: 16, x: 0, y: 6)
+
+                    // 文字内容区 - 固定高度
+                    VStack(spacing: 6) {
+                        Text(appModel.settings.remoteLanguage.localizedString("connection.reconnecting"))
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.94))
+                            .frame(height: 20)
+
+                        // Mac 名称 - 固定高度，没有内容时留白
+                        Text(appModel.discovery.availableMacs.first?.displayName ?? "")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.58))
+                            .frame(height: 18)
+                    }
+                }
+                .frame(width: cardSize.width, height: cardSize.height)
             }
+            .frame(width: cardSize.width, height: cardSize.height)
         }
-        .transition(.opacity)
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+        .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: rotation)
+        .onAppear {
+            rotation = 360
+        }
         .zIndex(999)
+    }
+}
+
+private struct VersionMismatchNoticeOverlay: View {
+    var notice: RemoteDockVersionMismatchNotice
+    var language: RemoteDockLanguage
+    var onDismiss: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.52)
+                .ignoresSafeArea()
+                .transition(.opacity)
+
+            VStack(spacing: 18) {
+                iconHeader
+
+                VStack(spacing: 9) {
+                    Text(title)
+                        .font(.system(size: 23, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.96))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.82)
+
+                    Text(message)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.white.opacity(0.74))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(5)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                versionComparison
+
+                Button(action: onDismiss) {
+                    Text(language.localizedString("action.gotIt"))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundStyle(PhoneTheme.canvas)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background {
+                            Capsule(style: .continuous)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(0.98),
+                                            PhoneTheme.accent.opacity(0.94)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.38), radius: 13, x: 0, y: 5)
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(language.localizedString("action.gotIt"))
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 26)
+            .frame(maxWidth: 352)
+            .background {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                PhoneTheme.panelBackgroundTop.opacity(0.98),
+                                PhoneTheme.panelBackground.opacity(0.99)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .background {
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.30)
+                    }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.28),
+                                        PhoneTheme.tabBarStroke.opacity(0.52),
+                                        Color.black.opacity(0.14)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.2
+                            )
+                    }
+                    .shadow(color: Color.black.opacity(0.36), radius: 28, x: 0, y: 16)
+                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.20), radius: 26, x: 0, y: 0)
+            }
+            .padding(.horizontal, 22)
+            .transition(.scale(scale: 0.94).combined(with: .opacity))
+        }
+        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: notice.id)
+        .zIndex(998)
+    }
+
+    private var iconHeader: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.22),
+                            PhoneTheme.tabBarSelectedBackground.opacity(0.78),
+                            Color.black.opacity(0.10)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 70, height: 70)
+                .overlay {
+                    Circle()
+                        .strokeBorder(Color.white.opacity(0.18), lineWidth: 1)
+                }
+                .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.30), radius: 18, x: 0, y: 6)
+
+            Image(systemName: notice.mismatch == .localNewer ? "desktopcomputer" : "iphone")
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.98),
+                            PhoneTheme.accent.opacity(0.90)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var versionComparison: some View {
+        HStack(spacing: 10) {
+            versionPill(
+                label: language.localizedString("ios.versionMismatch.phoneVersion"),
+                value: notice.phoneVersion,
+                systemImage: "iphone"
+            )
+
+            Image(systemName: "arrow.left.and.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.white.opacity(0.48))
+                .frame(width: 18)
+                .accessibilityHidden(true)
+
+            versionPill(
+                label: language.localizedString("ios.versionMismatch.macVersion"),
+                value: notice.macVersion,
+                systemImage: "desktopcomputer"
+            )
+        }
+    }
+
+    private func versionPill(label: String, value: String, systemImage: String) -> some View {
+        VStack(spacing: 7) {
+            Label(label, systemImage: systemImage)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.62))
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+
+            Text(value)
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(Color.white.opacity(0.94))
+                .lineLimit(1)
+                .minimumScaleFactor(0.70)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 12)
+        .background {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.black.opacity(0.18))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.13), lineWidth: 1)
+                }
+        }
+    }
+
+    private var title: String {
+        switch notice.mismatch {
+        case .localNewer:
+            language.localizedString("ios.versionMismatch.macOutdated.title")
+        case .remoteNewer:
+            language.localizedString("ios.versionMismatch.phoneOutdated.title")
+        }
+    }
+
+    private var message: String {
+        switch notice.mismatch {
+        case .localNewer:
+            language.localizedString("ios.versionMismatch.macOutdated.message")
+        case .remoteNewer:
+            language.localizedString("ios.versionMismatch.phoneOutdated.message")
+        }
     }
 }

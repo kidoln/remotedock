@@ -26,6 +26,7 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var negotiatedProtocolVersion: Int?
     @Published private(set) var peerProtocolIsCompatible = true
     @Published private(set) var language: RemoteDockLanguage
+    var macAppVersion: String { Bundle.main.remoteDockAppVersionDisplayText }
     @Published var clipboardSyncEnabled = true
 
     var clipboardHistoryShortcutDidChange: ((ClipboardHistoryShortcut) -> Bool)?
@@ -424,6 +425,18 @@ private extension Bundle {
 
     var remoteDockBuildNumber: String? {
         object(forInfoDictionaryKey: "CFBundleVersion") as? String
+    }
+
+    var remoteDockAppVersionDisplayText: String {
+        guard let appVersion = remoteDockAppVersion else {
+            return ""
+        }
+
+        if let buildNumber = remoteDockBuildNumber, buildNumber != appVersion {
+            return "\(appVersion) (\(buildNumber))"
+        }
+
+        return appVersion
     }
 }
 

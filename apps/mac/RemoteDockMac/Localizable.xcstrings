@@ -235,6 +235,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "iOS 端版本" } }
       }
     },
+    "settings.about.macVersion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "macOS Version" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOS 版本" } }
+      }
+    },
     "settings.about.pairedDevice" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Paired Device" } },

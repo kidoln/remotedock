@@ -13,6 +13,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "断开连接" } }
       }
     },
+    "action.gotIt" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Got It" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "知道了" } }
+      }
+    },
     "action.reconnect" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Reconnect" } },
@@ -299,6 +305,42 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Pairing" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配对" } }
+      }
+    },
+    "ios.versionMismatch.macOutdated.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The iPhone app is newer than the Mac app. Update the Mac app to get the complete Remote Dock experience." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机端版本高于桌面端版本。请升级 Mac 端应用，以获取完整的 Remote Dock 使用体验。" } }
+      }
+    },
+    "ios.versionMismatch.macOutdated.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update the Mac App" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请升级 Mac 端" } }
+      }
+    },
+    "ios.versionMismatch.macVersion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mac" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Mac 端" } }
+      }
+    },
+    "ios.versionMismatch.phoneOutdated.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The Mac app is newer than the iPhone app. Update the iPhone app soon, or some new features may be unavailable." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "桌面端版本高于手机端版本。请尽快升级手机端应用，否则部分新功能可能无法使用。" } }
+      }
+    },
+    "ios.versionMismatch.phoneOutdated.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update the iPhone App" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请升级手机端" } }
+      }
+    },
+    "ios.versionMismatch.phoneVersion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "iPhone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机端" } }
       }
     },
     "setting.size.large" : {

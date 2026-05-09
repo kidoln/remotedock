@@ -949,6 +949,7 @@ private struct AboutSettingsPane: View {
                 .foregroundStyle(SettingsPalette.primaryText)
 
             VStack(alignment: .leading, spacing: 10) {
+                SettingsInfoRow(title: appModel.language.localizedString("settings.about.macVersion"), value: appModel.macAppVersion)
                 SettingsInfoRow(title: appModel.language.localizedString("pairing.code.title"), value: appModel.pairingCode)
                 SettingsInfoRow(title: appModel.language.localizedString("settings.about.connectionStatus"), value: connectionText)
                 SettingsInfoRow(
