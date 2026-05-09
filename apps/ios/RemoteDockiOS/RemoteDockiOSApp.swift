@@ -14,8 +14,11 @@ struct RemoteDockiOSApp: App {
                 .environment(\.locale, Locale(identifier: appModel.settings.remoteLanguage.localeIdentifier))
                 .task {
                     appModel.startIfNeeded()
+                    IdleTimerController.update(for: scenePhase)
                 }
                 .onChange(of: scenePhase) { _, phase in
+                    IdleTimerController.update(for: phase)
+
                     if phase == .active {
                         appModel.applicationDidBecomeActive()
                     }
@@ -32,6 +35,13 @@ final class RemoteDockAppDelegate: NSObject, UIApplicationDelegate {
         supportedInterfaceOrientationsFor window: UIWindow?
     ) -> UIInterfaceOrientationMask {
         Self.supportedInterfaceOrientations
+    }
+}
+
+@MainActor
+private enum IdleTimerController {
+    static func update(for scenePhase: ScenePhase) {
+        UIApplication.shared.isIdleTimerDisabled = scenePhase == .active
     }
 }
 
