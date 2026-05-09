@@ -26,3 +26,16 @@
 
 - 不要对 git 执行任何写操作，除非用户明确要求
 - 有重大的设计决策或架构决策，应该在 docs 目录中添加新的文件以记录说明
+- **文档网站管理**：`docs/website/` 目录是独立的 Git 仓库
+  - 该目录包含用户文档和隐私政策页面
+  - 有自己的 `.git` 仓库，不在主项目 Git 管理范围内
+  - 远程仓库：`git@github.com:kidoln/remotedock.git`
+  - 更新文档流程：
+    ```bash
+    cd docs/website
+    # 编辑文档
+    git add .
+    git commit -m "Update documentation"
+    git push
+    ```
+  - 更新后自动部署到 GitHub Pages：https://kidoln.github.io/remotedock/
