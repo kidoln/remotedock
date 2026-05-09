@@ -6,7 +6,7 @@ struct RunningAppsSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("运行应用")
+                Text(appModel.language.localizedString("settings.pane.runningApps"))
                     .font(.title2.weight(.semibold))
 
                 Spacer()
@@ -14,7 +14,7 @@ struct RunningAppsSettingsView: View {
                 Button {
                     appModel.refresh()
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label(appModel.language.localizedString("action.refresh"), systemImage: "arrow.clockwise")
                 }
             }
 
@@ -41,7 +41,7 @@ struct RunningAppsSettingsView: View {
                     } label: {
                         Image(systemName: appModel.isRunningAppHidden(app) ? "eye.slash.fill" : "eye.fill")
                     }
-                    .help(appModel.isRunningAppHidden(app) ? "已在手机端隐藏" : "将在手机端显示")
+                    .help(appModel.language.localizedString(appModel.isRunningAppHidden(app) ? "settings.running.hiddenHelp" : "settings.running.visibleHelp"))
                 }
                 .padding(.vertical, 4)
             }

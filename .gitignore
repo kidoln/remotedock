@@ -158,4 +158,7 @@ Config.local.xcconfig
 *.local.xcconfig
 
 build_release/*
+build_mac/*
+build_ios/*
 RemoteDockMac.app/*
+RemoteDockiOS.app/*

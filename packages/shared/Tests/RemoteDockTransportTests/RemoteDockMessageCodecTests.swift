@@ -89,6 +89,7 @@ final class RemoteDockMessageCodecTests: XCTestCase {
             },
             "appVersion": "9.9.9",
             "buildNumber": "999",
+            "languageCode": "en",
             "capabilities": ["appActivation"]
           }
         }
@@ -101,6 +102,7 @@ final class RemoteDockMessageCodecTests: XCTestCase {
         }
 
         XCTAssertEqual(payload.appVersion, "9.9.9")
+        XCTAssertEqual(payload.languageCode, "en")
         XCTAssertFalse(payload.isProtocolCompatible)
     }
 

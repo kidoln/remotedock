@@ -14,12 +14,16 @@ struct MenuBarContentView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Label(connectionText, systemImage: connectionSymbol)
-                Label("配对码 \(appModel.pairingCode)", systemImage: "key")
+                Label(appModel.language.formattedLocalizedString("mac.menu.pairingCode", appModel.pairingCode), systemImage: "key")
                 if let pairedDeviceName = appModel.pairedDeviceName {
                     Label(pairedDeviceName, systemImage: "iphone")
                 }
                 Label(
-                    appModel.permissionStatus.accessibilityGranted ? "Accessibility 已授权" : "Accessibility 未授权",
+                    appModel.language.localizedString(
+                        appModel.permissionStatus.accessibilityGranted
+                            ? "mac.menu.accessibilityGranted"
+                            : "mac.menu.accessibilityDenied"
+                    ),
                     systemImage: appModel.permissionStatus.accessibilityGranted ? "checkmark.shield" : "exclamationmark.triangle"
                 )
             }
@@ -28,7 +32,7 @@ struct MenuBarContentView: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("常用应用")
+                Text(appModel.language.localizedString("settings.pane.pinnedApps"))
                     .font(.headline)
 
                 ForEach(appModel.pinnedApps.prefix(6)) { app in
@@ -54,13 +58,13 @@ struct MenuBarContentView: View {
             Divider()
 
             HStack {
-                Button("设置") {
+                Button(appModel.language.localizedString("action.settings")) {
                     openSettings()
                 }
 
                 Spacer()
 
-                Button("退出") {
+                Button(appModel.language.localizedString("action.quit")) {
                     NSApplication.shared.terminate(nil)
                 }
             }
@@ -72,7 +76,7 @@ struct MenuBarContentView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Remote Dock")
                 .font(.title3.weight(.semibold))
-            Text("macOS 宿主端")
+            Text(appModel.language.localizedString("mac.menu.subtitle"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -81,19 +85,19 @@ struct MenuBarContentView: View {
     private var connectionText: String {
         switch appModel.connectionState {
         case .idle:
-            "等待启动"
+            appModel.language.localizedString("connection.idle")
         case .discovering:
-            "正在广播，等待 iPhone 连接"
+            appModel.language.localizedString("mac.connection.advertising")
         case .connecting:
-            "正在连接"
+            appModel.language.localizedString("connection.connecting")
         case let .connected(peer):
-            "已连接 \(peer.displayName)"
+            appModel.language.formattedLocalizedString("connection.connected", peer.displayName)
         case .reconnecting:
-            "正在重连"
+            appModel.language.localizedString("connection.reconnecting")
         case .disconnected:
-            "已断开"
+            appModel.language.localizedString("connection.disconnected")
         case let .failed(message):
-            "连接失败 \(message)"
+            appModel.language.formattedLocalizedString("connection.failed", message)
         }
     }
 

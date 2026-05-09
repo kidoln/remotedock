@@ -11,6 +11,7 @@ struct RemoteDockiOSApp: App {
         WindowGroup {
             RootTabView()
                 .environmentObject(appModel)
+                .environment(\.locale, Locale(identifier: appModel.settings.remoteLanguage.localeIdentifier))
                 .task {
                     appModel.startIfNeeded()
                 }

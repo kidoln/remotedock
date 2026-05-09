@@ -9,6 +9,7 @@ public struct HelloPayload: Codable, Equatable, Sendable {
     public var supportedProtocolVersions: ProtocolVersionRange
     public var appVersion: String?
     public var buildNumber: String?
+    public var languageCode: String?
     public var capabilities: [RemoteDockCapability]
 
     public init(
@@ -19,6 +20,7 @@ public struct HelloPayload: Codable, Equatable, Sendable {
         supportedProtocolVersions: ProtocolVersionRange = ProtocolVersion.supportedRange,
         appVersion: String? = nil,
         buildNumber: String? = nil,
+        languageCode: String? = nil,
         capabilities: [RemoteDockCapability]
     ) {
         self.deviceId = deviceId
@@ -28,6 +30,7 @@ public struct HelloPayload: Codable, Equatable, Sendable {
         self.supportedProtocolVersions = supportedProtocolVersions
         self.appVersion = appVersion
         self.buildNumber = buildNumber
+        self.languageCode = languageCode
         self.capabilities = capabilities
     }
 
@@ -47,6 +50,7 @@ public struct HelloPayload: Codable, Equatable, Sendable {
         case supportedProtocolVersions
         case appVersion
         case buildNumber
+        case languageCode
         case capabilities
     }
 
@@ -68,6 +72,7 @@ public struct HelloPayload: Codable, Equatable, Sendable {
         )
         appVersion = try container.decodeIfPresent(String.self, forKey: .appVersion)
         buildNumber = try container.decodeIfPresent(String.self, forKey: .buildNumber)
+        languageCode = try container.decodeIfPresent(String.self, forKey: .languageCode)
         capabilities = try container.decode([RemoteDockCapability].self, forKey: .capabilities)
     }
 }

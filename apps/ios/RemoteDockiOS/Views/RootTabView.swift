@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import RemoteDockCore
 import RemoteDockTransport
 
 struct RootTabView: View {
@@ -386,13 +387,13 @@ private struct PairingCodeGateView: View {
                             .foregroundStyle(Color.white.opacity(0.92))
                             .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
 
-                        Text("输入配对码")
+                        Text(language.localizedString("ios.pairing.title"))
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.white.opacity(0.94))
                             .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
                             .multilineTextAlignment(.center)
 
-                        Text("本应用需要配合 Mac 版本的应用配对使用，请查看 Mac 上显示的配对码")
+                        Text(language.localizedString("ios.pairing.description"))
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(Color.white.opacity(0.72))
                             .multilineTextAlignment(.center)
@@ -426,7 +427,7 @@ private struct PairingCodeGateView: View {
                     Button {
                         appModel.connectToPreferredMacIfPossible(manuallyTriggered: true)
                     } label: {
-                        Label("连接", systemImage: "link")
+                        Label(language.localizedString("action.connect"), systemImage: "link")
                             .font(.system(size: 17, weight: .semibold, design: .rounded))
                             .foregroundStyle(PhoneTheme.canvas)
                             .frame(maxWidth: .infinity)
@@ -464,7 +465,7 @@ private struct PairingCodeGateView: View {
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundStyle(Color.white.opacity(0.86))
                     }
-                    .accessibilityLabel("输入配对码")
+                    .accessibilityLabel(language.localizedString("ios.pairing.title"))
                 }
             }
         }
@@ -502,7 +503,7 @@ private struct PairingCodeGateView: View {
                     .focused($isPairingCodeFocused)
                     .frame(width: 1, height: 1)
                     .opacity(0.01)
-                    .accessibilityLabel("四位配对码")
+                    .accessibilityLabel(language.localizedString("ios.pairing.fourDigitCode"))
 
                 HStack(spacing: spacing) {
                     ForEach(0..<digitCount, id: \.self) { index in
@@ -543,20 +544,26 @@ private struct PairingCodeGateView: View {
     private var statusText: String {
         switch appModel.discovery.connectionState {
         case .idle:
-            "准备搜索 Mac"
+            language.localizedString("ios.pairing.status.ready")
         case .discovering:
-            appModel.discovery.availableMacs.isEmpty ? "正在搜索附近的 Mac" : "输入完成后自动连接"
+            appModel.discovery.availableMacs.isEmpty
+                ? language.localizedString("ios.pairing.status.searching")
+                : language.localizedString("ios.pairing.status.autoConnect")
         case .connecting:
-            "正在连接 Mac"
+            language.localizedString("ios.pairing.status.connecting")
         case .connected:
-            "已连接"
+            language.localizedString("connection.connectedShort")
         case .reconnecting:
-            "正在重连 Mac"
+            language.localizedString("connection.reconnectingMac")
         case .disconnected:
-            "连接已断开，请重新输入"
+            language.localizedString("ios.pairing.status.disconnected")
         case .failed:
-            "连接失败，请检查配对码"
+            language.localizedString("ios.pairing.status.failed")
         }
+    }
+
+    private var language: RemoteDockLanguage {
+        appModel.settings.remoteLanguage
     }
 
     private var statusSymbol: String {
@@ -677,7 +684,7 @@ private struct ReconnectingOverlay: View {
                     .progressViewStyle(CircularProgressViewStyle(tint: Color.white.opacity(0.94)))
                     .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)
 
-                Text("正在重连 Mac...")
+                Text(appModel.settings.remoteLanguage.localizedString("connection.reconnectingMacWithEllipsis"))
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.94))
                     .shadow(color: Color.black.opacity(0.32), radius: 8, x: 0, y: 2)

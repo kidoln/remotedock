@@ -10,6 +10,7 @@ final class ProtocolEnvelopeTests: XCTestCase {
             platform: .iOS,
             appVersion: "0.1.0",
             buildNumber: "1",
+            languageCode: "zh-Hans",
             capabilities: [.appActivation]
         )
         let envelope = ProtocolEnvelope(type: .hello, payload: payload)
@@ -25,6 +26,7 @@ final class ProtocolEnvelopeTests: XCTestCase {
         XCTAssertEqual(decoded.payload.supportedProtocolVersions, ProtocolVersion.supportedRange)
         XCTAssertEqual(decoded.payload.appVersion, "0.1.0")
         XCTAssertEqual(decoded.payload.buildNumber, "1")
+        XCTAssertEqual(decoded.payload.languageCode, "zh-Hans")
     }
 
     func testRejectsUnexpectedMessageType() throws {
@@ -94,6 +96,7 @@ final class ProtocolEnvelopeTests: XCTestCase {
         XCTAssertEqual(envelope.payload.supportedProtocolVersions, ProtocolVersionRange(minimum: 1, maximum: 1))
         XCTAssertNil(envelope.payload.appVersion)
         XCTAssertNil(envelope.payload.buildNumber)
+        XCTAssertNil(envelope.payload.languageCode)
     }
 
     func testCalculatesHighestCommonProtocolVersion() {

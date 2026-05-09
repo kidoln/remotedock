@@ -48,6 +48,7 @@ final class RemoteDockClientStore: ObservableObject {
         settings.selectedMacId = UserDefaults.standard.string(forKey: Self.selectedMacIdDefaultsKey)
         settings.savedPairingCode = storedPairingCode
         settings.pairingCodeInput = settings.savedPairingCode ?? ""
+        settings.remoteLanguage = Self.loadRemoteLanguage()
         settings.iconGridCount = Self.loadIconGridCount()
         settings.clipboardFontSize = Self.loadClipboardFontSize()
         settings.movePastedClipboardItemToTop = Self.loadMovePastedClipboardItemToTop()
@@ -219,7 +220,7 @@ final class RemoteDockClientStore: ObservableObject {
             }
 
             guard let peer = try await waitForPreferredMac(using: transport, timeout: .seconds(6)) else {
-                finishBackgroundReconnectFailure("找不到附近的 Mac")
+                finishBackgroundReconnectFailure(localized("ios.error.noNearbyMac"))
                 hasCompletedInitialDiscovery = true
                 backgroundReconnectTask = nil
                 return
@@ -309,7 +310,7 @@ final class RemoteDockClientStore: ObservableObject {
             }
         }
 
-        return .failed("连接 Mac 超时，请检查 Mac 端是否正在运行。")
+        return .failed(localized("ios.error.connectionTimeout"))
     }
 
     private func connectionFailureMessage(for state: TransportConnectionState) -> String {
@@ -317,9 +318,9 @@ final class RemoteDockClientStore: ObservableObject {
         case let .failed(message):
             return message
         case let .disconnected(reason):
-            return reason ?? "连接已断开，请重新输入配对码。"
+            return reason ?? localized("ios.error.disconnectedEnterPairingCode")
         default:
-            return "连接 Mac 超时，请检查 Mac 端是否正在运行。"
+            return localized("ios.error.connectionTimeout")
         }
     }
 
@@ -377,7 +378,7 @@ final class RemoteDockClientStore: ObservableObject {
 
         guard normalizedPairingCodeInput.count == 4 else {
             if manuallyTriggered {
-                connectionErrorMessage = "请输入 Mac 上显示的四位配对码。"
+                connectionErrorMessage = localized("ios.error.enterFourDigitPairingCode")
             }
             return
         }
@@ -387,7 +388,7 @@ final class RemoteDockClientStore: ObservableObject {
         }
 
         guard let peer = preferredDiscoveredMac else {
-            connectionErrorMessage = manuallyTriggered ? "正在搜索同一网络附近的 Mac。" : nil
+            connectionErrorMessage = manuallyTriggered ? localized("ios.settings.mac.searching") : nil
             return
         }
 
@@ -397,8 +398,8 @@ final class RemoteDockClientStore: ObservableObject {
     func connect(to peer: TransportPeer) {
         let pairingCode = normalizedPairingCodeInput
         guard pairingCode.count == 4 else {
-            connectionErrorMessage = "请输入 Mac 上显示的四位配对码。"
-            discovery.connectionState = .failed("请输入四位配对码")
+            connectionErrorMessage = localized("ios.error.enterFourDigitPairingCode")
+            discovery.connectionState = .failed(localized("ios.error.enterFourDigitCodeShort"))
             return
         }
 
@@ -426,8 +427,8 @@ final class RemoteDockClientStore: ObservableObject {
         let inputPairingCode = normalizedPairingCodeInput
         let pairingCode = inputPairingCode.count == 4 ? inputPairingCode : settings.savedPairingCode ?? ""
         guard pairingCode.count == 4 else {
-            connectionErrorMessage = "请输入 Mac 上显示的四位配对码。"
-            discovery.connectionState = .failed("请输入四位配对码")
+            connectionErrorMessage = localized("ios.error.enterFourDigitPairingCode")
+            discovery.connectionState = .failed(localized("ios.error.enterFourDigitCodeShort"))
             return
         }
 
@@ -544,6 +545,9 @@ final class RemoteDockClientStore: ObservableObject {
             pairedMacAppVersion = payload.appVersionDisplayText
             negotiatedProtocolVersion = payload.highestCompatibleProtocolVersion
             peerProtocolIsCompatible = payload.isProtocolCompatible
+            if let remoteLanguage = RemoteDockLanguage.resolved(from: payload.languageCode) {
+                updateRemoteLanguage(remoteLanguage)
+            }
         case let .pairApprove(payload):
             hasFailedBackgroundReconnect = false
             pairingCode = payload.pairingCode
@@ -764,6 +768,10 @@ final class RemoteDockClientStore: ObservableObject {
         }
     }
 
+    private func localized(_ key: String) -> String {
+        settings.remoteLanguage.localizedString(key)
+    }
+
     private func refreshDiscovery(using transport: any TransportSession, restartBrowsing: Bool) async {
         let snapshot = await Task.detached(priority: .userInitiated) {
             if restartBrowsing {
@@ -850,6 +858,15 @@ final class RemoteDockClientStore: ObservableObject {
         peerProtocolIsCompatible = true
     }
 
+    private func updateRemoteLanguage(_ language: RemoteDockLanguage) {
+        guard settings.remoteLanguage != language else {
+            return
+        }
+
+        settings.remoteLanguage = language
+        UserDefaults.standard.set(language.rawValue, forKey: Self.remoteLanguageDefaultsKey)
+    }
+
     private func selectMac(_ peer: TransportPeer) {
         settings.selectedMacId = peer.id
         UserDefaults.standard.set(peer.id, forKey: Self.selectedMacIdDefaultsKey)
@@ -889,6 +906,7 @@ final class RemoteDockClientStore: ObservableObject {
 
     private static let savedPairingCodeDefaultsKey = "remoteDock.iOS.savedPairingCode"
     private static let selectedMacIdDefaultsKey = "remoteDock.iOS.selectedMacId"
+    private static let remoteLanguageDefaultsKey = "remoteDock.iOS.remoteLanguage"
     private static let iconGridCountDefaultsKey = "remoteDock.iOS.iconGridCount"
     private static let clipboardFontSizeDefaultsKey = "remoteDock.iOS.clipboardFontSize"
     private static let movePastedClipboardItemToTopDefaultsKey = "remoteDock.iOS.movePastedClipboardItemToTop"
@@ -910,6 +928,12 @@ final class RemoteDockClientStore: ObservableObject {
     private static func loadIconGridCount() -> PhoneIconGridCount {
         let rawValue = UserDefaults.standard.integer(forKey: iconGridCountDefaultsKey)
         return PhoneIconGridCount(rawValue: rawValue) ?? .four
+    }
+
+    private static func loadRemoteLanguage() -> RemoteDockLanguage {
+        RemoteDockLanguage.resolved(
+            from: UserDefaults.standard.string(forKey: remoteLanguageDefaultsKey)
+        ) ?? .english
     }
 
     private static func loadClipboardFontSize() -> PhoneClipboardFontSize {

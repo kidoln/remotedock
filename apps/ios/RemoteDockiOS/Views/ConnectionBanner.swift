@@ -1,3 +1,4 @@
+import RemoteDockCore
 import RemoteDockTransport
 import SwiftUI
 
@@ -31,20 +32,24 @@ struct ConnectionBanner: View {
     private var title: String {
         switch appModel.discovery.connectionState {
         case .idle:
-            "等待发现 Mac"
+            language.localizedString("ios.connection.waitingForMac")
         case .discovering:
-            "正在发现 Mac"
+            language.localizedString("ios.connection.discoveringMac")
         case .connecting:
-            "正在连接"
+            language.localizedString("connection.connecting")
         case let .connected(peer):
-            "已连接 \(peer.displayName)"
+            language.formattedLocalizedString("connection.connected", peer.displayName)
         case .reconnecting:
-            "正在重连"
+            language.localizedString("connection.reconnecting")
         case .disconnected:
-            "已断开"
+            language.localizedString("connection.disconnected")
         case let .failed(message):
             message
         }
+    }
+
+    private var language: RemoteDockLanguage {
+        appModel.settings.remoteLanguage
     }
 
     private var symbol: String {

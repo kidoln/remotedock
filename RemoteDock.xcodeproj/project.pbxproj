@@ -27,8 +27,10 @@
 		111111111111111111110012 /* Services/AppIconAssetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112012 /* Services/AppIconAssetService.swift */; };
 		111111111111111111110013 /* Services/ClipboardHistorySettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112013 /* Services/ClipboardHistorySettingsService.swift */; };
 		111111111111111111110014 /* Services/ClipboardHistoryPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112014 /* Services/ClipboardHistoryPanelController.swift */; };
+		111111111111111111110015 /* Services/LanguageSettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112015 /* Services/LanguageSettingsService.swift */; };
 		111111111111111111110020 /* Assets/AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112020 /* Assets/AppIcon.icns */; };
 		111111111111111111110021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112021 /* Assets.xcassets */; };
+		111111111111111111110022 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111112022 /* Localizable.xcstrings */; };
 		111111111111111111110101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
 		111111111111111111110102 /* RemoteDockProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990002 /* RemoteDockProtocol */; };
 		111111111111111111110103 /* RemoteDockTransport in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990003 /* RemoteDockTransport */; };
@@ -49,6 +51,7 @@
 		22222222222222222222000F /* Views/ConnectionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22222222222222222222200F /* Views/ConnectionBanner.swift */; };
 		222222222222222222220010 /* Views/AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222010 /* Views/AppIconView.swift */; };
 		222222222222222222220020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222020 /* Assets.xcassets */; };
+		222222222222222222220021 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222021 /* Localizable.xcstrings */; };
 		222222222222222222220101 /* RemoteDockCore in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990001 /* RemoteDockCore */; };
 		222222222222222222220102 /* RemoteDockProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990002 /* RemoteDockProtocol */; };
 		222222222222222222220103 /* RemoteDockTransport in Frameworks */ = {isa = PBXBuildFile; productRef = 999999999999999999990003 /* RemoteDockTransport */; };
@@ -75,8 +78,10 @@
 		111111111111111111112012 /* Services/AppIconAssetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/AppIconAssetService.swift; sourceTree = "<group>"; };
 		111111111111111111112013 /* Services/ClipboardHistorySettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ClipboardHistorySettingsService.swift; sourceTree = "<group>"; };
 		111111111111111111112014 /* Services/ClipboardHistoryPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ClipboardHistoryPanelController.swift; sourceTree = "<group>"; };
+		111111111111111111112015 /* Services/LanguageSettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/LanguageSettingsService.swift; sourceTree = "<group>"; };
 		111111111111111111112020 /* Assets/AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Assets/AppIcon.icns; sourceTree = "<group>"; };
 		111111111111111111112021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		111111111111111111112022 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		1111111111111111111120FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		111111111111111111113001 /* RemoteDockMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteDockMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		222222222222222222222001 /* RemoteDockiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDockiOSApp.swift; sourceTree = "<group>"; };
@@ -96,6 +101,7 @@
 		22222222222222222222200F /* Views/ConnectionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ConnectionBanner.swift; sourceTree = "<group>"; };
 		222222222222222222222010 /* Views/AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AppIconView.swift; sourceTree = "<group>"; };
 		222222222222222222222020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		222222222222222222222021 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		2222222222222222222220FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		222222222222222222223001 /* RemoteDockiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteDockiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -159,6 +165,7 @@
 				111111111111111111112012 /* Services/AppIconAssetService.swift */,
 				111111111111111111112013 /* Services/ClipboardHistorySettingsService.swift */,
 				111111111111111111112014 /* Services/ClipboardHistoryPanelController.swift */,
+				111111111111111111112015 /* Services/LanguageSettingsService.swift */,
 				11111111111111111111200A /* Views/MenuBarContentView.swift */,
 				11111111111111111111200B /* Views/SettingsView.swift */,
 				11111111111111111111200C /* Views/PinnedAppsSettingsView.swift */,
@@ -167,6 +174,7 @@
 				11111111111111111111200F /* Views/MacAppIconView.swift */,
 				111111111111111111112020 /* Assets/AppIcon.icns */,
 				111111111111111111112021 /* Assets.xcassets */,
+				111111111111111111112022 /* Localizable.xcstrings */,
 				1111111111111111111120FF /* Info.plist */,
 			);
 			path = apps/mac/RemoteDockMac;
@@ -192,6 +200,7 @@
 				22222222222222222222200F /* Views/ConnectionBanner.swift */,
 				222222222222222222222010 /* Views/AppIconView.swift */,
 				222222222222222222222020 /* Assets.xcassets */,
+				222222222222222222222021 /* Localizable.xcstrings */,
 				2222222222222222222220FF /* Info.plist */,
 			);
 			path = apps/ios/RemoteDockiOS;
@@ -268,6 +277,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"zh-Hans",
 				Base,
 			);
 			mainGroup = 000000000000000000000002;
@@ -291,6 +301,7 @@
 			files = (
 				111111111111111111110020 /* Assets/AppIcon.icns in Resources */,
 				111111111111111111110021 /* Assets.xcassets in Resources */,
+				111111111111111111110022 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +310,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				222222222222222222220020 /* Assets.xcassets in Resources */,
+				222222222222222222220021 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +335,7 @@
 				111111111111111111110012 /* Services/AppIconAssetService.swift in Sources */,
 				111111111111111111110013 /* Services/ClipboardHistorySettingsService.swift in Sources */,
 				111111111111111111110014 /* Services/ClipboardHistoryPanelController.swift in Sources */,
+				111111111111111111110015 /* Services/LanguageSettingsService.swift in Sources */,
 				11111111111111111111000A /* Views/MenuBarContentView.swift in Sources */,
 				11111111111111111111000B /* Views/SettingsView.swift in Sources */,
 				11111111111111111111000C /* Views/PinnedAppsSettingsView.swift in Sources */,

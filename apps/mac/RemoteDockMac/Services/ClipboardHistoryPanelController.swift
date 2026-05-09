@@ -54,6 +54,7 @@ final class ClipboardHistoryPanelController {
 
     private func makeWindow() -> NSWindow {
         let rootView = ClipboardHistoryPanelView(
+            language: appModel.language,
             store: store,
             paste: { [weak self] item in
                 self?.paste(item)
@@ -106,7 +107,9 @@ final class ClipboardHistoryPanelController {
                 targetApplication.activate(options: [.activateAllWindows])
                 let didActivate = await self.waitForActivation(of: targetApplication)
                 guard didActivate else {
-                    self.appModel.reportClipboardHistoryPanelError("无法激活目标应用")
+                    self.appModel.reportClipboardHistoryPanelError(
+                        self.appModel.language.localizedString("mac.error.cannotActivateTargetApp")
+                    )
                     self.targetApplication = nil
                     return
                 }
@@ -119,7 +122,7 @@ final class ClipboardHistoryPanelController {
                     richRepresentations: promotedItem.richRepresentations
                 )
             } catch {
-                self.appModel.reportClipboardHistoryPanelError(Self.pasteErrorMessage(for: error))
+                self.appModel.reportClipboardHistoryPanelError(self.pasteErrorMessage(for: error))
             }
             self.targetApplication = nil
         }
@@ -144,11 +147,11 @@ final class ClipboardHistoryPanelController {
         return false
     }
 
-    private nonisolated static func pasteErrorMessage(for error: Error) -> String {
+    private func pasteErrorMessage(for error: Error) -> String {
         if case RemoteDockError.permissionDenied = error {
-            return "需要辅助功能权限才能粘贴"
+            return appModel.language.localizedString("mac.error.accessibilityRequiredForPaste")
         }
-        return "粘贴失败：\(String(describing: error))"
+        return appModel.language.formattedLocalizedString("mac.error.pasteFailed", String(describing: error))
     }
 
     private func pasteSelectedItem() {
@@ -579,6 +582,7 @@ private final class ClipboardHistoryPanelStore: ObservableObject {
 }
 
 private struct ClipboardHistoryPanelView: View {
+    var language: RemoteDockLanguage
     @ObservedObject var store: ClipboardHistoryPanelStore
     var paste: (ClipboardItem) -> Void
     var close: () -> Void
@@ -647,6 +651,7 @@ private struct ClipboardHistoryPanelView: View {
                             item: item,
                             shortcutIndex: index < 9 ? index : nil,
                             isSelected: item.id == store.selectedItemID,
+                            language: language,
                             textScale: store.textScale
                         )
                         .id(item.id)
@@ -678,7 +683,7 @@ private struct ClipboardHistoryPanelView: View {
     private var detailPane: some View {
         if let selectedItem = store.selectedItem {
             VStack(alignment: .leading, spacing: 0) {
-                ClipboardHistoryPanelDetailContent(item: selectedItem, textScale: store.textScale)
+                ClipboardHistoryPanelDetailContent(item: selectedItem, language: language, textScale: store.textScale)
 
                 ClipboardHistoryPanelSummary(item: selectedItem)
                     .environment(\.clipboardPanelTextScale, store.textScale)
@@ -687,7 +692,7 @@ private struct ClipboardHistoryPanelView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         } else {
-            Text("没有匹配的剪贴板内容")
+            Text(language.localizedString("clipboard.noMatches"))
                 .font(.system(size: 14 * store.textScale))
                 .foregroundStyle(ClipboardPanelPalette.mutedText)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -699,6 +704,7 @@ private struct ClipboardHistoryPanelRow: View {
     var item: ClipboardItem
     var shortcutIndex: Int?
     var isSelected: Bool
+    var language: RemoteDockLanguage
     var textScale: CGFloat
 
     var body: some View {
@@ -709,7 +715,7 @@ private struct ClipboardHistoryPanelRow: View {
                 size: 20
             )
 
-            Text(item.displayText)
+            Text(item.displayText(language: language))
                 .font(.system(size: 14.5 * textScale, weight: .regular))
                 .foregroundStyle(isSelected ? .white : ClipboardPanelPalette.primaryText)
                 .lineLimit(1)
@@ -749,6 +755,7 @@ private struct ClipboardHistoryPanelRow: View {
 
 private struct ClipboardHistoryPanelDetailContent: View {
     var item: ClipboardItem
+    var language: RemoteDockLanguage
     var textScale: CGFloat
 
     var body: some View {
@@ -766,13 +773,14 @@ private struct ClipboardHistoryPanelDetailContent: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         case .image:
-            ClipboardHistoryPanelImagePreview(item: item, textScale: textScale)
+            ClipboardHistoryPanelImagePreview(item: item, language: language, textScale: textScale)
         }
     }
 }
 
 private struct ClipboardHistoryPanelImagePreview: View {
     var item: ClipboardItem
+    var language: RemoteDockLanguage
     var textScale: CGFloat
 
     var body: some View {
@@ -788,7 +796,7 @@ private struct ClipboardHistoryPanelImagePreview: View {
                 VStack(spacing: 8) {
                     Image(systemName: "photo")
                         .font(.system(size: 32 * textScale, weight: .medium))
-                    Text("无法预览图片")
+                    Text(language.localizedString("clipboard.imagePreviewUnavailable"))
                         .font(.system(size: 12 * textScale, weight: .medium))
                 }
                 .foregroundStyle(ClipboardPanelPalette.mutedText)

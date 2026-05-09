@@ -1,0 +1,480 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "action.activate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Activate" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "激活" } }
+      }
+    },
+    "action.add" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加" } }
+      }
+    },
+    "action.addApp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add App" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加应用" } }
+      }
+    },
+    "action.clear" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "清空" } }
+      }
+    },
+    "action.close" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭" } }
+      }
+    },
+    "action.open" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开" } }
+      }
+    },
+    "action.quit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出" } }
+      }
+    },
+    "action.refresh" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刷新" } }
+      }
+    },
+    "action.remove" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移除" } }
+      }
+    },
+    "action.settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } }
+      }
+    },
+    "clipboard.imagePreviewUnavailable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Image preview unavailable" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法预览图片" } }
+      }
+    },
+    "clipboard.blankText" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Blank Text" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "空白文本" } }
+      }
+    },
+    "clipboard.noMatches" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching clipboard content" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "没有匹配的剪贴板内容" } }
+      }
+    },
+    "clipboard.unknownSource" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown Source" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未知来源" } }
+      }
+    },
+    "connection.connected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connected to %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已连接 %@" } }
+      }
+    },
+    "connection.connecting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connecting" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在连接" } }
+      }
+    },
+    "connection.disconnected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Disconnected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已断开" } }
+      }
+    },
+    "connection.discovering" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Waiting for connection" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "等待连接" } }
+      }
+    },
+    "connection.failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connection failed: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接失败：%@" } }
+      }
+    },
+    "connection.idle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Idle" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "空闲" } }
+      }
+    },
+    "connection.notConnected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not Connected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未连接" } }
+      }
+    },
+    "connection.reconnecting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reconnecting" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在重连" } }
+      }
+    },
+    "mac.connection.advertising" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Broadcasting, waiting for iPhone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在广播，等待 iPhone 连接" } }
+      }
+    },
+    "mac.connection.phoneConnected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Phone Connected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机已连接" } }
+      }
+    },
+    "mac.connection.phoneDisconnected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Phone Not Connected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机未连接" } }
+      }
+    },
+    "mac.error.accessibilityRequiredForPaste" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility permission is required to paste" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "需要辅助功能权限才能粘贴" } }
+      }
+    },
+    "mac.error.cannotActivateTargetApp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cannot activate the target app" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法激活目标应用" } }
+      }
+    },
+    "mac.error.pasteFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paste failed: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "粘贴失败：%@" } }
+      }
+    },
+    "mac.error.shortcutRegistrationFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcut registration failed. It may already be used by the system or another app." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快捷键注册失败，可能已被系统或其他应用占用" } }
+      }
+    },
+    "mac.menu.accessibilityDenied" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility Not Granted" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility 未授权" } }
+      }
+    },
+    "mac.menu.accessibilityGranted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility Granted" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility 已授权" } }
+      }
+    },
+    "mac.menu.pairingCode" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pairing Code %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配对码 %@" } }
+      }
+    },
+    "mac.menu.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "macOS Host" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOS 宿主端" } }
+      }
+    },
+    "mac.pairing.accessibilityLabel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pairing code %@, %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配对码 %@，%@" } }
+      }
+    },
+    "mac.pairing.inputHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter on iPhone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "iPhone 连接时输入" } }
+      }
+    },
+    "pairing.code.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pairing Code" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配对码" } }
+      }
+    },
+    "settings.about.connectionStatus" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connection Status" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接状态" } }
+      }
+    },
+    "settings.about.deviceId" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Device ID" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设备 ID" } }
+      }
+    },
+    "settings.about.iOSVersion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "iOS App Version" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "iOS 端版本" } }
+      }
+    },
+    "settings.about.pairedDevice" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paired Device" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配对设备" } }
+      }
+    },
+    "settings.about.regeneratePairingCode" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regenerate Pairing Code" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新生成配对码" } }
+      }
+    },
+    "settings.about.regeneratePairingCodeHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "After regenerating, the iPhone must enter the new four-digit pairing code." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新生成后，iPhone 需要输入新的四位配对码。" } }
+      }
+    },
+    "settings.clipboard.currentHistory.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current History" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前历史" } }
+      }
+    },
+    "settings.clipboard.empty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No clipboard history yet" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "还没有剪贴板历史" } }
+      }
+    },
+    "settings.clipboard.itemCount" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld 条" } }
+      }
+    },
+    "settings.clipboard.maxItems.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep up to %lld clipboard records" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最多保留 %lld 条剪贴板记录" } }
+      }
+    },
+    "settings.clipboard.maxItems.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History Limit" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "历史保留数量" } }
+      }
+    },
+    "settings.clipboard.shortcut.disabled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcut is not active. Choose another combination." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快捷键未生效，请更换组合键" } }
+      }
+    },
+    "settings.clipboard.shortcut.enabled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use the shortcut to open clipboard history from anywhere" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按下快捷键可从任意位置打开剪贴板历史窗口" } }
+      }
+    },
+    "settings.clipboard.shortcut.recordHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record global shortcut" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "录制全局快捷键" } }
+      }
+    },
+    "settings.clipboard.shortcut.recording" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Press New Shortcut" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按下新的快捷键" } }
+      }
+    },
+    "settings.clipboard.shortcut.resetHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore default shortcut" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "恢复默认快捷键" } }
+      }
+    },
+    "settings.clipboard.shortcut.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Open" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快速打开" } }
+      }
+    },
+    "settings.general.language.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The iOS app follows this language after connecting to this Mac." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "iOS 端连接这台 Mac 后会自动跟随此语言。" } }
+      }
+    },
+    "settings.general.language.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语言" } }
+      }
+    },
+    "settings.pane.about" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于" } }
+      }
+    },
+    "settings.pane.clipboard" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "剪贴板" } }
+      }
+    },
+    "settings.pane.general" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通用" } }
+      }
+    },
+    "settings.pane.pinnedApps" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pinned Apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "常用应用" } }
+      }
+    },
+    "settings.pane.privacy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐私" } }
+      }
+    },
+    "settings.pane.runningApps" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Running Apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "运行应用" } }
+      }
+    },
+    "settings.pinned.addTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Pinned App" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加常用应用" } }
+      }
+    },
+    "settings.pinned.legacyHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use the add menu in the new settings page to choose apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请在新版设置页中通过添加菜单选择应用" } }
+      }
+    },
+    "settings.pinned.searchPlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索应用" } }
+      }
+    },
+    "settings.privacy.accessibilityDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used to switch apps and perform paste actions." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用于切换应用和执行粘贴操作。" } }
+      }
+    },
+    "settings.privacy.accessibilityGranted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility Permission Granted" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "辅助功能已授权" } }
+      }
+    },
+    "settings.privacy.accessibilityRequired" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility Permission Required" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "需要辅助功能权限" } }
+      }
+    },
+    "settings.privacy.cachedClipboardCount" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld clipboard records cached" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已缓存 %lld 条剪贴板记录" } }
+      }
+    },
+    "settings.privacy.clipboardSync" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard Sync" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "剪贴板同步" } }
+      }
+    },
+    "settings.privacy.localNetworkPrompt" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Requested by the system when discovering devices for the first time" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "由系统在首次发现设备时请求" } }
+      }
+    },
+    "settings.privacy.notificationsOptional" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Optional" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "可选" } }
+      }
+    },
+    "settings.privacy.openSystemSettings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open System Settings" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开系统设置" } }
+      }
+    },
+    "settings.privacy.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy & Permissions" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐私与权限" } }
+      }
+    },
+    "settings.running.hiddenHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hidden on iPhone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已在手机端隐藏" } }
+      }
+    },
+    "settings.running.visibleHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shown on iPhone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将在手机端显示" } }
+      }
+    },
+    "value.authorized" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Authorized" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已授权" } }
+      }
+    },
+    "value.none" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "None" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无" } }
+      }
+    },
+    "value.unknown" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未知" } }
+      }
+    },
+    "value.unauthorized" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unauthorized" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未授权" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -5,7 +5,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var appModel: MacAppModel
-    @State private var selection: SettingsPane = .pinnedApps
+    @State private var selection: SettingsPane = .general
     @State private var isAppPickerPresented = false
 
     var body: some View {
@@ -48,7 +48,7 @@ struct SettingsView: View {
                         Image(systemName: pane.systemImage)
                             .font(.system(size: 15, weight: .medium))
                             .frame(width: 18, height: 18)
-                        Text(pane.title)
+                        Text(appModel.language.localizedString(pane.titleKey))
                             .font(.system(size: 14, weight: .regular))
                             .lineLimit(1)
                         Spacer()
@@ -79,7 +79,7 @@ struct SettingsView: View {
             HStack(spacing: 6) {
                 Image(systemName: "key.fill")
                     .font(.system(size: 12, weight: .semibold))
-                Text("配对码")
+                Text(appModel.language.localizedString("pairing.code.title"))
                     .font(.system(size: 12, weight: .medium))
                 Spacer()
                 Image(systemName: "circle.fill")
@@ -98,7 +98,7 @@ struct SettingsView: View {
                 .minimumScaleFactor(0.75)
                 .frame(maxWidth: .infinity, alignment: .center)
 
-            Text("iPhone 连接时输入")
+            Text(appModel.language.localizedString("mac.pairing.inputHint"))
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(SettingsPalette.mutedText)
                 .lineLimit(1)
@@ -115,7 +115,13 @@ struct SettingsView: View {
                 .stroke(SettingsPalette.border, lineWidth: 1)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("配对码 \(appModel.pairingCode)，\(pairingConnectionStatusText)")
+        .accessibilityLabel(
+            appModel.language.formattedLocalizedString(
+                "mac.pairing.accessibilityLabel",
+                appModel.pairingCode,
+                pairingConnectionStatusText
+            )
+        )
     }
 
     private var isPhoneConnected: Bool {
@@ -127,7 +133,9 @@ struct SettingsView: View {
     }
 
     private var pairingConnectionStatusText: String {
-        isPhoneConnected ? "手机已连接" : "手机未连接"
+        appModel.language.localizedString(
+            isPhoneConnected ? "mac.connection.phoneConnected" : "mac.connection.phoneDisconnected"
+        )
     }
 
     private var pairingConnectionIndicatorColor: Color {
@@ -136,13 +144,15 @@ struct SettingsView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Text(selection.title)
+            Text(appModel.language.localizedString(selection.titleKey))
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(SettingsPalette.primaryText)
 
             Spacer()
 
             switch selection {
+            case .general:
+                EmptyView()
             case .pinnedApps:
                 Button {
                     appModel.refreshCatalogApps()
@@ -151,7 +161,7 @@ struct SettingsView: View {
                     Image(systemName: "plus")
                 }
                 .buttonStyle(SettingsToolbarButtonStyle())
-                .help("添加应用")
+                .help(appModel.language.localizedString("action.addApp"))
                 .popover(isPresented: $isAppPickerPresented) {
                     AppPickerPopover()
                         .environmentObject(appModel)
@@ -163,7 +173,7 @@ struct SettingsView: View {
                     Image(systemName: "arrow.clockwise")
                 }
                 .buttonStyle(SettingsToolbarButtonStyle())
-                .help("刷新")
+                .help(appModel.language.localizedString("action.refresh"))
             case .clipboardHistory, .privacy, .about:
                 EmptyView()
             }
@@ -177,6 +187,8 @@ struct SettingsView: View {
     @ViewBuilder
     private var content: some View {
         switch selection {
+        case .general:
+            GeneralSettingsPane()
         case .pinnedApps:
             PinnedAppsPane(showAppPicker: {
                 appModel.refreshCatalogApps()
@@ -194,6 +206,7 @@ struct SettingsView: View {
 }
 
 private enum SettingsPane: String, CaseIterable, Identifiable {
+    case general
     case pinnedApps
     case runningApps
     case clipboardHistory
@@ -202,23 +215,27 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String {
+    var titleKey: String {
         switch self {
+        case .general:
+            "settings.pane.general"
         case .pinnedApps:
-            "常用应用"
+            "settings.pane.pinnedApps"
         case .runningApps:
-            "运行应用"
+            "settings.pane.runningApps"
         case .clipboardHistory:
-            "剪贴板"
+            "settings.pane.clipboard"
         case .privacy:
-            "隐私"
+            "settings.pane.privacy"
         case .about:
-            "关于"
+            "settings.pane.about"
         }
     }
 
     var systemImage: String {
         switch self {
+        case .general:
+            "gearshape"
         case .pinnedApps:
             "square.grid.2x2"
         case .runningApps:
@@ -233,6 +250,56 @@ private enum SettingsPane: String, CaseIterable, Identifiable {
     }
 }
 
+private struct GeneralSettingsPane: View {
+    @EnvironmentObject private var appModel: MacAppModel
+
+    private var languageBinding: Binding<RemoteDockLanguage> {
+        Binding {
+            appModel.language
+        } set: { language in
+            appModel.updateLanguage(language)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(appModel.language.localizedString("settings.general.language.title"))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(SettingsPalette.primaryText)
+                        Text(appModel.language.localizedString("settings.general.language.description"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(SettingsPalette.mutedText)
+                    }
+
+                    Spacer()
+
+                    Picker("", selection: languageBinding) {
+                        ForEach(RemoteDockLanguage.allCases) { language in
+                            Text(language.displayName)
+                                .tag(language)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(width: 180)
+                }
+            }
+            .padding(18)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(SettingsPalette.panel)
+            }
+
+            Spacer()
+        }
+        .padding(28)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(SettingsPalette.content)
+    }
+}
+
 private struct ClipboardHistorySettingsPane: View {
     @EnvironmentObject private var appModel: MacAppModel
 
@@ -241,10 +308,15 @@ private struct ClipboardHistorySettingsPane: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 14) {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("历史保留数量")
+                        Text(appModel.language.localizedString("settings.clipboard.maxItems.title"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(SettingsPalette.primaryText)
-                        Text("最多保留 \(ClipboardHistorySettings.maxAllowedItems) 条剪贴板记录")
+                        Text(
+                            appModel.language.formattedLocalizedString(
+                                "settings.clipboard.maxItems.description",
+                                ClipboardHistorySettings.maxAllowedItems
+                            )
+                        )
                             .font(.system(size: 12))
                             .foregroundStyle(SettingsPalette.mutedText)
                     }
@@ -267,7 +339,7 @@ private struct ClipboardHistorySettingsPane: View {
 
                 HStack(spacing: 14) {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("快速打开")
+                        Text(appModel.language.localizedString("settings.clipboard.shortcut.title"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(SettingsPalette.primaryText)
                         Text(shortcutStatusText)
@@ -287,11 +359,11 @@ private struct ClipboardHistorySettingsPane: View {
             }
 
             HStack {
-                Text("当前历史")
+                Text(appModel.language.localizedString("settings.clipboard.currentHistory.title"))
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(SettingsPalette.primaryText)
 
-                Text("\(appModel.clipboardItems.count) 条")
+                Text(appModel.language.formattedLocalizedString("settings.clipboard.itemCount", appModel.clipboardItems.count))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(SettingsPalette.mutedText)
 
@@ -300,7 +372,7 @@ private struct ClipboardHistorySettingsPane: View {
                 Button(role: .destructive) {
                     appModel.clearClipboardHistory()
                 } label: {
-                    Label("清空", systemImage: "trash")
+                    Label(appModel.language.localizedString("action.clear"), systemImage: "trash")
                 }
                 .buttonStyle(.bordered)
                 .disabled(appModel.clipboardItems.isEmpty)
@@ -321,9 +393,9 @@ private struct ClipboardHistorySettingsPane: View {
 
     private var shortcutStatusText: String {
         if appModel.clipboardHistoryShortcutIsRegistered {
-            return "按下快捷键可从任意位置打开剪贴板历史窗口"
+            return appModel.language.localizedString("settings.clipboard.shortcut.enabled")
         }
-        return "快捷键未生效，请更换组合键"
+        return appModel.language.localizedString("settings.clipboard.shortcut.disabled")
     }
 }
 
@@ -341,7 +413,11 @@ private struct ShortcutRecorderButton: View {
                 HStack(spacing: 8) {
                     Image(systemName: recorder.isRecording ? "record.circle" : "keyboard")
                         .font(.system(size: 14, weight: .semibold))
-                    Text(recorder.isRecording ? "按下新的快捷键" : appModel.clipboardHistorySettings.shortcut.displayText)
+                    Text(
+                        recorder.isRecording
+                            ? appModel.language.localizedString("settings.clipboard.shortcut.recording")
+                            : appModel.clipboardHistorySettings.shortcut.displayText
+                    )
                         .font(.system(size: 13, weight: .medium))
                         .lineLimit(1)
                         .minimumScaleFactor(0.82)
@@ -349,7 +425,7 @@ private struct ShortcutRecorderButton: View {
                 .frame(minWidth: 188, minHeight: 30)
             }
             .buttonStyle(.bordered)
-            .help("录制全局快捷键")
+            .help(appModel.language.localizedString("settings.clipboard.shortcut.recordHelp"))
 
             Button {
                 appModel.updateClipboardHistoryShortcut(.default)
@@ -357,7 +433,7 @@ private struct ShortcutRecorderButton: View {
                 Image(systemName: "arrow.counterclockwise")
             }
             .buttonStyle(SettingsToolbarButtonStyle())
-            .help("恢复默认快捷键")
+            .help(appModel.language.localizedString("settings.clipboard.shortcut.resetHelp"))
             .disabled(recorder.isRecording)
         }
         .onDisappear {
@@ -409,6 +485,7 @@ private final class ShortcutRecorderState: ObservableObject {
 }
 
 private struct ClipboardHistorySettingsList: View {
+    @EnvironmentObject private var appModel: MacAppModel
     var items: [ClipboardItem]
 
     var body: some View {
@@ -418,7 +495,7 @@ private struct ClipboardHistorySettingsList: View {
                     Image(systemName: "clipboard")
                         .font(.system(size: 30, weight: .medium))
                         .foregroundStyle(SettingsPalette.mutedText)
-                    Text("还没有剪贴板历史")
+                    Text(appModel.language.localizedString("settings.clipboard.empty"))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(SettingsPalette.secondaryText)
                 }
@@ -447,18 +524,19 @@ private struct ClipboardHistorySettingsList: View {
 }
 
 private struct ClipboardHistorySettingsRow: View {
+    @EnvironmentObject private var appModel: MacAppModel
     var item: ClipboardItem
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 5) {
-                Text(item.displayText)
+                Text(item.displayText(language: appModel.language))
                     .font(.system(size: 13))
                     .foregroundStyle(SettingsPalette.primaryText)
                     .lineLimit(2)
                     .truncationMode(.tail)
 
-                Text(item.sourceAppBundleId ?? "未知来源")
+                Text(item.sourceAppBundleId ?? appModel.language.localizedString("clipboard.unknownSource"))
                     .font(.system(size: 11))
                     .foregroundStyle(SettingsPalette.mutedText)
                     .lineLimit(1)
@@ -564,10 +642,10 @@ private struct PinnedAppTile: View {
             }
             .buttonStyle(.plain)
             .contextMenu {
-                Button("打开") {
+                Button(appModel.language.localizedString("action.open")) {
                     appModel.activatePinnedApp(app)
                 }
-                Button("移除", role: .destructive) {
+                Button(appModel.language.localizedString("action.remove"), role: .destructive) {
                     appModel.removePinnedApp(app)
                 }
             }
@@ -583,7 +661,7 @@ private struct PinnedAppTile: View {
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
                 .offset(x: -8, y: 2)
-                .help("移除")
+                .help(appModel.language.localizedString("action.remove"))
             }
         }
         .onHover { isHovering = $0 }
@@ -621,7 +699,7 @@ private struct RunningAppVisibilityTile: View {
             }
         }
         .buttonStyle(.plain)
-        .help(isHidden ? "已在手机端隐藏" : "将在手机端显示")
+        .help(appModel.language.localizedString(isHidden ? "settings.running.hiddenHelp" : "settings.running.visibleHelp"))
     }
 }
 
@@ -646,7 +724,7 @@ private struct AddPinnedAppTile: View {
                     }
                     .shadow(color: .black.opacity(0.24), radius: 10, y: 5)
 
-                Text("添加")
+                Text(appModel.language.localizedString("action.add"))
                     .font(.system(size: 14))
                     .foregroundStyle(SettingsPalette.secondaryText)
                     .lineLimit(1)
@@ -655,7 +733,7 @@ private struct AddPinnedAppTile: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("添加应用")
+        .help(appModel.language.localizedString("action.addApp"))
         .popover(isPresented: $isPickerPresented) {
             AppPickerPopover()
                 .environmentObject(appModel)
@@ -717,13 +795,13 @@ private struct AppPickerPopover: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("添加常用应用")
+                Text(appModel.language.localizedString("settings.pinned.addTitle"))
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(SettingsPalette.primaryText)
 
                 Spacer()
 
-                Button("关闭") {
+                Button(appModel.language.localizedString("action.close")) {
                     dismiss()
                 }
             }
@@ -734,7 +812,7 @@ private struct AppPickerPopover: View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(SettingsPalette.mutedText)
-                TextField("搜索应用", text: $searchText)
+                TextField(appModel.language.localizedString("settings.pinned.searchPlaceholder"), text: $searchText)
                     .textFieldStyle(.plain)
                     .font(.system(size: 14))
             }
@@ -827,17 +905,23 @@ private struct PrivacySettingsPane: View {
                     .frame(width: 42)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(appModel.permissionStatus.accessibilityGranted ? "辅助功能已授权" : "需要辅助功能权限")
+                    Text(
+                        appModel.language.localizedString(
+                            appModel.permissionStatus.accessibilityGranted
+                                ? "settings.privacy.accessibilityGranted"
+                                : "settings.privacy.accessibilityRequired"
+                        )
+                    )
                         .font(.headline)
                         .foregroundStyle(SettingsPalette.primaryText)
-                    Text("用于切换应用和执行粘贴操作。")
+                    Text(appModel.language.localizedString("settings.privacy.accessibilityDescription"))
                         .font(.callout)
                         .foregroundStyle(SettingsPalette.secondaryText)
                 }
 
                 Spacer()
 
-                Button("打开系统设置") {
+                Button(appModel.language.localizedString("settings.privacy.openSystemSettings")) {
                     appModel.openAccessibilitySettings()
                 }
             }
@@ -865,13 +949,16 @@ private struct AboutSettingsPane: View {
                 .foregroundStyle(SettingsPalette.primaryText)
 
             VStack(alignment: .leading, spacing: 10) {
-                SettingsInfoRow(title: "配对码", value: appModel.pairingCode)
-                SettingsInfoRow(title: "连接状态", value: connectionText)
-                SettingsInfoRow(title: "配对设备", value: appModel.pairedDeviceName ?? "无")
-                SettingsInfoRow(title: "iOS 端版本", value: pairedDeviceVersionText)
-                SettingsInfoRow(title: "设备 ID", value: shortMacId)
-                SettingsInfoRow(title: "常用应用", value: "\(appModel.pinnedApps.count)")
-                SettingsInfoRow(title: "运行应用", value: "\(appModel.runningApps.count)")
+                SettingsInfoRow(title: appModel.language.localizedString("pairing.code.title"), value: appModel.pairingCode)
+                SettingsInfoRow(title: appModel.language.localizedString("settings.about.connectionStatus"), value: connectionText)
+                SettingsInfoRow(
+                    title: appModel.language.localizedString("settings.about.pairedDevice"),
+                    value: appModel.pairedDeviceName ?? appModel.language.localizedString("value.none")
+                )
+                SettingsInfoRow(title: appModel.language.localizedString("settings.about.iOSVersion"), value: pairedDeviceVersionText)
+                SettingsInfoRow(title: appModel.language.localizedString("settings.about.deviceId"), value: shortMacId)
+                SettingsInfoRow(title: appModel.language.localizedString("settings.pane.pinnedApps"), value: "\(appModel.pinnedApps.count)")
+                SettingsInfoRow(title: appModel.language.localizedString("settings.pane.runningApps"), value: "\(appModel.runningApps.count)")
             }
             .padding(20)
             .background {
@@ -882,10 +969,10 @@ private struct AboutSettingsPane: View {
             Button {
                 appModel.regeneratePairingCode()
             } label: {
-                Label("重新生成配对码", systemImage: "arrow.triangle.2.circlepath")
+                Label(appModel.language.localizedString("settings.about.regeneratePairingCode"), systemImage: "arrow.triangle.2.circlepath")
             }
             .buttonStyle(.bordered)
-            .help("重新生成后，iPhone 需要输入新的四位配对码。")
+            .help(appModel.language.localizedString("settings.about.regeneratePairingCodeHelp"))
 
             Spacer()
         }
@@ -901,28 +988,28 @@ private struct AboutSettingsPane: View {
     private var connectionText: String {
         switch appModel.connectionState {
         case .idle:
-            "空闲"
+            appModel.language.localizedString("connection.idle")
         case .discovering:
-            "等待连接"
+            appModel.language.localizedString("connection.discovering")
         case .connecting:
-            "正在连接"
+            appModel.language.localizedString("connection.connecting")
         case let .connected(peer):
-            "已连接 \(peer.displayName)"
+            appModel.language.formattedLocalizedString("connection.connected", peer.displayName)
         case .reconnecting:
-            "正在重连"
+            appModel.language.localizedString("connection.reconnecting")
         case .disconnected:
-            "已断开"
+            appModel.language.localizedString("connection.disconnected")
         case let .failed(message):
-            "连接失败：\(message)"
+            appModel.language.formattedLocalizedString("connection.failed", message)
         }
     }
 
     private var pairedDeviceVersionText: String {
         guard isPhoneConnected else {
-            return "未连接"
+            return appModel.language.localizedString("connection.notConnected")
         }
 
-        return appModel.pairedDeviceAppVersion ?? "未知"
+        return appModel.pairedDeviceAppVersion ?? appModel.language.localizedString("value.unknown")
     }
 
     private var isPhoneConnected: Bool {

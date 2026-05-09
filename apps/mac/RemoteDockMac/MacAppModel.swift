@@ -25,6 +25,7 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var pairedDeviceAppVersion: String?
     @Published private(set) var negotiatedProtocolVersion: Int?
     @Published private(set) var peerProtocolIsCompatible = true
+    @Published private(set) var language: RemoteDockLanguage
     @Published var clipboardSyncEnabled = true
 
     var clipboardHistoryShortcutDidChange: ((ClipboardHistoryShortcut) -> Bool)?
@@ -35,6 +36,7 @@ final class MacAppModel: ObservableObject {
     private let runningAppsService = RunningAppsService()
     private let appCatalogService = AppCatalogService()
     private let runningAppsVisibilityService = RunningAppsVisibilityService()
+    private let languageSettingsService = LanguageSettingsService()
     private let clipboardHistorySettingsService: ClipboardHistorySettingsService
     private let clipboardHistoryService: ClipboardHistoryService
     private let appIconAssetService = AppIconAssetService()
@@ -51,6 +53,7 @@ final class MacAppModel: ObservableObject {
         self.clipboardHistoryService = ClipboardHistoryService(
             policy: ClipboardHistoryPolicy(maxItems: clipboardHistorySettings.maxItems)
         )
+        language = languageSettingsService.load()
 
         let macId = Self.loadMacId()
         let pairingCode = Self.loadPairingCode()
@@ -205,13 +208,15 @@ final class MacAppModel: ObservableObject {
         clipboardHistorySettings.shortcut = shortcut
         clipboardHistorySettingsService.saveShortcut(shortcut)
         clipboardHistoryShortcutIsRegistered = clipboardHistoryShortcutDidChange?(shortcut) ?? false
-        clipboardHistoryPanelErrorMessage = clipboardHistoryShortcutIsRegistered ? nil : "快捷键注册失败，可能已被系统或其他应用占用"
+        clipboardHistoryPanelErrorMessage = clipboardHistoryShortcutIsRegistered
+            ? nil
+            : language.localizedString("mac.error.shortcutRegistrationFailed")
     }
 
     func updateClipboardHistoryShortcutRegistration(isRegistered: Bool) {
         clipboardHistoryShortcutIsRegistered = isRegistered
         if !isRegistered {
-            clipboardHistoryPanelErrorMessage = "快捷键注册失败，可能已被系统或其他应用占用"
+            clipboardHistoryPanelErrorMessage = language.localizedString("mac.error.shortcutRegistrationFailed")
         }
     }
 
@@ -221,6 +226,18 @@ final class MacAppModel: ObservableObject {
 
     func clearClipboardHistoryPanelError() {
         clipboardHistoryPanelErrorMessage = nil
+    }
+
+    func updateLanguage(_ language: RemoteDockLanguage) {
+        guard self.language != language else {
+            return
+        }
+
+        self.language = language
+        languageSettingsService.save(language)
+        Task {
+            await publishHello()
+        }
     }
 
     @discardableResult
@@ -297,10 +314,24 @@ final class MacAppModel: ObservableObject {
             platform: .macOS,
             appVersion: Bundle.main.remoteDockAppVersion,
             buildNumber: Bundle.main.remoteDockBuildNumber,
+            languageCode: language.rawValue,
             capabilities: [.appActivation, .runningApps, .clipboardHistory, .clipboardPaste, .iconSync]
         )
         try? await peerSessionManager.send(.hello(hello))
         await publishSnapshots()
+    }
+
+    private func publishHello() async {
+        let hello = HelloPayload(
+            deviceId: macId,
+            deviceName: Host.current().localizedName ?? "Remote Dock Mac",
+            platform: .macOS,
+            appVersion: Bundle.main.remoteDockAppVersion,
+            buildNumber: Bundle.main.remoteDockBuildNumber,
+            languageCode: language.rawValue,
+            capabilities: [.appActivation, .runningApps, .clipboardHistory, .clipboardPaste, .iconSync]
+        )
+        try? await peerSessionManager.send(.hello(hello))
     }
 
     private func publishSnapshots() async {

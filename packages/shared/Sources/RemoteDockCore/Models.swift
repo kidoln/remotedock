@@ -273,12 +273,24 @@ public struct ClipboardItem: Codable, Equatable, Identifiable, Sendable {
     }
 
     public var displayText: String {
+        displayText(language: nil)
+    }
+
+    public func displayText(language: RemoteDockLanguage?) -> String {
         if contentType == .image, let imageMetadata {
             return imageMetadata.displayTitle
         }
 
         let trimmedText = plainText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmedText.isEmpty ? "空白文本" : trimmedText
+        if !trimmedText.isEmpty {
+            return trimmedText
+        }
+
+        guard let language else {
+            return "空白文本"
+        }
+
+        return language.localizedString("clipboard.blankText")
     }
 
     public var primaryImageRepresentation: ClipboardRepresentation? {

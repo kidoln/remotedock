@@ -1,3 +1,4 @@
+import RemoteDockCore
 import SwiftUI
 
 struct RunningAppsView: View {
@@ -6,7 +7,7 @@ struct RunningAppsView: View {
     var body: some View {
         PhonePageSurface {
             if appModel.runningApps.apps.isEmpty {
-                PhoneEmptyState(title: "暂无运行中的应用", systemImage: "rectangle.stack")
+                PhoneEmptyState(title: appModel.settings.remoteLanguage.localizedString("ios.running.empty"), systemImage: "rectangle.stack")
             } else {
                 PhoneIconGrid(gridCount: appModel.settings.iconGridCount) { iconSize in
                     ForEach(appModel.runningApps.apps) { app in
@@ -24,8 +25,8 @@ struct RunningAppsView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(app.displayName)
-                        .accessibilityValue(isActive ? "当前活跃" : "")
-                        .accessibilityHint("切换到 Mac 上的这个应用")
+                        .accessibilityValue(isActive ? appModel.settings.remoteLanguage.localizedString("ios.accessibility.currentActive") : "")
+                        .accessibilityHint(appModel.settings.remoteLanguage.localizedString("ios.accessibility.switchToMacApp"))
                     }
                 }
             }

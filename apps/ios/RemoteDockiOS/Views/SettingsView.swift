@@ -1,3 +1,4 @@
+import RemoteDockCore
 import SwiftUI
 import UIKit
 
@@ -15,7 +16,7 @@ struct SettingsView: View {
                     List {
                         Section("Mac") {
                             if appModel.discovery.availableMacs.isEmpty {
-                                Label("正在搜索同一网络附近的 Mac", systemImage: "antenna.radiowaves.left.and.right")
+                                Label(language.localizedString("ios.settings.mac.searching"), systemImage: "antenna.radiowaves.left.and.right")
                                     .foregroundStyle(.white.opacity(0.72))
                                     .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
                             }
@@ -38,7 +39,7 @@ struct SettingsView: View {
                             Button {
                                 appModel.reconnect()
                             } label: {
-                                Label("重连", systemImage: "arrow.clockwise")
+                                Label(language.localizedString("action.reconnect"), systemImage: "arrow.clockwise")
                             }
                             .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
 
@@ -46,31 +47,31 @@ struct SettingsView: View {
                                 Button(role: .destructive) {
                                     appModel.disconnectFromMac()
                                 } label: {
-                                    Label("断开连接", systemImage: "xmark.circle")
+                                    Label(language.localizedString("action.disconnect"), systemImage: "xmark.circle")
                                 }
                                 .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
                             }
                         }
 
                         if let pairingCode = appModel.pairingCode {
-                            Section("配对") {
-                                Label("已连接，Mac 配对码 \(pairingCode)", systemImage: "key")
+                            Section(language.localizedString("ios.settings.pairing.section")) {
+                                Label(language.formattedLocalizedString("ios.settings.pairing.connectedCode", pairingCode), systemImage: "key")
                                     .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
 
-                                Label("Mac 版本 \(macVersionText)", systemImage: "desktopcomputer")
+                                Label(language.formattedLocalizedString("ios.settings.mac.version", macVersionText), systemImage: "desktopcomputer")
                                     .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
                             }
                         }
 
-                        Section("应用控制") {
-                            Toggle("点击后移到第一位", isOn: moveActivatedRunningAppToTopBinding)
+                        Section(language.localizedString("ios.settings.appControl.section")) {
+                            Toggle(language.localizedString("ios.settings.moveToTopAfterTap"), isOn: moveActivatedRunningAppToTopBinding)
                                 .tint(Color(uiColor: .systemGreen))
                                 .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
                         }
 
-                        Section("剪贴板") {
+                        Section(language.localizedString("settings.pane.clipboard")) {
                             HStack(spacing: 12) {
-                                Text("清除剪贴板历史")
+                                Text(language.localizedString("ios.settings.clipboard.clearHistory"))
 
                                 Spacer(minLength: 16)
 
@@ -87,17 +88,21 @@ struct SettingsView: View {
                                         }
                                 }
                                 .buttonStyle(.plain)
-                                .accessibilityLabel(didClearClipboardHistory ? "已清除剪贴板历史" : "清除剪贴板历史")
+                                .accessibilityLabel(
+                                    didClearClipboardHistory
+                                        ? language.localizedString("ios.settings.clipboard.cleared")
+                                        : language.localizedString("ios.settings.clipboard.clearHistory")
+                                )
                             }
                             .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
 
-                            Toggle("点击后移到第一位", isOn: movePastedClipboardItemToTopBinding)
+                            Toggle(language.localizedString("ios.settings.moveToTopAfterTap"), isOn: movePastedClipboardItemToTopBinding)
                                 .tint(Color(uiColor: .systemGreen))
                                 .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
 
-                            Picker("剪贴板字号", selection: clipboardFontSizeBinding) {
+                            Picker(language.localizedString("ios.settings.clipboard.fontSize"), selection: clipboardFontSizeBinding) {
                                 ForEach(PhoneClipboardFontSize.allCases) { size in
-                                    Text(size.title)
+                                    Text(size.title(for: language))
                                         .tag(size)
                                 }
                             }
@@ -105,10 +110,10 @@ struct SettingsView: View {
                             .listRowBackground(PhoneTheme.panelBackground.opacity(0.80))
                         }
 
-                        Section("图标大小") {
-                            Picker("大小", selection: iconGridCountBinding) {
+                        Section(language.localizedString("ios.settings.iconSize.section")) {
+                            Picker(language.localizedString("ios.settings.iconSize.picker"), selection: iconGridCountBinding) {
                                 ForEach(PhoneIconGridCount.allCases) { count in
-                                    Text(count.title)
+                                    Text(count.title(for: language))
                                         .tag(count)
                                 }
                             }
@@ -164,7 +169,11 @@ struct SettingsView: View {
     }
 
     private var macVersionText: String {
-        appModel.pairedMacAppVersion ?? "未知"
+        appModel.pairedMacAppVersion ?? language.localizedString("value.unknown")
+    }
+
+    private var language: RemoteDockLanguage {
+        appModel.settings.remoteLanguage
     }
 
     private func clearClipboardHistory() {

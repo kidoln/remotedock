@@ -6,12 +6,12 @@ struct PinnedAppsSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("常用应用")
+                Text(appModel.language.localizedString("settings.pane.pinnedApps"))
                     .font(.title2.weight(.semibold))
 
                 Spacer()
 
-                Text("请在新版设置页中通过添加菜单选择应用")
+                Text(appModel.language.localizedString("settings.pinned.legacyHint"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -40,14 +40,14 @@ struct PinnedAppsSettingsView: View {
                         } label: {
                             Image(systemName: "arrow.up.forward.app")
                         }
-                        .help("激活")
+                        .help(appModel.language.localizedString("action.activate"))
 
                         Button(role: .destructive) {
                             appModel.removePinnedApp(app)
                         } label: {
                             Image(systemName: "trash")
                         }
-                        .help("移除")
+                        .help(appModel.language.localizedString("action.remove"))
                     }
                     .padding(.vertical, 4)
                 }

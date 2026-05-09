@@ -42,7 +42,7 @@ struct DockView: View {
         iconGridMetricsSize: CGSize? = nil
     ) -> some View {
         if appModel.dock.apps.isEmpty {
-            PhoneEmptyState(title: "暂无 Dock 应用", systemImage: "dock.rectangle")
+            PhoneEmptyState(title: appModel.settings.remoteLanguage.localizedString("ios.dock.empty"), systemImage: "dock.rectangle")
         } else {
             PhoneIconGrid(
                 gridCount: appModel.settings.iconGridCount,
@@ -62,7 +62,7 @@ struct DockView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(app.displayName)
-                    .accessibilityHint("切换到 Mac 上的这个应用")
+                    .accessibilityHint(appModel.settings.remoteLanguage.localizedString("ios.accessibility.switchToMacApp"))
                 }
             }
         }
@@ -76,6 +76,7 @@ struct DockView: View {
             items: appModel.clipboard.items,
             lastPastedItemId: appModel.clipboard.lastPastedItemId,
             fontSize: appModel.settings.clipboardFontSize,
+            language: appModel.settings.remoteLanguage,
             width: currentWidth,
             minWidth: minWidth,
             isExpanded: isClipboardDrawerExpanded,
@@ -171,6 +172,7 @@ private struct DockClipboardDrawer: View {
     var items: [ClipboardItem]
     var lastPastedItemId: String?
     var fontSize: PhoneClipboardFontSize
+    var language: RemoteDockLanguage
     var width: CGFloat
     var minWidth: CGFloat
     var isExpanded: Bool
@@ -215,14 +217,18 @@ private struct DockClipboardDrawer: View {
                 .onChanged(onHandleDragChanged)
                 .onEnded(onHandleDragEnded)
         )
-        .accessibilityLabel(isExpanded ? "收起剪贴板浮层" : "展开剪贴板浮层")
-        .accessibilityHint("也可以左右拖动把手")
+        .accessibilityLabel(
+            isExpanded
+                ? language.localizedString("ios.dock.drawer.collapse")
+                : language.localizedString("ios.dock.drawer.expand")
+        )
+        .accessibilityHint(language.localizedString("ios.dock.drawer.dragHint"))
     }
 
     private var drawerContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             if items.isEmpty {
-                DockClipboardDrawerEmptyState()
+                DockClipboardDrawerEmptyState(language: language)
                     .padding(.horizontal, 12)
                     .padding(.top, 12)
             } else {
@@ -236,12 +242,13 @@ private struct DockClipboardDrawer: View {
                                     item: item,
                                     isLastPasted: lastPastedItemId == item.id,
                                     fontSize: fontSize,
+                                    language: language,
                                     sourceAppIconImage: sourceAppIconImage(item)
                                 )
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(item.displayText)
-                            .accessibilityHint("立即发送到 Mac")
+                            .accessibilityLabel(item.displayText(language: language))
+                            .accessibilityHint(language.localizedString("ios.accessibility.sendToMacNow"))
                         }
                     }
                     .padding(.horizontal, 12)
@@ -263,6 +270,7 @@ private struct DockClipboardDrawerItem: View {
     var item: ClipboardItem
     var isLastPasted: Bool
     var fontSize: PhoneClipboardFontSize
+    var language: RemoteDockLanguage
     var sourceAppIconImage: UIImage?
 
     var body: some View {
@@ -333,7 +341,7 @@ private struct DockClipboardDrawerItem: View {
     }
 
     private var displayText: String {
-        item.displayText
+        item.displayText(language: language)
     }
 }
 
@@ -417,13 +425,15 @@ private extension PhoneClipboardFontSize {
 }
 
 private struct DockClipboardDrawerEmptyState: View {
+    var language: RemoteDockLanguage
+
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "doc.on.clipboard")
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundStyle(Color.white.opacity(0.44))
 
-            Text("暂无剪贴板内容")
+            Text(language.localizedString("ios.clipboard.empty"))
                 .font(.footnote.weight(.medium))
                 .foregroundStyle(Color.white.opacity(0.58))
         }

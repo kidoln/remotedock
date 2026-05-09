@@ -5,13 +5,15 @@ struct PrivacySettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("隐私与权限")
+            Text(appModel.language.localizedString("settings.privacy.title"))
                 .font(.title2.weight(.semibold))
 
             VStack(alignment: .leading, spacing: 12) {
                 permissionRow(
                     title: "Accessibility",
-                    value: appModel.permissionStatus.accessibilityGranted ? "已授权" : "未授权",
+                    value: appModel.language.localizedString(
+                        appModel.permissionStatus.accessibilityGranted ? "value.authorized" : "value.unauthorized"
+                    ),
                     symbol: appModel.permissionStatus.accessibilityGranted ? "checkmark.shield" : "exclamationmark.triangle"
                 ) {
                     appModel.openAccessibilitySettings()
@@ -19,29 +21,29 @@ struct PrivacySettingsView: View {
 
                 permissionRow(
                     title: "Local Network",
-                    value: appModel.permissionStatus.localNetworkStatusText,
+                    value: appModel.language.localizedString("settings.privacy.localNetworkPrompt"),
                     symbol: "network"
                 )
 
                 permissionRow(
                     title: "Notifications",
-                    value: appModel.permissionStatus.notificationsStatusText,
+                    value: appModel.language.localizedString("settings.privacy.notificationsOptional"),
                     symbol: "bell"
                 )
             }
 
             Divider()
 
-            Toggle("剪贴板同步", isOn: $appModel.clipboardSyncEnabled)
+            Toggle(appModel.language.localizedString("settings.privacy.clipboardSync"), isOn: $appModel.clipboardSyncEnabled)
 
             HStack {
-                Text("已缓存 \(appModel.clipboardItems.count) 条剪贴板记录")
+                Text(appModel.language.formattedLocalizedString("settings.privacy.cachedClipboardCount", appModel.clipboardItems.count))
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(role: .destructive) {
                     appModel.clearClipboardHistory()
                 } label: {
-                    Label("清空", systemImage: "trash")
+                    Label(appModel.language.localizedString("action.clear"), systemImage: "trash")
                 }
             }
 
@@ -68,7 +70,7 @@ struct PrivacySettingsView: View {
                 .foregroundStyle(.secondary)
 
             if let action {
-                Button("打开") {
+                Button(appModel.language.localizedString("action.open")) {
                     action()
                 }
             }

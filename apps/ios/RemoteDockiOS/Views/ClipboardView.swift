@@ -27,7 +27,7 @@ struct ClipboardView: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(isSearchFocused ? PhoneTheme.accent.opacity(0.9) : Color.white.opacity(0.46))
 
-            TextField("搜索剪贴板", text: $appModel.clipboard.searchText)
+            TextField(appModel.settings.remoteLanguage.localizedString("ios.clipboard.searchPlaceholder"), text: $appModel.clipboard.searchText)
                 .focused($isSearchFocused)
                 .font(.body)
                 .foregroundStyle(Color.white.opacity(0.92))
@@ -45,7 +45,7 @@ struct ClipboardView: View {
                         .foregroundStyle(Color.white.opacity(0.38))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("清空搜索")
+                .accessibilityLabel(appModel.settings.remoteLanguage.localizedString("ios.clipboard.clearSearch"))
             }
         }
         .frame(height: 50)
@@ -90,12 +90,13 @@ struct ClipboardView: View {
                                 item: item,
                                 isLastPasted: appModel.clipboard.lastPastedItemId == item.id,
                                 fontSize: appModel.settings.clipboardFontSize,
+                                language: appModel.settings.remoteLanguage,
                                 sourceAppIconImage: appModel.sourceAppIconImage(for: item)
                             )
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(item.displayText)
-                        .accessibilityHint("立即发送到 Mac")
+                        .accessibilityLabel(item.displayText(language: appModel.settings.remoteLanguage))
+                        .accessibilityHint(appModel.settings.remoteLanguage.localizedString("ios.accessibility.sendToMacNow"))
                     }
                 }
                 .padding(.bottom, 10)
@@ -110,6 +111,7 @@ private struct ClipboardItemCard: View {
     var item: ClipboardItem
     var isLastPasted: Bool
     var fontSize: PhoneClipboardFontSize
+    var language: RemoteDockLanguage
     var sourceAppIconImage: UIImage?
 
     var body: some View {
@@ -180,7 +182,7 @@ private struct ClipboardItemCard: View {
     }
 
     private var displayText: String {
-        item.displayText
+        item.displayText(language: language)
     }
 }
 
@@ -354,6 +356,7 @@ private extension PhoneClipboardFontSize {
 
 private struct ClipboardEmptyState: View {
     var hasSearchText: Bool
+    @EnvironmentObject private var appModel: RemoteDockClientStore
 
     var body: some View {
         VStack(spacing: 10) {
@@ -361,7 +364,11 @@ private struct ClipboardEmptyState: View {
                 .font(.system(size: 28, weight: .semibold))
                 .foregroundStyle(Color.white.opacity(0.48))
 
-            Text(hasSearchText ? "没有匹配内容" : "暂无剪贴板内容")
+            Text(
+                hasSearchText
+                    ? appModel.settings.remoteLanguage.localizedString("ios.clipboard.noMatches")
+                    : appModel.settings.remoteLanguage.localizedString("ios.clipboard.empty")
+            )
                 .font(.callout.weight(.medium))
                 .foregroundStyle(Color.white.opacity(0.62))
         }

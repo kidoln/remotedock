@@ -27,6 +27,7 @@ struct RemoteDockMacApp: App {
         Settings {
             SettingsView()
                 .environmentObject(appModel)
+                .environment(\.locale, Locale(identifier: appModel.language.localeIdentifier))
                 .frame(minWidth: 760, minHeight: 500)
         }
     }
@@ -75,6 +76,7 @@ private final class StatusItemController: NSObject, ObservableObject {
                 self?.showSettingsWindow()
             }
             .environmentObject(appModel)
+            .environment(\.locale, Locale(identifier: appModel.language.localeIdentifier))
             .frame(width: 320)
         )
     }
@@ -122,6 +124,7 @@ private final class SettingsWindowController: NSWindowController, NSWindowDelega
 
         let rootView = SettingsView()
             .environmentObject(appModel)
+            .environment(\.locale, Locale(identifier: appModel.language.localeIdentifier))
             .frame(minWidth: 760, minHeight: 500)
         let hostingController = NSHostingController(rootView: rootView)
         let window = NSWindow(contentViewController: hostingController)
