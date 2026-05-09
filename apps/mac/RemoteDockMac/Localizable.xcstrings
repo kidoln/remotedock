@@ -363,8 +363,14 @@
     },
     "settings.pane.privacy" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐私" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Authorization" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "授权" } }
+      }
+    },
+    "settings.privacy.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote Dock helps you manage windows and clipboard, but does not collect your data. Due to Apple's security requirements, certain system permissions are needed." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Remote Dock 帮助您管理窗口和剪贴板，不会收集您的数据。根据 Apple 系统安全要求，需要授予相应权限。" } }
       }
     },
     "settings.pane.runningApps" : {

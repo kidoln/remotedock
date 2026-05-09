@@ -53,12 +53,11 @@ struct SettingsView: View {
                             .lineLimit(1)
                         Spacer()
                     }
-                    .foregroundStyle(selection == pane ? .white : SettingsPalette.secondaryText)
+                    .foregroundStyle(foregroundStyle(for: pane))
                     .padding(.horizontal, 10)
                     .frame(height: 32)
                     .background {
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(selection == pane ? SettingsPalette.accent : .clear)
+                        background(for: pane)
                     }
                 }
                 .buttonStyle(.plain)
@@ -140,6 +139,35 @@ struct SettingsView: View {
 
     private var pairingConnectionIndicatorColor: Color {
         isPhoneConnected ? SettingsPalette.connectedIndicator : SettingsPalette.disconnectedIndicator
+    }
+
+    private func foregroundStyle(for pane: SettingsPane) -> Color {
+        if pane == .privacy && !appModel.permissionStatus.accessibilityGranted {
+            return Color(red: 1.0, green: 0.3, blue: 0.3)
+        } else if selection == pane {
+            return .white
+        } else {
+            return SettingsPalette.secondaryText
+        }
+    }
+
+    private func background(for pane: SettingsPane) -> some View {
+        if pane == .privacy && !appModel.permissionStatus.accessibilityGranted {
+            return AnyView(
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color(red: 1.0, green: 0.85, blue: 0.2))
+            )
+        } else if selection == pane {
+            return AnyView(
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(SettingsPalette.accent)
+            )
+        } else {
+            return AnyView(
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(.clear)
+            )
+        }
     }
 
     private var header: some View {
@@ -898,6 +926,11 @@ private struct PrivacySettingsPane: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
+            Text(appModel.language.localizedString("settings.privacy.description"))
+                .font(.system(size: 14))
+                .foregroundStyle(SettingsPalette.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             HStack(spacing: 14) {
                 Image(systemName: appModel.permissionStatus.accessibilityGranted ? "checkmark.shield.fill" : "exclamationmark.triangle.fill")
                     .font(.system(size: 28))
