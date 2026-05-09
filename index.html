@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remote Dock - Your Mac, From Your iPhone</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f5f5f7;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        padding: 50px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 60px 0;
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 50px;
+      }
+
+      .hero h1 {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #007aff 0%, #5ac8fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        font-size: 18px;
+        color: #86868b;
+        margin-bottom: 30px;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: #007aff;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #0051d5;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+      }
+
+      .btn-secondary {
+        background: #f5f5f7;
+        color: #007aff;
+        border: 1px solid #e5e5e5;
+      }
+
+      .btn-secondary:hover {
+        background: #e5e5e5;
+      }
+
+      /* Highlights Section */
+      .highlights {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 50px;
+      }
+
+      .section-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #1d1d1f;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+
+      .feature-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #e5e5e5;
+        transition: all 0.2s;
+      }
+
+      .feature-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+      }
+
+      .feature-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+
+      .feature-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1d1d1f;
+      }
+
+      .feature-desc {
+        font-size: 14px;
+        color: #86868b;
+        line-height: 1.5;
+      }
+
+      /* Content Sections */
+      .content-section {
+        margin-bottom: 50px;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #1d1d1f;
+      }
+
+      h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 30px;
+        margin-bottom: 12px;
+        color: #1d1d1f;
+      }
+
+      p {
+        margin-bottom: 12px;
+        color: #424245;
+        line-height: 1.7;
+      }
+
+      ul {
+        margin-left: 24px;
+        margin-bottom: 16px;
+      }
+
+      li {
+        margin-bottom: 8px;
+        color: #424245;
+      }
+
+      .bilingual {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 20px;
+      }
+
+      .lang-en,
+      .lang-cn {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .lang-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #86868b;
+        margin-bottom: 8px;
+      }
+
+      /* Requirements */
+      .requirements {
+        background: #f0f8ff;
+        border-left: 4px solid #007aff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+
+      .req-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .req-icon {
+        margin-right: 10px;
+        font-size: 18px;
+      }
+
+      /* Steps */
+      .steps {
+        counter-reset: step;
+      }
+
+      .step {
+        position: relative;
+        padding-left: 50px;
+        margin-bottom: 24px;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 32px;
+        height: 32px;
+        background: #007aff;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 32px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .step-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #1d1d1f;
+      }
+
+      /* FAQ */
+      .faq-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 12px;
+      }
+
+      .faq-question {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1d1d1f;
+      }
+
+      .faq-answer {
+        color: #424245;
+        font-size: 14px;
+      }
+
+      /* Contact */
+      .contact {
+        background: linear-gradient(135deg, #007aff 0%, #5ac8fa 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 50px;
+      }
+
+      .contact h2 {
+        color: white;
+        margin-bottom: 20px;
+      }
+
+      .contact-links {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .contact-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        text-decoration: none;
+        font-size: 15px;
+      }
+
+      .contact-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Privacy Link */
+      .privacy-link {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 1px solid #e5e5e5;
+      }
+
+      .privacy-link a {
+        color: #007aff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .privacy-link a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 30px;
+        }
+
+        .hero h1 {
+          font-size: 32px;
+        }
+
+        .bilingual {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Hero Section -->
+      <div class="hero">
+        <h1>Remote Dock</h1>
+        <p>Your Mac, From Your iPhone</p>
+        <div class="hero-buttons">
+          <a href="#highlights" class="btn btn-primary">Features</a>
+          <a href="#quick-start" class="btn btn-secondary">Get Started</a>
+          <a href="privacy-policy.html" class="btn btn-secondary"
+            >Privacy Policy</a
+          >
+        </div>
+      </div>
+
+      <!-- Highlights Section -->
+      <div class="highlights" id="highlights">
+        <h2 class="section-title">✨ Why Remote Dock?</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">All-in-One Control</div>
+            <div class="feature-desc">
+              Pin apps, view running apps, and manage clipboard history from
+              your iPhone
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌟</div>
+            <div class="feature-title">Unique Features</div>
+            <div class="feature-desc">
+              Rich text support, Pinyin search, resizable drawer with zoom
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Privacy First</div>
+            <div class="feature-desc">
+              Local network only, no cloud servers, no data collection
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Requirements -->
+      <div class="content-section">
+        <h2>📱 System Requirements</h2>
+        <div class="requirements">
+          <div class="req-item">
+            <span class="req-icon">🍎</span>
+            <span><strong>Mac:</strong> macOS 14.0 or later</span>
+          </div>
+          <div class="req-item">
+            <span class="req-icon">📱</span>
+            <span><strong>iPhone:</strong> iOS 17.6 or later</span>
+          </div>
+          <div class="req-item">
+            <span class="req-icon">🔗</span>
+            <span
+              ><strong>Network:</strong> Same local network or Apple
+              Peer-to-Peer</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Start -->
+      <div class="content-section" id="quick-start">
+        <h2>🚀 Quick Start</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-title">Launch Remote Dock for Mac</div>
+            <p>The 4-digit pairing code appears in your Mac menu bar</p>
+          </div>
+          <div class="step">
+            <div class="step-title">Open Remote Dock on iPhone</div>
+            <p>You'll see the pairing screen automatically</p>
+          </div>
+          <div class="step">
+            <div class="step-title">Enter Pairing Code</div>
+            <p>Type the code shown on your Mac, connection is automatic</p>
+          </div>
+          <div class="step">
+            <div class="step-title">Start Controlling Your Mac</div>
+            <p>Switch apps, paste clipboard content, all from your iPhone</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="content-section" id="features">
+        <h2>⚡ Features</h2>
+
+        <h3>📱 Dock - Pinned Apps</h3>
+        <p>
+          Quick access to your frequently used Mac apps. Tap any app icon to
+          switch to it on your Mac.
+        </p>
+
+        <h3>🔄 Running Apps</h3>
+        <p>
+          View and control all running apps on your Mac in real-time. Green
+          highlight shows the current active app.
+        </p>
+
+        <h3>📋 Clipboard - Advanced Manager</h3>
+        <ul>
+          <li>
+            <strong>Rich text support:</strong> Preserve formatting when copying
+          </li>
+          <li><strong>Pinyin search:</strong> Search using Chinese Pinyin</li>
+          <li>
+            <strong>Resizable drawer:</strong> Adjust size and zoom with
+            gestures
+          </li>
+          <li><strong>Quick paste:</strong> One-tap to paste to Mac</li>
+        </ul>
+
+        <h3>⚙️ Settings</h3>
+        <ul>
+          <li>
+            <strong>App Control:</strong> Move to top after tap, icon size
+            options
+          </li>
+          <li><strong>Clipboard:</strong> Font size, clear history</li>
+          <li><strong>Language:</strong> Simplified Chinese / English</li>
+        </ul>
+      </div>
+
+      <!-- Troubleshooting -->
+      <div class="content-section">
+        <h2>🔧 Troubleshooting</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">Cannot discover Mac?</div>
+          <div class="faq-answer">
+            Ensure both devices are on the same Wi-Fi, check if Remote Dock for
+            Mac is running, and verify Mac firewall settings.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Cannot paste to Mac?</div>
+          <div class="faq-answer">
+            Grant Accessibility permission on Mac: System Settings → Privacy &
+            Security → Accessibility → Enable Remote Dock
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Clipboard not syncing?</div>
+          <div class="faq-answer">
+            Confirm clipboard sync is enabled on Mac, check connection status,
+            and try reconnecting.
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="content-section">
+        <h2>❓ FAQ</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">Is Remote Dock free?</div>
+          <div class="faq-answer">
+            <strong>Mac version:</strong> Completely free.<br />
+            <strong>iOS version:</strong> Basic features free, advanced features
+            require one-time purchase.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Need internet connection?</div>
+          <div class="faq-answer">
+            No. Just local network or Apple Peer-to-Peer.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I connect to multiple Macs?</div>
+          <div class="faq-answer">
+            Currently one Mac at a time. Disconnect to switch.
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy -->
+      <div class="privacy-link">
+        <a href="privacy-policy.html">📄 Read Full Privacy Policy</a>
+      </div>
+
+      <!-- Contact -->
+      <div class="contact">
+        <h2>📧 Contact Us</h2>
+        <div class="contact-links">
+          <a href="mailto:kido.ln@gmail.com" class="contact-link">📧 Email</a>
+          <a href="https://github.com/kidoln/remotedock" class="contact-link"
+            >🐙 GitHub</a
+          >
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div
+        style="
+          text-align: center;
+          margin-top: 50px;
+          padding-top: 30px;
+          border-top: 1px solid #e5e5e5;
+          color: #86868b;
+          font-size: 14px;
+        "
+      >
+        <p>Thank you for using Remote Dock!</p>
+        <p>© 2026 Remote Dock</p>
+      </div>
+    </div>
+  </body>
+</html>
