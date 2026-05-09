@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Remote Dock - 让 iPhone 成为 Mac 的完美控制中心</title>
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/kidoln/remotedock/main/apps/mac/RemoteDockMac/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://raw.githubusercontent.com/kidoln/remotedock/main/apps/mac/RemoteDockMac/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png"
+    />
     <style>
       * {
         margin: 0;
@@ -21,8 +25,17 @@
         --accent-orange: #ff6b35;
         --accent-gold: #f7b733;
         --accent-warm: #ff8c42;
-        --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #f7b733 50%, #ff8c42 100%);
-        --gradient-glow: radial-gradient(ellipse at center, rgba(255, 107, 53, 0.25) 0%, transparent 70%);
+        --gradient-accent: linear-gradient(
+          135deg,
+          #ff6b35 0%,
+          #f7b733 50%,
+          #ff8c42 100%
+        );
+        --gradient-glow: radial-gradient(
+          ellipse at center,
+          rgba(255, 107, 53, 0.25) 0%,
+          transparent 70%
+        );
         --border-color: rgba(255, 107, 53, 0.3);
       }
 
@@ -51,8 +64,9 @@
         border: 1px solid var(--border-color);
         border-radius: 16px;
         padding: 24px 32px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-                    0 0 100px rgba(255, 107, 53, 0.2);
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.5),
+          0 0 100px rgba(255, 107, 53, 0.2);
         text-align: center;
         min-width: 300px;
         opacity: 0;
@@ -137,7 +151,7 @@
       }
 
       .bg-animation::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -50%;
@@ -152,7 +166,7 @@
       }
 
       .bg-animation::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         right: -50%;
@@ -179,7 +193,7 @@
       }
 
       .bg-animation-extra::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -30%;
         left: 20%;
@@ -194,7 +208,7 @@
       }
 
       .bg-animation-extra::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -20%;
         right: 10%;
@@ -209,16 +223,32 @@
       }
 
       @keyframes float {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        33% { transform: translate(30px, -30px) rotate(5deg); }
-        66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+          transform: translate(30px, -30px) rotate(5deg);
+        }
+        66% {
+          transform: translate(-20px, 20px) rotate(-5deg);
+        }
       }
 
       @keyframes float-diagonal {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        25% { transform: translate(40px, -40px) scale(1.1); }
-        50% { transform: translate(-20px, 20px) scale(0.9); }
-        75% { transform: translate(30px, 30px) scale(1.05); }
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        25% {
+          transform: translate(40px, -40px) scale(1.1);
+        }
+        50% {
+          transform: translate(-20px, 20px) scale(0.9);
+        }
+        75% {
+          transform: translate(30px, 30px) scale(1.05);
+        }
       }
 
       /* 流光线条效果 */
@@ -247,8 +277,15 @@
       }
 
       @keyframes beam-sweep {
-        0%, 100% { opacity: 0; transform: translateX(-100%) rotate(15deg); }
-        50% { opacity: 0.5; transform: translateX(100vw) rotate(15deg); }
+        0%,
+        100% {
+          opacity: 0;
+          transform: translateX(-100%) rotate(15deg);
+        }
+        50% {
+          opacity: 0.5;
+          transform: translateX(100vw) rotate(15deg);
+        }
       }
 
       /* 粒子效果 */
@@ -270,19 +307,33 @@
         border-radius: 50%;
         opacity: 0;
         animation: particle-float 15s infinite;
-        box-shadow: 0 0 6px var(--accent-orange), 0 0 12px var(--accent-gold);
+        box-shadow:
+          0 0 6px var(--accent-orange),
+          0 0 12px var(--accent-gold);
       }
 
       .particle.gold {
         background: var(--accent-gold);
-        box-shadow: 0 0 6px var(--accent-gold), 0 0 12px var(--accent-orange);
+        box-shadow:
+          0 0 6px var(--accent-gold),
+          0 0 12px var(--accent-orange);
       }
 
       @keyframes particle-float {
-        0% { opacity: 0; transform: translateY(100vh) scale(0); }
-        10% { opacity: 0.8; }
-        90% { opacity: 0.8; }
-        100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+        0% {
+          opacity: 0;
+          transform: translateY(100vh) scale(0);
+        }
+        10% {
+          opacity: 0.8;
+        }
+        90% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-10vh) scale(1);
+        }
       }
 
       /* 光斑效果 */
@@ -309,8 +360,15 @@
       }
 
       @keyframes spot-pulse {
-        0%, 100% { opacity: 0.3; transform: scale(1); }
-        50% { opacity: 0.7; transform: scale(1.2); }
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.7;
+          transform: scale(1.2);
+        }
       }
 
       /* 主容器 */
@@ -427,7 +485,7 @@
       }
 
       .hero-glow::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 20%;
         left: 20%;
@@ -443,13 +501,27 @@
       }
 
       @keyframes pulse-glow {
-        0%, 100% { opacity: 0.7; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.15); }
+        0%,
+        100% {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
       }
 
       @keyframes inner-glow {
-        0%, 100% { opacity: 0.5; transform: scale(0.8); }
-        50% { opacity: 1; transform: scale(1.2); }
+        0%,
+        100% {
+          opacity: 0.5;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.2);
+        }
       }
 
       .hero-badge {
@@ -463,13 +535,15 @@
         font-size: 14px;
         color: var(--accent-orange);
         margin-bottom: 32px;
-        animation: fade-in-up 0.8s ease-out, badge-glow 2s ease-in-out infinite 0.8s;
+        animation:
+          fade-in-up 0.8s ease-out,
+          badge-glow 2s ease-in-out infinite 0.8s;
         position: relative;
         overflow: hidden;
       }
 
       .hero-badge::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: -100%;
@@ -485,18 +559,34 @@
       }
 
       @keyframes badge-shine {
-        0% { left: -100%; }
-        50%, 100% { left: 100%; }
+        0% {
+          left: -100%;
+        }
+        50%,
+        100% {
+          left: 100%;
+        }
       }
 
       @keyframes badge-glow {
-        0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.2); }
-        50% { box-shadow: 0 0 30px rgba(255, 107, 53, 0.4); }
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
+        }
       }
 
       @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .hero h1 {
@@ -513,7 +603,7 @@
       }
 
       .hero h1::after {
-        content: 'Remote Dock';
+        content: "Remote Dock";
         position: absolute;
         top: 0;
         left: 0;
@@ -529,8 +619,15 @@
       }
 
       @keyframes title-glow {
-        0%, 100% { opacity: 0.3; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(1.02); }
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.02);
+        }
       }
 
       .hero-tagline {
@@ -561,7 +658,7 @@
       }
 
       .hero-tagline .feature-highlight::before {
-        content: '✦';
+        content: "✦";
         color: var(--accent-orange);
         margin-right: 12px;
         font-size: 18px;
@@ -592,7 +689,7 @@
       }
 
       .btn::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: -100%;
@@ -614,14 +711,15 @@
       .btn-primary {
         background: var(--gradient-accent);
         color: var(--bg-primary);
-        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4),
-                    0 0 40px rgba(255, 107, 53, 0.2);
+        box-shadow:
+          0 4px 20px rgba(255, 107, 53, 0.4),
+          0 0 40px rgba(255, 107, 53, 0.2);
         position: relative;
         overflow: hidden;
       }
 
       .btn-primary::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -50%;
@@ -643,8 +741,9 @@
 
       .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(255, 107, 53, 0.5),
-                    0 0 60px rgba(255, 107, 53, 0.3);
+        box-shadow:
+          0 8px 30px rgba(255, 107, 53, 0.5),
+          0 0 60px rgba(255, 107, 53, 0.3);
       }
 
       .btn-secondary {
@@ -664,16 +763,18 @@
         margin: 0 auto;
         border-radius: 24px;
         overflow: hidden;
-        box-shadow: 0 20px 60px rgba(255, 107, 53, 0.3),
-                    0 0 100px rgba(255, 107, 53, 0.1);
-        animation: fade-in-up 1s ease-out 0.8s backwards,
-                   poster-float 6s ease-in-out infinite 1.8s;
+        box-shadow:
+          0 20px 60px rgba(255, 107, 53, 0.3),
+          0 0 100px rgba(255, 107, 53, 0.1);
+        animation:
+          fade-in-up 1s ease-out 0.8s backwards,
+          poster-float 6s ease-in-out infinite 1.8s;
         position: relative;
         border: 1px solid rgba(255, 107, 53, 0.2);
       }
 
       .hero-poster::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -2px;
         left: -2px;
@@ -687,7 +788,7 @@
       }
 
       .hero-poster::after {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -702,13 +803,23 @@
       }
 
       @keyframes poster-float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
       }
 
       @keyframes poster-glow {
-        0%, 100% { opacity: 0; }
-        50% { opacity: 0.3; }
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 0.3;
+        }
       }
 
       .hero-poster img {
@@ -759,7 +870,7 @@
       }
 
       .section-title::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -8px;
         left: 50%;
@@ -795,7 +906,7 @@
       }
 
       .feature-card::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -807,7 +918,7 @@
       }
 
       .feature-card::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -50%;
@@ -846,14 +957,15 @@
         justify-content: center;
         font-size: 28px;
         margin-bottom: 20px;
-        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3),
-                    0 0 40px rgba(255, 107, 53, 0.2);
+        box-shadow:
+          0 8px 24px rgba(255, 107, 53, 0.3),
+          0 0 40px rgba(255, 107, 53, 0.2);
         animation: icon-float 3s ease-in-out infinite;
         position: relative;
       }
 
       .feature-icon::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -4px;
         left: -4px;
@@ -868,13 +980,23 @@
       }
 
       @keyframes icon-float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-4px); }
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
       }
 
       @keyframes icon-glow {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 0.6; }
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.6;
+        }
       }
 
       .feature-title {
@@ -908,7 +1030,7 @@
       }
 
       .unique-box::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -50%;
@@ -923,8 +1045,12 @@
       }
 
       @keyframes rotate-gradient {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       .unique-grid {
@@ -987,7 +1113,7 @@
       }
 
       .step-card::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -1102,7 +1228,7 @@
       }
 
       .faq-item::before {
-        content: '';
+        content: "";
         position: absolute;
         left: 0;
         top: 0;
@@ -1151,7 +1277,7 @@
       }
 
       .download-section::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -50%;
@@ -1227,6 +1353,138 @@
         line-height: 1.6;
       }
 
+      /* 截图画廊 */
+      .screenshot-gallery {
+        position: relative;
+        margin: 40px 0;
+      }
+
+      .gallery-scroll-container {
+        display: flex;
+        gap: 24px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 20px 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-orange) var(--bg-secondary);
+        align-items: center;
+      }
+
+      .gallery-scroll-container::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      .gallery-scroll-container::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+        border-radius: 4px;
+      }
+
+      .gallery-scroll-container::-webkit-scrollbar-thumb {
+        background: var(--gradient-accent);
+        border-radius: 4px;
+      }
+
+      .screenshot-item {
+        flex: 0 0 auto;
+        scroll-snap-align: center;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 107, 53, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        background: transparent;
+      }
+
+      .screenshot-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 48px rgba(255, 107, 53, 0.25);
+        border-color: rgba(255, 107, 53, 0.4);
+      }
+
+      .screenshot-item img {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: none;
+      }
+
+      .screenshot-item.mac-screenshot {
+        background: transparent;
+        border-radius: 12px;
+        padding: 0;
+        border: none;
+      }
+
+      .screenshot-item.mac-screenshot img {
+        max-height: 400px;
+        width: auto;
+        border-radius: 10px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+
+      .screenshot-item.ios-screenshot {
+        border-radius: 28px;
+      }
+
+      .screenshot-item.ios-screenshot img {
+        max-height: 500px;
+        width: auto;
+        border-radius: 28px;
+      }
+
+      .screenshot-item.ios-screenshot.landscape {
+        flex: 0 0 auto;
+      }
+
+      .screenshot-item.ios-screenshot.landscape img {
+        max-height: 250px;
+        max-width: 450px;
+        border-radius: 20px;
+      }
+
+      .gallery-nav {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .gallery-nav-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .gallery-nav-btn:hover {
+        background: var(--gradient-accent);
+        border-color: transparent;
+        transform: scale(1.1);
+      }
+
+      /* 语言控制显示 */
+      .screenshot-item {
+        display: none;
+      }
+
+      body.lang-zh .screenshot-item[data-lang="zh"] {
+        display: block;
+      }
+
+      body.lang-en .screenshot-item[data-lang="en"] {
+        display: block;
+      }
+
       /* Footer */
       .footer {
         padding: 60px 0 40px;
@@ -1276,7 +1534,7 @@
       }
 
       .contact-box::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -50%;
         left: -50%;
@@ -1291,8 +1549,13 @@
       }
 
       @keyframes contact-shine {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(20px, -20px) scale(1.1); }
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(20px, -20px) scale(1.1);
+        }
       }
 
       .contact-box p {
@@ -1356,6 +1619,19 @@
         .download-section {
           padding: 32px 24px;
         }
+
+        .screenshot-item.mac-screenshot img {
+          max-height: 250px;
+        }
+
+        .screenshot-item.ios-screenshot img {
+          max-height: 350px;
+        }
+
+        .gallery-scroll-container {
+          gap: 16px;
+          padding: 16px 4px;
+        }
       }
     </style>
   </head>
@@ -1389,14 +1665,26 @@
           <div class="hero-badge">🚀 全新体验</div>
           <h1>Remote Dock</h1>
           <p class="hero-tagline">
-            <span class="feature-highlight">强大的剪贴板管理，历史记录、搜索、一键粘贴</span>
-            <span class="feature-highlight">用 iPhone 控制 Mac 应用，快速切换窗口</span>
+            <span class="feature-highlight"
+              >强大的剪贴板管理，历史记录、搜索、一键粘贴</span
+            >
+            <span class="feature-highlight"
+              >用 iPhone 控制 Mac 应用，快速切换窗口</span
+            >
           </p>
           <div class="hero-buttons">
-            <a href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip" class="btn btn-primary">
+            <a
+              href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+              class="btn btn-primary"
+            >
               <span>⬇️</span> 下载 Mac 版本
             </a>
-            <a href="javascript:void(0)" class="btn btn-secondary" id="iosBtn-cn" onclick="showComingSoon('cn')">
+            <a
+              href="javascript:void(0)"
+              class="btn btn-secondary"
+              id="iosBtn-cn"
+              onclick="showComingSoon('cn')"
+            >
               <span>📱</span> iOS 版本
             </a>
           </div>
@@ -1411,23 +1699,146 @@
           <div class="section-header">
             <div class="section-badge">核心功能</div>
             <h2 class="section-title">强大功能，简单体验</h2>
-            <p class="section-desc">精心设计的每一个功能，让你的工作流程更加高效</p>
+            <p class="section-desc">
+              精心设计的每一个功能，让你的工作流程更加高效
+            </p>
           </div>
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-icon">📱</div>
-              <h3 class="feature-title">常用应用</h3>
-              <p class="feature-desc">固定你最常用的应用，一键快速启动，让工作效率倍增</p>
+              <h3 class="feature-title">手机是你的桌面伴侣</h3>
+              <p class="feature-desc">
+                通过手机无缝控制桌面端的应用启动与应用切换，减少在多窗口中寻找的烦恼
+              </p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">🔄</div>
-              <h3 class="feature-title">运行中的应用</h3>
-              <p class="feature-desc">实时同步 Mac 上所有运行中的应用，快速切换窗口</p>
+              <h3 class="feature-title">灵活配置，实时更新</h3>
+              <p class="feature-desc">
+                在桌面端配置常用应用、隐藏敏感应用，手机端可实时查看桌面端应用状态
+              </p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">📋</div>
-              <h3 class="feature-title">剪贴板管理器</h3>
-              <p class="feature-desc">强大的剪贴板历史记录，支持搜索，永不丢失复制内容</p>
+              <h3 class="feature-title">强大的剪贴板管理</h3>
+              <p class="feature-desc">
+                桌面端是一个强大的剪贴板管理应用，可独立使用。配合手机端，则实现剪贴板跨设备预览与控制
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="main-container">
+          <div class="section-header">
+            <div class="section-badge">界面展示</div>
+            <h2 class="section-title">桌面端界面</h2>
+            <p class="section-desc">简洁高效的设计，让你的工作流程更加顺畅</p>
+          </div>
+          <div class="screenshot-gallery">
+            <div class="gallery-scroll-container" id="macGallery-cn">
+              <div class="screenshot-item mac-screenshot" data-lang="zh">
+                <img
+                  src="images/mac/zh/Xnip2026-05-09_11-01-56.jpg"
+                  alt="Mac界面1"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="zh">
+                <img
+                  src="images/mac/zh/Xnip2026-05-09_11-02-09.jpg"
+                  alt="Mac界面2"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="zh">
+                <img
+                  src="images/mac/zh/Xnip2026-05-09_11-02-20.jpg"
+                  alt="Mac界面3"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="zh">
+                <img
+                  src="images/mac/zh/Xnip2026-05-09_11-02-30.jpg"
+                  alt="Mac界面4"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="zh">
+                <img
+                  src="images/mac/zh/Xnip2026-05-09_11-02-40.jpg"
+                  alt="Mac界面5"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="zh">
+                <img
+                  src="images/mac/zh/Xnip2026-05-09_11-02-50.jpg"
+                  alt="Mac界面6"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="main-container">
+          <div class="section-header">
+            <div class="section-badge">移动端</div>
+            <h2 class="section-title">手机端界面</h2>
+            <p class="section-desc">随时随地控制 Mac，尽在指尖</p>
+          </div>
+          <div class="screenshot-gallery">
+            <div class="gallery-scroll-container" id="iosGallery-cn">
+              <div class="screenshot-item ios-screenshot" data-lang="zh">
+                <img
+                  src="images/ios/zh/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 11.00.30.png"
+                  alt="iOS界面1"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="zh">
+                <img
+                  src="images/ios/zh/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 10.59.50.png"
+                  alt="iOS界面2"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="zh">
+                <img
+                  src="images/ios/zh/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 10.59.55.png"
+                  alt="iOS界面3"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="zh">
+                <img
+                  src="images/ios/zh/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 11.00.00.png"
+                  alt="iOS界面4"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="zh">
+                <img
+                  src="images/ios/zh/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 11.00.06.png"
+                  alt="iOS界面5"
+                  loading="lazy"
+                />
+              </div>
+              <div
+                class="screenshot-item ios-screenshot landscape"
+                data-lang="zh"
+              >
+                <img
+                  src="images/ios/zh/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 11.00.16.png"
+                  alt="iOS界面6"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1543,16 +1954,25 @@
             <h3>📥 下载 Mac 版本</h3>
             <p>Mac 版本不在 Mac App Store 分发，请从 GitHub 下载最新版本</p>
             <div class="download-buttons">
-              <a href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip" class="btn btn-primary">
+              <a
+                href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+                class="btn btn-primary"
+              >
                 直接下载 ZIP
               </a>
-              <a href="https://github.com/kidoln/remotedock/releases/" class="btn btn-secondary">
+              <a
+                href="https://github.com/kidoln/remotedock/releases/"
+                class="btn btn-secondary"
+              >
                 查看 Releases
               </a>
             </div>
             <div class="install-note">
               <h4>⚠️ 首次打开提示</h4>
-              <p>由于应用未从 Mac App Store 下载，首次打开时可能提示"无法验证开发者"：</p>
+              <p>
+                由于应用未从 Mac App Store
+                下载，首次打开时可能提示"无法验证开发者"：
+              </p>
               <ol>
                 <li>在 Finder 中右键点击 RemoteDockMac.app</li>
                 <li>选择"打开"</li>
@@ -1573,27 +1993,45 @@
           <div class="faq-grid">
             <div class="faq-item">
               <h4 class="faq-question">Mac 版本为什么不在 App Store？</h4>
-              <p class="faq-answer">为了提供更好的功能和体验（如应用切换、剪贴板粘贴），Mac 版本需要绕过沙箱限制，因此采用独立分发方式。</p>
+              <p class="faq-answer">
+                为了提供更好的功能和体验（如应用切换、剪贴板粘贴），Mac
+                版本需要绕过沙箱限制，因此采用独立分发方式。
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">Mac 应用打开时提示无法验证？</h4>
-              <p class="faq-answer">这是 macOS 的安全机制。请在 Finder 中<strong>右键点击应用</strong>，选择"打开"，或在"系统设置 > 隐私与安全性"中点击"仍要打开"。首次打开后，以后就可以正常使用了。</p>
+              <p class="faq-answer">
+                这是 macOS 的安全机制。请在 Finder
+                中<strong>右键点击应用</strong>，选择"打开"，或在"系统设置 >
+                隐私与安全性"中点击"仍要打开"。首次打开后，以后就可以正常使用了。
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">如何更新 Mac 版本？</h4>
-              <p class="faq-answer">Mac 应用内置了自动更新检查功能。当有新版本时，您会在设置界面看到更新提示，点击即可下载并安装。也可以访问本页面下载最新版本。</p>
+              <p class="faq-answer">
+                Mac
+                应用内置了自动更新检查功能。当有新版本时，您会在设置界面看到更新提示，点击即可下载并安装。也可以访问本页面下载最新版本。
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">Remote Dock 是免费的吗？</h4>
-              <p class="faq-answer"><strong>Mac 版本：</strong>完全免费<br><strong>iOS 版本：</strong>基础功能免费，高级功能需一次性购买</p>
+              <p class="faq-answer">
+                <strong>Mac 版本：</strong>完全免费<br /><strong
+                  >iOS 版本：</strong
+                >基础功能免费，高级功能需一次性购买
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">需要互联网连接吗？</h4>
-              <p class="faq-answer">不需要。只需本地网络或 Apple 近距连接即可使用。</p>
+              <p class="faq-answer">
+                不需要。只需本地网络或 Apple 近距连接即可使用。
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">数据安全吗？</h4>
-              <p class="faq-answer">完全安全。所有数据仅在本地设备间传输，不上传云端。</p>
+              <p class="faq-answer">
+                完全安全。所有数据仅在本地设备间传输，不上传云端。
+              </p>
             </div>
           </div>
         </div>
@@ -1604,7 +2042,9 @@
           <div class="footer-content">
             <div class="footer-links">
               <a href="privacy-policy.html" class="footer-link">隐私政策</a>
-              <a href="https://github.com/kidoln/remotedock" class="footer-link">GitHub 仓库</a>
+              <a href="https://github.com/kidoln/remotedock" class="footer-link"
+                >GitHub 仓库</a
+              >
             </div>
             <div class="contact-box">
               <p>需要帮助？联系我们：</p>
@@ -1626,14 +2066,26 @@
           <div class="hero-badge">🚀 New Experience</div>
           <h1>Remote Dock</h1>
           <p class="hero-tagline">
-            <span class="feature-highlight">Powerful clipboard manager with history and search</span>
-            <span class="feature-highlight">Control Mac apps from your iPhone, switch windows instantly</span>
+            <span class="feature-highlight"
+              >Powerful clipboard manager with history and search</span
+            >
+            <span class="feature-highlight"
+              >Control Mac apps from your iPhone, switch windows instantly</span
+            >
           </p>
           <div class="hero-buttons">
-            <a href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip" class="btn btn-primary">
+            <a
+              href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+              class="btn btn-primary"
+            >
               <span>⬇️</span> Download for Mac
             </a>
-            <a href="javascript:void(0)" class="btn btn-secondary" id="iosBtn-en" onclick="showComingSoon('en')">
+            <a
+              href="javascript:void(0)"
+              class="btn btn-secondary"
+              id="iosBtn-en"
+              onclick="showComingSoon('en')"
+            >
               <span>📱</span> iOS Version
             </a>
           </div>
@@ -1648,23 +2100,156 @@
           <div class="section-header">
             <div class="section-badge">Features</div>
             <h2 class="section-title">Powerful Features, Simple Experience</h2>
-            <p class="section-desc">Every feature carefully designed to make your workflow more efficient</p>
+            <p class="section-desc">
+              Every feature carefully designed to make your workflow more
+              efficient
+            </p>
           </div>
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-icon">📱</div>
-              <h3 class="feature-title">Dock Apps</h3>
-              <p class="feature-desc">Pin your favorite apps for one-click quick access and boost productivity</p>
+              <h3 class="feature-title">Your iPhone as Desktop Companion</h3>
+              <p class="feature-desc">
+                Seamlessly control desktop app launch and switching from your
+                phone, eliminating the hassle of searching through multiple
+                windows
+              </p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">🔄</div>
-              <h3 class="feature-title">Running Apps</h3>
-              <p class="feature-desc">Real-time sync of all running apps on your Mac, quickly switch windows</p>
+              <h3 class="feature-title">
+                Flexible Configuration, Real-time Updates
+              </h3>
+              <p class="feature-desc">
+                Configure favorite apps and hide sensitive apps on desktop, view
+                real-time desktop app status on your phone
+              </p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">📋</div>
-              <h3 class="feature-title">Clipboard Manager</h3>
-              <p class="feature-desc">Powerful clipboard history with search support, never lose copied content</p>
+              <h3 class="feature-title">Powerful Clipboard Management</h3>
+              <p class="feature-desc">
+                A powerful clipboard manager for desktop that works standalone.
+                Pair with the mobile app for cross-device clipboard preview and
+                control
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="main-container">
+          <div class="section-header">
+            <div class="section-badge">Interface</div>
+            <h2 class="section-title">Desktop Interface</h2>
+            <p class="section-desc">
+              Clean and efficient design for a smoother workflow
+            </p>
+          </div>
+          <div class="screenshot-gallery">
+            <div class="gallery-scroll-container" id="macGallery-en">
+              <div class="screenshot-item mac-screenshot" data-lang="en">
+                <img
+                  src="images/mac/en/Xnip2026-05-09_09-35-52.jpg"
+                  alt="Mac interface 1"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="en">
+                <img
+                  src="images/mac/en/Xnip2026-05-09_09-36-28.jpg"
+                  alt="Mac interface 2"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="en">
+                <img
+                  src="images/mac/en/Xnip2026-05-09_09-36-38.jpg"
+                  alt="Mac interface 3"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="en">
+                <img
+                  src="images/mac/en/Xnip2026-05-09_09-36-48.jpg"
+                  alt="Mac interface 4"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="en">
+                <img
+                  src="images/mac/en/Xnip2026-05-09_09-36-55.jpg"
+                  alt="Mac interface 5"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item mac-screenshot" data-lang="en">
+                <img
+                  src="images/mac/en/Xnip2026-05-09_09-37-01.jpg"
+                  alt="Mac interface 6"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="main-container">
+          <div class="section-header">
+            <div class="section-badge">Mobile</div>
+            <h2 class="section-title">iPhone Interface</h2>
+            <p class="section-desc">Control your Mac anytime, anywhere</p>
+          </div>
+          <div class="screenshot-gallery">
+            <div class="gallery-scroll-container" id="iosGallery-en">
+              <div class="screenshot-item ios-screenshot" data-lang="en">
+                <img
+                  src="images/ios/en/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 09.32.38.png"
+                  alt="iOS interface 1"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="en">
+                <img
+                  src="images/ios/en/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 09.30.33.png"
+                  alt="iOS interface 2"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="en">
+                <img
+                  src="images/ios/en/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 09.30.52.png"
+                  alt="iOS interface 3"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="en">
+                <img
+                  src="images/ios/en/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 09.31.11.png"
+                  alt="iOS interface 4"
+                  loading="lazy"
+                />
+              </div>
+              <div class="screenshot-item ios-screenshot" data-lang="en">
+                <img
+                  src="images/ios/en/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 09.31.18.png"
+                  alt="iOS interface 5"
+                  loading="lazy"
+                />
+              </div>
+              <div
+                class="screenshot-item ios-screenshot landscape"
+                data-lang="en"
+              >
+                <img
+                  src="images/ios/en/Simulator Screenshot - iPhone 17 Pro - 2026-05-09 at 09.31.32.png"
+                  alt="iOS interface 6"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1682,7 +2267,9 @@
                 <div class="unique-icon">✨</div>
                 <div class="unique-content">
                   <h4>Rich Text Support</h4>
-                  <p>Preserve text formatting, styles, and links when copying</p>
+                  <p>
+                    Preserve text formatting, styles, and links when copying
+                  </p>
                 </div>
               </div>
               <div class="unique-item">
@@ -1778,23 +2365,38 @@
         <div class="main-container">
           <div class="download-section">
             <h3>📥 Download Mac Version</h3>
-            <p>The Mac version is not distributed on the Mac App Store. Please download from GitHub</p>
+            <p>
+              The Mac version is not distributed on the Mac App Store. Please
+              download from GitHub
+            </p>
             <div class="download-buttons">
-              <a href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip" class="btn btn-primary">
+              <a
+                href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+                class="btn btn-primary"
+              >
                 Download ZIP
               </a>
-              <a href="https://github.com/kidoln/remotedock/releases/" class="btn btn-secondary">
+              <a
+                href="https://github.com/kidoln/remotedock/releases/"
+                class="btn btn-secondary"
+              >
                 View Releases
               </a>
             </div>
             <div class="install-note">
               <h4>⚠️ First Launch Warning</h4>
-              <p>Since the app is not downloaded from the Mac App Store, you may see a "cannot verify developer" warning on first launch:</p>
+              <p>
+                Since the app is not downloaded from the Mac App Store, you may
+                see a "cannot verify developer" warning on first launch:
+              </p>
               <ol>
                 <li>Right-click on RemoteDockMac.app in Finder</li>
                 <li>Select "Open"</li>
                 <li>Click "Open" in the dialog</li>
-                <li>Or click "Open Anyway" in "System Settings > Privacy & Security"</li>
+                <li>
+                  Or click "Open Anyway" in "System Settings > Privacy &
+                  Security"
+                </li>
               </ol>
             </div>
           </div>
@@ -1809,28 +2411,55 @@
           </div>
           <div class="faq-grid">
             <div class="faq-item">
-              <h4 class="faq-question">Why isn't the Mac version on the App Store?</h4>
-              <p class="faq-answer">To provide better features and experience (like app switching and clipboard paste), the Mac version needs to bypass sandbox restrictions, so we use independent distribution.</p>
+              <h4 class="faq-question">
+                Why isn't the Mac version on the App Store?
+              </h4>
+              <p class="faq-answer">
+                To provide better features and experience (like app switching
+                and clipboard paste), the Mac version needs to bypass sandbox
+                restrictions, so we use independent distribution.
+              </p>
             </div>
             <div class="faq-item">
-              <h4 class="faq-question">Mac app won't open due to verification warning?</h4>
-              <p class="faq-answer">This is a macOS security feature. <strong>Right-click the app</strong> in Finder and select "Open", or click "Open Anyway" in "System Settings > Privacy & Security". After the first launch, it will work normally.</p>
+              <h4 class="faq-question">
+                Mac app won't open due to verification warning?
+              </h4>
+              <p class="faq-answer">
+                This is a macOS security feature.
+                <strong>Right-click the app</strong> in Finder and select
+                "Open", or click "Open Anyway" in "System Settings > Privacy &
+                Security". After the first launch, it will work normally.
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">How to update the Mac version?</h4>
-              <p class="faq-answer">The Mac app has built-in auto-update checking. When a new version is available, you'll see an update prompt in settings. You can also download the latest version from this page.</p>
+              <p class="faq-answer">
+                The Mac app has built-in auto-update checking. When a new
+                version is available, you'll see an update prompt in settings.
+                You can also download the latest version from this page.
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">Is Remote Dock free?</h4>
-              <p class="faq-answer"><strong>Mac version:</strong> Completely free<br><strong>iOS version:</strong> Basic features free, one-time purchase for advanced features</p>
+              <p class="faq-answer">
+                <strong>Mac version:</strong> Completely free<br /><strong
+                  >iOS version:</strong
+                >
+                Basic features free, one-time purchase for advanced features
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">Need internet connection?</h4>
-              <p class="faq-answer">No. Just local network or Apple Peer-to-Peer connection.</p>
+              <p class="faq-answer">
+                No. Just local network or Apple Peer-to-Peer connection.
+              </p>
             </div>
             <div class="faq-item">
               <h4 class="faq-question">Is my data secure?</h4>
-              <p class="faq-answer">Completely secure. All data is transferred locally between devices, never uploaded to the cloud.</p>
+              <p class="faq-answer">
+                Completely secure. All data is transferred locally between
+                devices, never uploaded to the cloud.
+              </p>
             </div>
           </div>
         </div>
@@ -1840,8 +2469,12 @@
         <div class="main-container">
           <div class="footer-content">
             <div class="footer-links">
-              <a href="privacy-policy.html" class="footer-link">Privacy Policy</a>
-              <a href="https://github.com/kidoln/remotedock" class="footer-link">GitHub Repository</a>
+              <a href="privacy-policy.html" class="footer-link"
+                >Privacy Policy</a
+              >
+              <a href="https://github.com/kidoln/remotedock" class="footer-link"
+                >GitHub Repository</a
+              >
             </div>
             <div class="contact-box">
               <p>Need help? Contact us:</p>
@@ -1858,82 +2491,83 @@
     <script>
       // 创建粒子效果
       function createParticles() {
-        const container = document.getElementById('particles');
+        const container = document.getElementById("particles");
         const particleCount = 40;
 
         for (let i = 0; i < particleCount; i++) {
-          const particle = document.createElement('div');
+          const particle = document.createElement("div");
           const isGold = Math.random() > 0.5;
-          particle.className = isGold ? 'particle gold' : 'particle';
-          particle.style.left = Math.random() * 100 + '%';
-          particle.style.animationDelay = Math.random() * 15 + 's';
-          particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+          particle.className = isGold ? "particle gold" : "particle";
+          particle.style.left = Math.random() * 100 + "%";
+          particle.style.animationDelay = Math.random() * 15 + "s";
+          particle.style.animationDuration = 10 + Math.random() * 10 + "s";
           container.appendChild(particle);
         }
       }
 
       // 创建光束效果
       function createLightBeams() {
-        const container = document.getElementById('lightBeams');
+        const container = document.getElementById("lightBeams");
         const beamCount = 5;
 
         for (let i = 0; i < beamCount; i++) {
-          const beam = document.createElement('div');
-          beam.className = 'light-beam';
-          beam.style.left = (i * 20) + '%';
-          beam.style.animationDelay = (i * 1.5) + 's';
-          beam.style.animationDuration = (6 + Math.random() * 4) + 's';
+          const beam = document.createElement("div");
+          beam.className = "light-beam";
+          beam.style.left = i * 20 + "%";
+          beam.style.animationDelay = i * 1.5 + "s";
+          beam.style.animationDuration = 6 + Math.random() * 4 + "s";
           container.appendChild(beam);
         }
       }
 
       // 创建光斑效果
       function createLightSpots() {
-        const container = document.getElementById('lightSpots');
+        const container = document.getElementById("lightSpots");
         const spotCount = 8;
 
         for (let i = 0; i < spotCount; i++) {
-          const spot = document.createElement('div');
-          spot.className = 'light-spot';
+          const spot = document.createElement("div");
+          spot.className = "light-spot";
           const size = 100 + Math.random() * 200;
-          spot.style.width = size + 'px';
-          spot.style.height = size + 'px';
-          spot.style.left = Math.random() * 100 + '%';
-          spot.style.top = Math.random() * 100 + '%';
-          spot.style.animationDelay = Math.random() * 4 + 's';
-          spot.style.animationDuration = (3 + Math.random() * 3) + 's';
+          spot.style.width = size + "px";
+          spot.style.height = size + "px";
+          spot.style.left = Math.random() * 100 + "%";
+          spot.style.top = Math.random() * 100 + "%";
+          spot.style.animationDelay = Math.random() * 4 + "s";
+          spot.style.animationDuration = 3 + Math.random() * 3 + "s";
           container.appendChild(spot);
         }
       }
 
       // 提示框功能
       function showComingSoon(lang) {
-        const overlay = document.getElementById('toastOverlay');
-        const toast = document.getElementById('toast');
-        const title = document.getElementById('toastTitle');
-        const message = document.getElementById('toastMessage');
+        const overlay = document.getElementById("toastOverlay");
+        const toast = document.getElementById("toast");
+        const title = document.getElementById("toastTitle");
+        const message = document.getElementById("toastMessage");
 
-        if (lang === 'cn') {
-          title.textContent = '即将上线';
-          message.textContent = 'iOS 版本正在审核中，敬请期待！';
+        if (lang === "cn") {
+          title.textContent = "即将上线";
+          message.textContent = "iOS 版本正在审核中，敬请期待！";
         } else {
-          title.textContent = 'Coming Soon';
-          message.textContent = 'iOS version is currently under review. Stay tuned!';
+          title.textContent = "Coming Soon";
+          message.textContent =
+            "iOS version is currently under review. Stay tuned!";
         }
 
-        overlay.classList.add('show');
-        toast.classList.add('show');
+        overlay.classList.add("show");
+        toast.classList.add("show");
 
         // 点击遮罩层关闭
         overlay.onclick = hideToast;
       }
 
       function hideToast() {
-        const overlay = document.getElementById('toastOverlay');
-        const toast = document.getElementById('toast');
+        const overlay = document.getElementById("toastOverlay");
+        const toast = document.getElementById("toast");
 
-        overlay.classList.remove('show');
-        toast.classList.remove('show');
+        overlay.classList.remove("show");
+        toast.classList.remove("show");
       }
 
       // 语言切换
@@ -1954,6 +2588,8 @@
           btnEn.classList.remove("active");
           window.location.hash = "chinese";
           document.documentElement.lang = "zh-CN";
+          document.body.classList.remove("lang-en");
+          document.body.classList.add("lang-zh");
           document.title = "Remote Dock - 让 iPhone 成为 Mac 的完美控制中心";
         }
 
@@ -1964,7 +2600,10 @@
           btnCn.classList.remove("active");
           window.location.hash = "english";
           document.documentElement.lang = "en";
-          document.title = "Remote Dock - Your Mac Control Center, From Your iPhone";
+          document.body.classList.remove("lang-zh");
+          document.body.classList.add("lang-en");
+          document.title =
+            "Remote Dock - Your Mac Control Center, From Your iPhone";
         }
 
         btnCn.addEventListener("click", function (e) {
@@ -1992,14 +2631,14 @@
         }
 
         // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
-            if (href !== '#chinese' && href !== '#english') {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            const href = this.getAttribute("href");
+            if (href !== "#chinese" && href !== "#english") {
               e.preventDefault();
               const target = document.querySelector(href);
               if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
+                target.scrollIntoView({ behavior: "smooth" });
               }
             }
           });
@@ -2007,17 +2646,17 @@
 
         // 导航栏滚动效果
         let lastScroll = 0;
-        const nav = document.querySelector('.nav');
+        const nav = document.querySelector(".nav");
 
-        window.addEventListener('scroll', () => {
+        window.addEventListener("scroll", () => {
           const currentScroll = window.pageYOffset;
 
           if (currentScroll > 100) {
-            nav.style.background = 'rgba(26, 26, 36, 0.95)';
-            nav.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.4)';
+            nav.style.background = "rgba(26, 26, 36, 0.95)";
+            nav.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.4)";
           } else {
-            nav.style.background = 'rgba(26, 26, 36, 0.85)';
-            nav.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.3)';
+            nav.style.background = "rgba(26, 26, 36, 0.85)";
+            nav.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.3)";
           }
 
           lastScroll = currentScroll;
@@ -2026,24 +2665,26 @@
         // 交叉观察器 - 滚动动画
         const observerOptions = {
           threshold: 0.1,
-          rootMargin: '0px 0px -50px 0px'
+          rootMargin: "0px 0px -50px 0px",
         };
 
         const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
+          entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.style.opacity = '1';
-              entry.target.style.transform = 'translateY(0)';
+              entry.target.style.opacity = "1";
+              entry.target.style.transform = "translateY(0)";
             }
           });
         }, observerOptions);
 
-        document.querySelectorAll('.feature-card, .step-card, .faq-item').forEach(el => {
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(20px)';
-          el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-          observer.observe(el);
-        });
+        document
+          .querySelectorAll(".feature-card, .step-card, .faq-item")
+          .forEach((el) => {
+            el.style.opacity = "0";
+            el.style.transform = "translateY(20px)";
+            el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+            observer.observe(el);
+          });
       });
     </script>
 
@@ -2053,7 +2694,9 @@
       <div class="toast" id="toast">
         <div class="toast-icon">🚀</div>
         <div class="toast-title" id="toastTitle">即将上线</div>
-        <div class="toast-message" id="toastMessage">iOS 版本正在审核中，敬请期待！</div>
+        <div class="toast-message" id="toastMessage">
+          iOS 版本正在审核中，敬请期待！
+        </div>
         <button class="toast-close" onclick="hideToast()">我知道了</button>
       </div>
     </div>
