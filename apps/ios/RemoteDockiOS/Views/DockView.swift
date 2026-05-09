@@ -7,6 +7,14 @@ struct DockView: View {
     @State private var isClipboardDrawerExpanded = true
     @State private var didResolveClipboardDrawerDrag = false
 
+    private var activeDockAppId: String? {
+        appModel.runningApps.activeAppId ?? appModel.dock.lastActivatedAppId
+    }
+
+    private func isDockAppActive(_ app: PinnedApp) -> Bool {
+        activeDockAppId == app.id
+    }
+
     var body: some View {
         PhonePageSurface {
             GeometryReader { proxy in
@@ -55,7 +63,7 @@ struct DockView: View {
                     } label: {
                         AppIconView(
                             title: app.displayName,
-                            isActive: appModel.dock.lastActivatedAppId == app.id,
+                            isActive: isDockAppActive(app),
                             image: appModel.iconImage(for: app)
                         )
                         .frame(width: iconSize, height: iconSize)
