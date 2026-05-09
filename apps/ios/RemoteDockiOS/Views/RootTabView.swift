@@ -7,15 +7,15 @@ struct RootTabView: View {
     @EnvironmentObject private var appModel: RemoteDockClientStore
     @State private var selectedTab: RemoteDockTab = .dock
 
+    private let landscapeContentLeadingInset: CGFloat = 52
+    private let landscapeTabBarLeadingOutset: CGFloat = 2
+    private let portraitSwipeMinimumDistance: CGFloat = 50
+
     var body: some View {
         GeometryReader { proxy in
-            if proxy.size.width > proxy.size.height {
-                LandscapeTabLayout(selectedTab: $selectedTab) {
-                    selectedContent
-                }
-            } else {
-                portraitTabs
-            }
+            let isLandscape = proxy.size.width > proxy.size.height
+
+            adaptiveTabLayout(isLandscape: isLandscape)
         }
         .overlay {
             ZStack {
@@ -47,31 +47,50 @@ struct RootTabView: View {
         } set: { _ in }
     }
 
-    private var portraitTabs: some View {
-        ZStack {
+    private func adaptiveTabLayout(isLandscape: Bool) -> some View {
+        ZStack(alignment: .leading) {
             PhonePageBackground()
 
-            TabView(selection: $selectedTab) {
-                DockView()
-                    .tag(RemoteDockTab.dock)
+            selectedContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.leading, isLandscape ? landscapeContentLeadingInset : 0)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 36, coordinateSpace: .local)
+                        .onEnded { value in
+                            guard !isLandscape else { return }
+                            selectAdjacentTab(for: value.translation)
+                        }
+                )
 
-                RunningAppsView()
-                    .tag(RemoteDockTab.running)
-
-                ClipboardView()
-                    .tag(RemoteDockTab.clipboard)
-
-                SettingsView()
-                    .tag(RemoteDockTab.settings)
+            if isLandscape {
+                LandscapeSystemTabBar(selectedTab: $selectedTab)
+                    .offset(x: -landscapeTabBarLeadingOutset)
+                    .zIndex(1)
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
         }
+        .background(PhoneTheme.canvas)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            PortraitSystemTabBar(selectedTab: $selectedTab)
-                .padding(.horizontal, 18)
-                .padding(.top, 8)
-                .padding(.bottom, 9)
-                .background(Color.clear)
+            if !isLandscape {
+                PortraitSystemTabBar(selectedTab: $selectedTab)
+                    .padding(.horizontal, 18)
+                    .padding(.top, 8)
+                    .padding(.bottom, 9)
+                    .background(Color.clear)
+            }
+        }
+    }
+
+    private func selectAdjacentTab(for translation: CGSize) {
+        let horizontalDistance = abs(translation.width)
+        guard horizontalDistance >= portraitSwipeMinimumDistance else { return }
+        guard horizontalDistance > abs(translation.height) * 1.35 else { return }
+        guard let currentIndex = RemoteDockTab.allCases.firstIndex(of: selectedTab) else { return }
+
+        let targetIndex = currentIndex + (translation.width < 0 ? 1 : -1)
+        guard RemoteDockTab.allCases.indices.contains(targetIndex) else { return }
+
+        withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+            selectedTab = RemoteDockTab.allCases[targetIndex]
         }
     }
 
@@ -231,30 +250,12 @@ private struct PortraitTabBarItem: View {
     }
 }
 
-private struct LandscapeTabLayout<Content: View>: View {
+private struct LandscapeSystemTabBar: View {
     @Binding var selectedTab: RemoteDockTab
-    @ViewBuilder var content: () -> Content
 
     private let tabBarWidth: CGFloat = 54
-    private let contentLeadingInset: CGFloat = 52
-    private let leadingOutset: CGFloat = 2
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            PhonePageBackground()
-
-            content()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.leading, contentLeadingInset)
-
-            tabBar
-                .offset(x: -leadingOutset)
-                .zIndex(1)
-        }
-        .background(PhoneTheme.canvas)
-    }
-
-    private var tabBar: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
 

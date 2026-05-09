@@ -7,6 +7,8 @@ struct SettingsView: View {
     @State private var didClearClipboardHistory = false
     @State private var clearClipboardFeedbackTask: Task<Void, Never>?
 
+    private let bottomScrollInset: CGFloat = 88
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -125,6 +127,10 @@ struct SettingsView: View {
                     .scrollContentBackground(.hidden)
                     .listStyle(.insetGrouped)
                     .background(Color.clear)
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        Color.clear
+                            .frame(height: bottomScrollInset)
+                    }
                 }
             }
             .navigationBarHidden(true)
