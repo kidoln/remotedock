@@ -117,6 +117,14 @@ final class RemoteDockClientStore: ObservableObject {
             return false
         }
 
+        if shouldAttemptSavedPairingCodeReconnect {
+            if case .failed = discovery.connectionState {
+                return true
+            }
+
+            return false
+        }
+
         return true
     }
 
@@ -875,7 +883,9 @@ final class RemoteDockClientStore: ObservableObject {
              (.reconnecting, .idle),
              (.reconnecting, .discovering),
              (.connected, .idle),
-             (.connected, .discovering):
+             (.connected, .discovering),
+             (.connected, .connecting),
+             (.connected, .reconnecting):
             return false
         default:
             return true
