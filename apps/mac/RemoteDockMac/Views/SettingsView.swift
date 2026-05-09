@@ -70,7 +70,7 @@ struct SettingsView: View {
                 .padding(.bottom, 12)
         }
         .padding(.horizontal, 10)
-        .frame(width: 150)
+        .frame(width: 180)
         .background(SettingsPalette.sidebar)
     }
 

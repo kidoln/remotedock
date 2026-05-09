@@ -1,7 +1,23 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
+    var appModel: MacAppModel!
+    private var statusItemController: StatusItemController?
+    var clipboardHistoryPanelController: ClipboardHistoryPanelController?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // 初始化 appModel
+        appModel = MacAppModel()
+        statusItemController = StatusItemController(appModel: appModel)
+        clipboardHistoryPanelController = ClipboardHistoryPanelController(appModel: appModel)
+
+        // 应用启动时显示设置窗口
+        NSApplication.shared.setActivationPolicy(.regular)
+        statusItemController?.showSettingsWindow()
+    }
+
     func applicationDidBecomeActive(_ notification: Notification) {
     }
 
@@ -12,23 +28,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct RemoteDockMacApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var appModel: MacAppModel
-    @StateObject private var statusItemController: StatusItemController
-    private let clipboardHistoryPanelController: ClipboardHistoryPanelController
-
-    init() {
-        let appModel = MacAppModel()
-        _appModel = StateObject(wrappedValue: appModel)
-        _statusItemController = StateObject(wrappedValue: StatusItemController(appModel: appModel))
-        clipboardHistoryPanelController = ClipboardHistoryPanelController(appModel: appModel)
-    }
 
     var body: some Scene {
         Settings {
-            SettingsView()
-                .environmentObject(appModel)
-                .environment(\.locale, Locale(identifier: appModel.language.localeIdentifier))
-                .frame(minWidth: 760, minHeight: 500)
+            if let appModel = appDelegate.appModel {
+                SettingsView()
+                    .environmentObject(appModel)
+                    .environment(\.locale, Locale(identifier: appModel.language.localeIdentifier))
+                    .frame(minWidth: 760, minHeight: 500)
+            }
         }
     }
 }
@@ -103,7 +111,7 @@ private final class StatusItemController: NSObject, ObservableObject {
         }
     }
 
-    private func showSettingsWindow() {
+    func showSettingsWindow() {
         if settingsWindowController == nil {
             settingsWindowController = SettingsWindowController(appModel: appModel) {
                 NSApplication.shared.setActivationPolicy(.accessory)
