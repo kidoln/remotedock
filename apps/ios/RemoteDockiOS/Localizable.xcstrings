@@ -309,8 +309,8 @@
     },
     "ios.versionMismatch.macOutdated.message" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The iPhone app is newer than the Mac app. Update the Mac app to get the complete Remote Dock experience." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机端版本高于桌面端版本。请升级 Mac 端应用，以获取完整的 Remote Dock 使用体验。" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The iPhone app is newer than the Mac app. Download the latest Mac version from remotedock.app to get the complete experience." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手机端版本高于桌面端版本。请前往 remotedock.app 下载最新 Mac 版本，以获取完整使用体验。" } }
       }
     },
     "ios.versionMismatch.macOutdated.title" : {
@@ -323,6 +323,12 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Mac" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Mac 端" } }
+      }
+    },
+    "ios.versionMismatch.downloadMacApp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Go to Download" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "前往下载" } }
       }
     },
     "ios.versionMismatch.phoneOutdated.message" : {

@@ -1000,13 +1000,31 @@ private struct AboutSettingsPane: View {
                     .fill(SettingsPalette.panel)
             }
 
-            Button {
-                appModel.regeneratePairingCode()
-            } label: {
-                Label(appModel.language.localizedString("settings.about.regeneratePairingCode"), systemImage: "arrow.triangle.2.circlepath")
+            // 更新状态提示卡片
+            updateStatusMessageCard
+                .padding(20)
+                .background {
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(SettingsPalette.panel)
+                }
+
+            // 按钮行
+            HStack(spacing: 12) {
+                Button {
+                    appModel.checkForUpdates()
+                } label: {
+                    Label(appModel.language.localizedString("settings.about.checkForUpdates"), systemImage: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    appModel.regeneratePairingCode()
+                } label: {
+                    Label(appModel.language.localizedString("settings.about.regeneratePairingCode"), systemImage: "arrow.triangle.2.circlepath")
+                }
+                .buttonStyle(.bordered)
+                .help(appModel.language.localizedString("settings.about.regeneratePairingCodeHelp"))
             }
-            .buttonStyle(.bordered)
-            .help(appModel.language.localizedString("settings.about.regeneratePairingCodeHelp"))
 
             Spacer()
         }
@@ -1053,6 +1071,128 @@ private struct AboutSettingsPane: View {
 
         return false
     }
+
+    @ViewBuilder
+    private var updateStatusMessageCard: some View {
+        switch appModel.updateState {
+        case .idle:
+            // 显示上次检查时间（如果有）
+            if let lastChecked = appModel.lastUpdateCheckDate {
+                HStack(spacing: 8) {
+                    Image(systemName: "clock")
+                        .foregroundStyle(SettingsPalette.secondaryText)
+                        .font(.caption)
+                    Text(appModel.language.formattedLocalizedString("settings.about.lastChecked", DateFormatter.localizedString(from: lastChecked, dateStyle: .short, timeStyle: .short)))
+                        .font(.caption)
+                        .foregroundStyle(SettingsPalette.secondaryText)
+                }
+            } else {
+                HStack(spacing: 8) {
+                    Image(systemName: "clock")
+                        .foregroundStyle(SettingsPalette.secondaryText)
+                        .font(.caption)
+                    Text(appModel.language.localizedString("settings.about.neverChecked"))
+                        .font(.caption)
+                        .foregroundStyle(SettingsPalette.secondaryText)
+                }
+            }
+
+        case .checking:
+            HStack(spacing: 8) {
+                ProgressView()
+                    .controlSize(.small)
+                Text(appModel.language.localizedString("settings.about.checkingForUpdates"))
+                    .foregroundStyle(SettingsPalette.secondaryText)
+                    .font(.subheadline)
+            }
+
+        case let .updateAvailable(version, _, _, _):
+            HStack(spacing: 8) {
+                Image(systemName: "badge.arrow.up.fill")
+                    .foregroundStyle(.green)
+                Text(appModel.language.formattedLocalizedString("settings.about.updateAvailable", version))
+                    .font(.subheadline)
+                    .foregroundStyle(SettingsPalette.primaryText)
+
+                Spacer()
+
+                Button {
+                    appModel.downloadUpdate()
+                } label: {
+                    Text(appModel.language.localizedString("settings.about.downloadAndInstall"))
+                        .font(.caption)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button {
+                    appModel.skipCurrentUpdate()
+                } label: {
+                    Text(appModel.language.localizedString("settings.about.skipVersion"))
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+            }
+
+        case let .downloading(progress):
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.down.circle")
+                        .foregroundStyle(SettingsPalette.accentColor)
+                    Text(appModel.language.localizedString("settings.about.downloading"))
+                        .font(.subheadline)
+                        .foregroundStyle(SettingsPalette.primaryText)
+                    Spacer()
+                    Text(String(format: "%.0f%%", progress * 100))
+                        .font(.caption)
+                        .foregroundStyle(SettingsPalette.secondaryText)
+                }
+                ProgressView(value: progress)
+                    .progressViewStyle(.linear)
+            }
+
+        case .readyToInstall:
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.up.circle.fill")
+                    .foregroundStyle(.green)
+                Text(appModel.language.localizedString("settings.about.installAndRelaunch"))
+                    .font(.subheadline)
+                    .foregroundStyle(SettingsPalette.primaryText)
+
+                Spacer()
+
+                Button {
+                    appModel.installUpdate()
+                } label: {
+                    Text(appModel.language.localizedString("settings.about.installAndRelaunch"))
+                        .font(.caption)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+
+        case let .upToDate(lastChecked):
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                Text(appModel.language.localizedString("settings.about.upToDate"))
+                    .font(.subheadline)
+                    .foregroundStyle(SettingsPalette.primaryText)
+                Text("·")
+                    .foregroundStyle(SettingsPalette.secondaryText)
+                Text(appModel.language.formattedLocalizedString("settings.about.lastChecked", DateFormatter.localizedString(from: lastChecked, dateStyle: .short, timeStyle: .short)))
+                    .font(.caption)
+                    .foregroundStyle(SettingsPalette.secondaryText)
+            }
+
+        case let .error(message):
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(SettingsPalette.primaryText)
+            }
+        }
+    }
 }
 
 private struct SettingsInfoRow: View {
@@ -1091,6 +1231,7 @@ private enum SettingsPalette {
     static let panel = Color(nsColor: NSColor(calibratedRed: 0.11, green: 0.11, blue: 0.12, alpha: 1))
     static let border = Color.white.opacity(0.12)
     static let accent = Color(nsColor: NSColor.systemBlue)
+    static let accentColor = Color(nsColor: NSColor.systemBlue)
     static let primaryText = Color.white.opacity(0.88)
     static let secondaryText = Color.white.opacity(0.72)
     static let mutedText = Color.white.opacity(0.46)

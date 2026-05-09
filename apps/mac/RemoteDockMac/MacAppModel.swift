@@ -27,7 +27,16 @@ final class MacAppModel: ObservableObject {
     @Published private(set) var peerProtocolIsCompatible = true
     @Published private(set) var language: RemoteDockLanguage
     var macAppVersion: String { Bundle.main.remoteDockAppVersionDisplayText }
+    var lastUpdateCheckDate: Date? {
+        switch updateState {
+        case let .upToDate(date):
+            return date
+        default:
+            return appUpdateService.lastCheckDate
+        }
+    }
     @Published var clipboardSyncEnabled = true
+    @Published private(set) var updateState: AppUpdateState = .idle
 
     var clipboardHistoryShortcutDidChange: ((ClipboardHistoryShortcut) -> Bool)?
 
@@ -43,6 +52,7 @@ final class MacAppModel: ObservableObject {
     private let appIconAssetService = AppIconAssetService()
     private let commandExecutor = MacCommandExecutor()
     private let snapshotPublisher = SnapshotPublisher()
+    private let appUpdateService = AppUpdateService()
 
     private var refreshTask: Task<Void, Never>?
 
@@ -66,13 +76,24 @@ final class MacAppModel: ObservableObject {
         pinnedApps = pinnedAppsService.loadPinnedApps()
         refresh()
         start()
+
+        // 监听更新服务状态变化
+        Task { [weak self, weak appUpdateService] in
+            guard let self, let appUpdateService else { return }
+            for await newState in appUpdateService.$state.values {
+                self.updateState = newState
+            }
+        }
     }
 
     deinit {
         refreshTask?.cancel()
+        // 无法在 deinit 中调用 async 方法，backgroundCheckTask 会在 AppUpdateService dealloc 时自动取消
     }
 
     func start() {
+        appUpdateService.language = language
+
         refreshTask?.cancel()
         refreshTask = Task { [weak self] in
             guard let self else { return }
@@ -101,6 +122,8 @@ final class MacAppModel: ObservableObject {
                 }
             }
         }
+
+        appUpdateService.startPeriodicCheck()
     }
 
     func refresh(publishingRunningAppsChanges: Bool = false) {
@@ -235,6 +258,7 @@ final class MacAppModel: ObservableObject {
         }
 
         self.language = language
+        appUpdateService.language = language
         languageSettingsService.save(language)
         Task {
             await publishHello()
@@ -415,6 +439,28 @@ final class MacAppModel: ObservableObject {
 
     private static func generatePairingCode() -> String {
         String(format: "%04d", Int.random(in: 0...9999))
+    }
+
+    // MARK: - Update Management
+
+    func checkForUpdates() {
+        Task {
+            await appUpdateService.checkForUpdates()
+        }
+    }
+
+    func downloadUpdate() {
+        Task {
+            await appUpdateService.downloadUpdate()
+        }
+    }
+
+    func installUpdate() {
+        appUpdateService.installAndRelaunch()
+    }
+
+    func skipCurrentUpdate() {
+        appUpdateService.skipCurrentVersion()
     }
 }
 

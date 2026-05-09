@@ -838,29 +838,78 @@ private struct VersionMismatchNoticeOverlay: View {
 
                 versionComparison
 
-                Button(action: onDismiss) {
-                    Text(language.localizedString("action.gotIt"))
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundStyle(PhoneTheme.canvas)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background {
-                            Capsule(style: .continuous)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.white.opacity(0.98),
-                                            PhoneTheme.accent.opacity(0.94)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.38), radius: 13, x: 0, y: 5)
+                // 按钮区域
+                if notice.mismatch == .localNewer {
+                    // Mac 版本过旧时，显示两个按钮
+                    HStack(spacing: 10) {
+                        Button(action: onDismiss) {
+                            Text(language.localizedString("action.gotIt"))
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.74))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background {
+                                    Capsule(style: .continuous)
+                                        .fill(Color.white.opacity(0.12))
+                                }
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(language.localizedString("action.gotIt"))
+
+                        Button(action: {
+                            if let url = URL(string: "https://kidoln.github.io/remotedock/") {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            Text(language.localizedString("ios.versionMismatch.downloadMacApp"))
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundStyle(PhoneTheme.canvas)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background {
+                                    Capsule(style: .continuous)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color.white.opacity(0.98),
+                                                    PhoneTheme.accent.opacity(0.94)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.38), radius: 13, x: 0, y: 5)
+                                }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(language.localizedString("ios.versionMismatch.downloadMacApp"))
+                    }
+                } else {
+                    // iPhone 版本过旧时，只显示一个按钮
+                    Button(action: onDismiss) {
+                        Text(language.localizedString("action.gotIt"))
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundStyle(PhoneTheme.canvas)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background {
+                                Capsule(style: .continuous)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.98),
+                                                PhoneTheme.accent.opacity(0.94)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: PhoneTheme.iconWarmGlow.opacity(0.38), radius: 13, x: 0, y: 5)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(language.localizedString("action.gotIt"))
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(language.localizedString("action.gotIt"))
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 26)

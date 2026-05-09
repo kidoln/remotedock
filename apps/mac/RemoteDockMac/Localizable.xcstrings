@@ -486,6 +486,168 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Unauthorized" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未授权" } }
       }
+    },
+    "settings.about.neverChecked" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not yet checked" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "尚未检查" } }
+      }
+    },
+    "settings.about.checkForUpdates" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "检查更新" } }
+      }
+    },
+    "settings.about.checkingForUpdates" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking for updates..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在检查更新..." } }
+      }
+    },
+    "settings.about.upToDate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You're up to date" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已是最新版本" } }
+      }
+    },
+    "settings.about.updateAvailable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@ is available" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "有新版本 %@" } }
+      }
+    },
+    "settings.about.downloadAndInstall" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download and Install" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载并安装" } }
+      }
+    },
+    "settings.about.downloading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloading update..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在下载更新..." } }
+      }
+    },
+    "settings.about.downloadProgress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloading... %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在下载... %@" } }
+      }
+    },
+    "settings.about.installAndRelaunch" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Install and Relaunch" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装并重启" } }
+      }
+    },
+    "settings.about.skipVersion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip This Version" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过此版本" } }
+      }
+    },
+    "settings.about.updateError" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update check failed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新检查失败" } }
+      }
+    },
+    "settings.about.retryUpdate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retry" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重试" } }
+      }
+    },
+    "settings.about.releaseNotes" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What's New" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新内容" } }
+      }
+    },
+    "settings.about.lastChecked" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Last checked: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "上次检查: %@" } }
+      }
+    },
+    "update.error.invalidURL" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid update URL" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新 URL 无效" } }
+      }
+    },
+    "update.error.invalidResponse" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch update information" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "获取更新信息失败" } }
+      }
+    },
+    "update.error.unzipFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to extract update package" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "解压更新包失败" } }
+      }
+    },
+    "update.error.appNotFound" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Application not found in update package" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新包中未找到应用" } }
+      }
+    },
+    "update.error.noMacAsset" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No macOS package found in release" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未找到适用于 macOS 的安装包" } }
+      }
+    },
+    "update.error.invalidAppPackage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid update package" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新包无效" } }
+      }
+    },
+    "update.error.downloadFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download failed: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载失败：%@" } }
+      }
+    },
+    "update.error.installFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Installation failed: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装失败：%@" } }
+      }
+    },
+    "update.error.timeout" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Request timed out" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请求超时" } }
+      }
+    },
+    "update.error.connectionFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cannot connect to server" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法连接到服务器" } }
+      }
+    },
+    "update.error.noConnection" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No internet connection" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无网络连接" } }
+      }
+    },
+    "update.error.fetchFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to fetch updates: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "获取更新失败：%@" } }
+      }
+    },
+    "update.error.unknown" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update check failed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新检查失败" } }
+      }
     }
   },
   "version" : "1.0"
