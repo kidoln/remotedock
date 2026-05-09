@@ -70,14 +70,17 @@
         text-align: center;
         min-width: 300px;
         opacity: 0;
+        visibility: hidden;
         transform: scale(0.9);
         transition: all 0.3s ease;
-        pointer-events: auto;
+        pointer-events: none;
       }
 
       .toast.show {
         opacity: 1;
+        visibility: visible;
         transform: scale(1);
+        pointer-events: auto;
       }
 
       .toast-icon {
@@ -1683,7 +1686,6 @@
             <a
               href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
               class="btn btn-primary"
-              target="_blank"
               rel="noopener noreferrer"
             >
               <span>⬇️</span> 下载 Mac 版本
@@ -1966,7 +1968,6 @@
               <a
                 href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
                 class="btn btn-primary"
-                target="_blank"
                 rel="noopener noreferrer"
               >
                 直接下载 ZIP
@@ -2090,7 +2091,6 @@
             <a
               href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
               class="btn btn-primary"
-              target="_blank"
               rel="noopener noreferrer"
             >
               <span>⬇️</span> Download for Mac
@@ -2393,7 +2393,6 @@
               <a
                 href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
                 class="btn btn-primary"
-                target="_blank"
                 rel="noopener noreferrer"
               >
                 Download ZIP
