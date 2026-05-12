@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="google-site-verification" content="QZxeuwJWSPwxLWcCJvSuetemQ0yajgNSKByyAlC5Rmk" />	
+    <meta
+      name="google-site-verification"
+      content="QZxeuwJWSPwxLWcCJvSuetemQ0yajgNSKByyAlC5Rmk"
+    />
     <title>Remote Dock - 让 iPhone 成为 Mac 的完美控制中心</title>
     <link
       rel="icon"
@@ -1685,9 +1688,9 @@
           </p>
           <div class="hero-buttons">
             <a
-              href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+              href="javascript:void(0)"
               class="btn btn-primary"
-              rel="noopener noreferrer"
+              onclick="showMacStoreNotice('cn')"
             >
               <span>⬇️</span> 下载 Mac 版本
             </a>
@@ -1967,9 +1970,9 @@
             <p>Mac 版本不在 Mac App Store 分发，请从 GitHub 下载最新版本</p>
             <div class="download-buttons">
               <a
-                href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+                href="javascript:void(0)"
                 class="btn btn-primary"
-                rel="noopener noreferrer"
+                onclick="showMacStoreNotice('cn')"
               >
                 直接下载 ZIP
               </a>
@@ -2090,9 +2093,9 @@
           </p>
           <div class="hero-buttons">
             <a
-              href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+              href="javascript:void(0)"
               class="btn btn-primary"
-              rel="noopener noreferrer"
+              onclick="showMacStoreNotice('en')"
             >
               <span>⬇️</span> Download for Mac
             </a>
@@ -2392,9 +2395,9 @@
             </p>
             <div class="download-buttons">
               <a
-                href="https://github.com/kidoln/remotedock/releases/latest/download/RemoteDockMac-latest.zip"
+                href="javascript:void(0)"
                 class="btn btn-primary"
-                rel="noopener noreferrer"
+                onclick="showMacStoreNotice('en')"
               >
                 Download ZIP
               </a>
@@ -2577,6 +2580,28 @@
           title.textContent = "Coming Soon";
           message.textContent =
             "iOS version is currently under review. Stay tuned!";
+        }
+
+        overlay.classList.add("show");
+        toast.classList.add("show");
+
+        // 点击遮罩层关闭
+        overlay.onclick = hideToast;
+      }
+
+      function showMacStoreNotice(lang) {
+        const overlay = document.getElementById("toastOverlay");
+        const toast = document.getElementById("toast");
+        const title = document.getElementById("toastTitle");
+        const message = document.getElementById("toastMessage");
+
+        if (lang === "cn") {
+          title.textContent = "上架中";
+          message.textContent = "Mac 版本正在上架审核中，敬请期待！";
+        } else {
+          title.textContent = "Coming Soon";
+          message.textContent =
+            "Mac version is currently under review. Stay tuned!";
         }
 
         overlay.classList.add("show");
