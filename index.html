@@ -408,6 +408,9 @@
       }
 
       .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
         font-size: 24px;
         font-weight: 700;
         background: var(--gradient-accent);
@@ -415,6 +418,13 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
         filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.3));
+      }
+
+      .nav-logo img {
+        width: 32px;
+        height: 32px;
+        -webkit-text-fill-color: initial;
+        filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.4));
       }
 
       .nav-links {
@@ -1654,7 +1664,10 @@
 
     <nav class="nav">
       <div class="nav-content">
-        <div class="nav-logo">Remote Dock</div>
+        <div class="nav-logo">
+          <img src="images/favicon.png" alt="Remote Dock Logo" />
+          <span>Remote Dock</span>
+        </div>
         <div class="nav-links">
           <a href="#features" class="nav-link">功能</a>
           <a href="#download" class="nav-link">下载</a>
